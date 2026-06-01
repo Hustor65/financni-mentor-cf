@@ -1577,6 +1577,71 @@ body::after {
 .topics-grid > .reveal { display: flex; }
 .topics-grid > .reveal > .topic-card { width: 100%; }
 
+/* ── Teorie „Číst více" — progresivní odhalení delšího výkladu ──
+   Animace přes grid-template-rows (0fr → 1fr): plynulé, napříč prohlížeči,
+   bez měření výšky v JS. Panel zůstává v DOM, jen se vizuálně sbalí. */
+.theory-more {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theory-more.is-open {
+  grid-template-rows: 1fr;
+}
+/* overflow:hidden patří na vnitřní prvek; padding/odsazení taky (ne na grid wrapper) */
+.theory-more__inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.theory-more.is-open .theory-more__inner {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.theory-more__p {
+  color: #9aa9bd;                 /* o chlup světlejší než náhled — čte se jako pokračování */
+  font-size: 0.88rem;
+  line-height: 1.7;
+  max-width: 64ch;                /* čitelná délka řádku */
+  margin: 0 0 0.7rem;
+}
+.theory-more__p:last-child {
+  margin-bottom: 0;
+}
+
+/* Přepínací tlačítko — odlehčené, „link-like", v akcentové azurové */
+.theory-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  padding: 0.15rem 0;
+  background: none;
+  border: none;
+  color: #3ab5e0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+.theory-toggle:hover {
+  color: #5cc6ec;
+}
+.theory-toggle:focus-visible {
+  outline: 2px solid rgba(58, 181, 224, 0.8);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+/* Šipka rotuje o 180° při rozbalení */
+.theory-toggle__chevron {
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theory-toggle__chevron.is-open {
+  transform: rotate(180deg);
+}
+
 /* Odznaky za pokrok */
 .badges-row {
   display: grid;
@@ -1682,4 +1747,6 @@ body::after {
   .chat-dialog[data-closing],
   .chat-dialog[data-closing]::backdrop { animation: none; }
   .composer-icon-btn:hover { transform: none; }
+  .theory-more { transition: none; }
+  .theory-toggle__chevron { transition: none; }
 }

@@ -29,6 +29,8 @@ interface IconProps {
   strokeWidth?: number;
   className?: string;
   style?: React.CSSProperties;
+  /** Dekorativní ikona → skryje se před čtečkami obrazovky. */
+  'aria-hidden'?: boolean;
 }
 
 export const Icon: React.FC<IconProps> = ({
@@ -38,6 +40,7 @@ export const Icon: React.FC<IconProps> = ({
   strokeWidth,
   className,
   style,
+  'aria-hidden': ariaHidden,
 }) => {
   const html = useMemo(() => {
     let svg = ICONS[name];
@@ -58,6 +61,7 @@ export const Icon: React.FC<IconProps> = ({
   return (
     <span
       className={className}
+      aria-hidden={ariaHidden}
       style={{
         display: 'inline-flex',
         alignItems: 'center',

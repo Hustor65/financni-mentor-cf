@@ -4,6 +4,7 @@ import { TOPICS, INFLATION_QUIZ, PENSION_QUIZ } from '../../data/topics';
 import type { QuizQuestion } from '../../data/topics';
 import { TOPIC_THEORY, TOPIC_TOOL_LABEL } from '../../data/topicContent';
 import { Quiz } from './Quiz';
+import { TheoryItem } from './TheoryItem';
 import { Icon } from '../Icon';
 import { CompoundInterestCalc } from '../calculators/CompoundInterestCalc';
 import { GoalCalc } from '../calculators/GoalCalc';
@@ -93,14 +94,7 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
           <SectionLabel icon="book-open" label="Teorie" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
             {theory.map((b, i) => (
-              <div key={i} className="glass-panel reveal" style={{ padding: '1rem 1.3rem', ['--reveal-i' as string]: i }}>
-                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#E2E8F0', fontSize: '0.95rem', margin: '0 0 0.3rem' }}>
-                  {b.h}
-                </p>
-                <p style={{ color: '#94A3B8', fontSize: '0.88rem', lineHeight: 1.75, margin: 0 }}>
-                  {b.p}
-                </p>
-              </div>
+              <TheoryItem key={i} card={b} index={i} />
             ))}
           </div>
         </div>
