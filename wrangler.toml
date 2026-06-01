@@ -1,0 +1,12 @@
+name = "financni-mentor-cf"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "dist"
+
+# Pages nasazuje statiku z dist/ ; funkce z /functions jdou na /api/* automaticky.
+# Deploy: wrangler pages deploy --project-name financni-mentor-cf --branch main
+
+[vars]
+# Non-secret environment variables go here
+
+# Secret variables (set via dashboard or CLI):
+# wrangler pages secret put GEMINI_API_KEY

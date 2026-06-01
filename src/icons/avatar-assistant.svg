@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bgAss" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3ab5e0"/>
+      <stop offset="100%" stop-color="#1d6f8c"/>
+    </linearGradient>
+    <linearGradient id="strokeAss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e6f7ff"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="64" height="64" rx="32" fill="url(#bgAss)"/>
+  <rect x="0" y="0" width="64" height="64" rx="32" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <g fill="none" stroke="url(#strokeAss)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="16 40 26 30 33 36 46 22"/>
+    <polyline points="40 22 46 22 46 28"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="46" cy="46" r="2.2"/>
+    <path d="M22 18 L23.2 21.2 L26.4 22.4 L23.2 23.6 L22 26.8 L20.8 23.6 L17.6 22.4 L20.8 21.2 Z" opacity="0.9"/>
+  </g>
+</svg>

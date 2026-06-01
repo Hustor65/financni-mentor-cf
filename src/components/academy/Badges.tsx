@@ -1,0 +1,34 @@
+import { Icon } from '../Icon';
+
+interface Milestone {
+  need: number;
+  icon: string;
+  label: string;
+  desc: string;
+}
+
+const MILESTONES: Milestone[] = [
+  { need: 1, icon: 'sparkles', label: 'První krok', desc: 'První téma za tebou' },
+  { need: 3, icon: 'target', label: 'Základy zvládnuty', desc: '3 témata hotová' },
+  { need: 6, icon: 'graduation-cap', label: 'Finanční gramotnost', desc: 'Všechna témata dokončena!' },
+];
+
+/** Odznaky za pokrok ve studiu — vizuální milníky napojené na dokončená témata. */
+export const Badges: React.FC<{ completed: number }> = ({ completed }) => (
+  <div className="badges-row">
+    {MILESTONES.map(m => {
+      const earned = completed >= m.need;
+      return (
+        <div key={m.need} className={`badge${earned ? ' badge--earned' : ''}`}>
+          <span className="badge__icon">
+            <Icon name={m.icon} size={22} color={earned ? 'var(--lg-green-500)' : '#475569'} />
+          </span>
+          <div>
+            <div className="badge__label">{m.label}</div>
+            <div className="badge__desc">{earned ? m.desc : `Zbývá ${m.need - completed} ${m.need - completed === 1 ? 'téma' : 'témata'}`}</div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
