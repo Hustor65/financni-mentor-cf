@@ -12,7 +12,13 @@ export default defineConfig({
         manualChunks(id: string) {
           if (!id.includes('node_modules')) return
           if (id.includes('echarts')) return 'vendor-echarts'
-          if (id.includes('/three') || id.includes('@react-three')) return 'vendor-three'
+          if (
+            id.includes('/three') ||
+            id.includes('@react-three') ||
+            id.includes('three-globe') ||
+            id.includes('r3f-globe')
+          )
+            return 'vendor-three'
         },
       },
     },

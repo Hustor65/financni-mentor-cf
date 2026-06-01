@@ -407,6 +407,9 @@ body::after {
   inset: 0;
   z-index: 1;
 }
+/* glóbus jde chytit a táhnout (drag rotace) — kurzor jako affordance */
+.hero-fs-scene canvas { cursor: grab; }
+.hero-fs-scene canvas:active { cursor: grabbing; }
 
 .hero-fs-grid {
   position: absolute;
@@ -444,6 +447,8 @@ body::after {
   text-align: center;
   padding: 2rem;
   pointer-events: none;
+  /* hero (titulek + CTA) posunutý trochu nahoru, ladí s planetou výš */
+  transform: translateY(-6vh);
 }
 
 .hero-fs-eyebrow {
