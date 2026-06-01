@@ -1,13 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ChatMessage } from './ChatMessage';
-import { TypingIndicator } from './TypingIndicator';
+import { ChatPanel, type Message } from './ChatPanel';
 import { Icon } from '../Icon';
 import { sendChatMessage } from '../../utils/api';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
 
 interface ChatInterfaceProps {
   onMessageSent?: () => void;
@@ -31,13 +25,29 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
   const [messages, setMessages] = useState<Message[]>([WELCOME]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Inline panel a fullscreen panel mají vlastní <textarea>/kotvu — focus a
+  // auto-scroll musí směřovat na ten právě viditelný.
+  const inlineInputRef = useRef<HTMLTextAreaElement>(null);
+  const fsInputRef = useRef<HTMLTextAreaElement>(null);
+  const inlineEndRef = useRef<HTMLDivElement>(null);
+  const fsEndRef = useRef<HTMLDivElement>(null);
+
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+
+  // focus na <textarea> právě aktivního panelu
+  const focusActiveInput = useCallback(() => {
+    const el = isFullscreen ? fsInputRef.current : inlineInputRef.current;
+    el?.focus();
+  }, [isFullscreen]);
 
   const scrollToBottom = useCallback(() => {
+    const end = isFullscreen ? fsEndRef.current : inlineEndRef.current;
     // block: 'nearest' → scrolluje jen pokud konec není vidět, nevytáhne celou stránku
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, []);
+    end?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [isFullscreen]);
 
   // Nescrollovat při prvním vykreslení (uvítací zpráva) — jinak by se stránka
   // vytáhla dolů k chatu a uživatel by hero animaci vůbec neviděl.
@@ -76,10 +86,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
         ]);
       } finally {
         setIsLoading(false);
-        inputRef.current?.focus();
+        focusActiveInput();
       }
     },
-    [isLoading, messages, onMessageSent],
+    [isLoading, messages, onMessageSent, focusActiveInput],
   );
 
   // předvyplnění dotazu z detailu tématu (kontextový chat) — uživatel zkontroluje a odešle
@@ -88,12 +98,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
       // legitimní sync: předvyplnění inputu při změně external prop z detailu tématu
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setInput(initialPrompt);
-      inputRef.current?.focus();
+      focusActiveInput();
     }
-  }, [initialPrompt]);
+  }, [initialPrompt, focusActiveInput]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    // !isComposing → neodesílat uprostřed IME kompozice (diakritika, asijské jazyky)
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSend(input);
     }
@@ -104,6 +115,72 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     setMessages([WELCOME]);
     setInput('');
   };
+
+  // ── Fullscreen <dialog> ──
+  const openFullscreen = useCallback((trigger?: HTMLButtonElement | null) => {
+    triggerRef.current = trigger ?? null;
+    // scroll-lock přes overflow (NE position:fixed) → scrollY zůstane zachovaný,
+    // takže hero v pozadí se nepřepočítá na opacity 1 a neprobliká při zavírání/otvírání.
+    document.documentElement.style.overflow = 'hidden';
+    dialogRef.current?.showModal();
+    setIsFullscreen(true);
+  }, []);
+
+  const closeFullscreen = useCallback(() => {
+    // nech doběhnout zavírací animaci, pak dialog skutečně zavři
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    dialog.setAttribute('data-closing', '');
+    const finish = () => {
+      dialog.removeAttribute('data-closing');
+      dialog.close();
+    };
+    let done = false;
+    const onEnd = () => {
+      if (done) return;
+      done = true;
+      dialog.removeEventListener('animationend', onEnd);
+      finish();
+    };
+    dialog.addEventListener('animationend', onEnd);
+    // fallback, kdyby animationend nepřišel (reduced-motion apod.)
+    window.setTimeout(onEnd, 320);
+  }, []);
+
+  // úklid scroll-locku + návrat focusu při zavření (i přes ESC)
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const handleClose = () => {
+      setIsFullscreen(false);
+      // odemkni scroll (pozice zůstala zachovaná díky overflow-locku, není co obnovovat)
+      document.documentElement.style.overflow = '';
+      // vrať focus na spouštěcí tlačítko (preventScroll → ať .focus() nehne stránkou)
+      triggerRef.current?.focus({ preventScroll: true });
+    };
+
+    // nativní ESC vyvolá 'cancel' → spusť plynulé zavření (ne okamžité)
+    const handleCancel = (e: Event) => {
+      e.preventDefault();
+      closeFullscreen();
+    };
+
+    dialog.addEventListener('close', handleClose);
+    dialog.addEventListener('cancel', handleCancel);
+    return () => {
+      dialog.removeEventListener('close', handleClose);
+      dialog.removeEventListener('cancel', handleCancel);
+    };
+  }, [closeFullscreen]);
+
+  // po otevření fullscreenu zaměř jeho textarea
+  useEffect(() => {
+    if (isFullscreen) {
+      // počkej na vykreslení dialogu v top-layer
+      requestAnimationFrame(() => fsInputRef.current?.focus());
+    }
+  }, [isFullscreen]);
 
   return (
     <div className="chat-layout" id="chat-section">
@@ -135,55 +212,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           </div>
         </div>
 
-        {/* Chat okno */}
-        <div className="chat-messages" role="log" aria-label="Konverzace">
-          {messages.map((msg, i) => (
-            <ChatMessage key={i} role={msg.role} content={msg.content} />
-          ))}
-          {isLoading && <TypingIndicator />}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input */}
-        <div className="chat-input-container">
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
-            <textarea
-              ref={inputRef}
-              className="chat-input"
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Zadejte svůj finanční dotaz..."
-              rows={1}
-              disabled={isLoading}
-              aria-label="Napište zprávu"
-            />
-            <button
-              className="btn btn--primary"
-              onClick={() => handleSend(input)}
-              disabled={isLoading || !input.trim()}
-              style={{ flexShrink: 0, padding: '0.85rem 1.1rem' }}
-              aria-label="Odeslat"
-            >
-              <Icon name="arrow-right" size={18} />
-            </button>
-          </div>
-          <p
-            style={{
-              color: '#64748B',
-              fontSize: '0.72rem',
-              margin: '0.4rem 0 0',
-              textAlign: 'center',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.35rem',
-            }}
-          >
-            <Icon name="info" size={12} color="#64748B" />
-            Vzdělávací nástroj, ne investiční doporučení. AI se může mýlit — informace si ověřujte.
-          </p>
-        </div>
+        {/* Ucelený chat panel (zprávy + doku composer) — inline verze */}
+        <ChatPanel
+          messages={messages}
+          input={input}
+          isLoading={isLoading}
+          textareaRef={inlineInputRef}
+          messagesEndRef={inlineEndRef}
+          onInputChange={setInput}
+          onSend={handleSend}
+          onKeyDown={handleKeyDown}
+          isFullscreen={false}
+          onToggleFullscreen={trigger => openFullscreen(trigger)}
+        />
       </div>
 
       {/* ── PRAVÝ SLOUPEC: info panel ── */}
@@ -223,6 +264,41 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           Smazat historii
         </button>
       </aside>
+
+      {/* ── FULLSCREEN DIALOG (top-layer, nad vším) ── */}
+      <dialog ref={dialogRef} className="chat-dialog" aria-label="Chat s finančním mentorem">
+        {isFullscreen && (
+          <div className="chat-dialog__shell">
+            <div className="chat-dialog__bar">
+              <span className="chat-dialog__title">
+                <span className="chat-dialog__dot" />
+                Finanční mentor
+              </span>
+              <button
+                type="button"
+                className="composer-icon-btn chat-dialog__close"
+                onClick={closeFullscreen}
+                aria-label="Zavřít celou obrazovku"
+                title="Zavřít"
+              >
+                <Icon name="x" size={20} />
+              </button>
+            </div>
+            <ChatPanel
+              messages={messages}
+              input={input}
+              isLoading={isLoading}
+              textareaRef={fsInputRef}
+              messagesEndRef={fsEndRef}
+              onInputChange={setInput}
+              onSend={handleSend}
+              onKeyDown={handleKeyDown}
+              isFullscreen
+              onToggleFullscreen={closeFullscreen}
+            />
+          </div>
+        )}
+      </dialog>
     </div>
   );
 };
