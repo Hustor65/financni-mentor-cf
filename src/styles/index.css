@@ -311,6 +311,29 @@ body::after {
   margin-bottom: 0.5rem;
   transition: transform var(--transition-normal), filter var(--transition-normal);
 }
+
+/* ── KPI section heading — kompaktní nadpis nad řádkem statistik ──
+   Menší než velký .section-header (je to podpůrný řádek nahoře, ne plná
+   sekce). Padding přichází z .container → žádný vlastní. */
+.kpi-section {
+  margin-bottom: 0.9rem;
+}
+
+.kpi-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.4vw, 1.3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 0.3rem;
+}
+
+/* ikona laděná do akcentové cyan */
+.kpi-section-header .kpi-section-icon { color: #3ab5e0; }
+
 /* ═══════════════════════════════════════════
 /* ═══════════════════════════════════════════
    COSMIC HERO (fullscreen) — 1:1 port hero_3d_component (index.tsx PARENT_CSS)
