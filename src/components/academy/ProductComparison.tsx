@@ -10,9 +10,13 @@ interface Product {
 }
 
 // Ilustrativní přehled — obecné informace, ne investiční doporučení.
-const PRODUCTS: Product[] = [
+interface ProductRow extends Product {
+  featured?: boolean;
+}
+
+const PRODUCTS: ProductRow[] = [
   { name: 'Spořicí účet', liquidity: 'Vysoká — kdykoli', yield: '~1–4 % p.a.', tax: 'Daň 15 % z úroků', horizon: 'Krátkodobý', forWhom: 'Pohotovostní rezerva' },
-  { name: 'ETF (akcie)', liquidity: 'Vysoká — prodej během dní', yield: '~7 % p.a.*', tax: 'Po 3 letech držby osvobozeno', horizon: 'Dlouhodobý (5+ let)', forWhom: 'Růst majetku' },
+  { name: 'ETF (akcie)', liquidity: 'Vysoká — prodej během dní', yield: '~7 % p.a.*', tax: 'Po 3 letech držby osvobozeno', horizon: 'Dlouhodobý (5+ let)', forWhom: 'Růst majetku', featured: true },
   { name: 'Penzijní spoření', liquidity: 'Nízká — výběr až v 60', yield: '~2–5 % p.a.', tax: 'Příspěvek státu + daňový odpočet', horizon: 'Do důchodu', forWhom: 'Důchodová rezerva' },
   { name: 'DIP', liquidity: 'Nízká — 10 let a min. 60 let věku', yield: 'Dle zvoleného nástroje', tax: 'Odpočet až 48 000 Kč/rok', horizon: 'Dlouhodobý', forWhom: 'Daňová úspora + důchod' },
 ];
@@ -28,6 +32,7 @@ const COLS: { key: keyof Product; label: string }[] = [
 /** Přehledové srovnání hlavních typů produktů (ilustrativní, ne doporučení). */
 export const ProductComparison: React.FC = () => (
   <div>
+    <span className="eyebrow">Orientační srovnání</span>
     <p className="section-header" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
       <Icon name="scale" size={24} color="#3ab5e0" />
       Srovnání produktů
@@ -38,7 +43,11 @@ export const ProductComparison: React.FC = () => (
 
     <div className="compare-grid">
       {PRODUCTS.map(p => (
-        <div key={p.name} className="glass-panel glass-panel--sunken compare-card">
+        <div
+          key={p.name}
+          className={`glass-panel compare-card${p.featured ? ' compare-card--featured' : ' glass-panel--sunken'}`}
+        >
+          {p.featured && <span className="compare-card__tag">Nejčastější volba</span>}
           <div className="compare-card__name">{p.name}</div>
           <dl className="compare-card__list">
             {COLS.map(c => (
@@ -52,7 +61,7 @@ export const ProductComparison: React.FC = () => (
       ))}
     </div>
 
-    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.9rem', lineHeight: 1.6 }}>
+    <p className="data-note" style={{ marginTop: '0.9rem' }}>
       * Historický průměr globálních akcií; minulé výnosy nezaručují budoucí. Hodnota investice kolísá.
     </p>
   </div>

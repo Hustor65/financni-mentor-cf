@@ -107,11 +107,14 @@ const App: React.FC = () => {
                 />
               ) : (
                 <>
-                  <p className="section-header reveal"><span className="grad-text">Témata</span></p>
-                  <p className="section-desc reveal">
-                    Vyberte si téma. U každého najdete teorii, názornou ukázku na grafu
-                    i kalkulačku — vše přehledně na jednom místě.
-                  </p>
+                  <div className="section-head reveal">
+                    <span className="eyebrow">Vzdělávací moduly</span>
+                    <p className="section-header">Témata</p>
+                    <p className="section-desc">
+                      Vyberte si téma. U každého najdete teorii, názornou ukázku na grafu
+                      i kalkulačku — vše přehledně na jednom místě.
+                    </p>
+                  </div>
                   <div className="reveal"><Badges completed={completedTopics.size} /></div>
                   <div className="topics-grid">
                     {TOPICS.map((topic, i) => (
@@ -126,10 +129,10 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Slovníček pojmů pod tématy */}
-                  <div className="spacer-xl" />
+                  <div style={{ height: 'var(--section-gap)' }} />
                   <div className="reveal"><Glossary /></div>
 
-                  <div className="spacer-xl" />
+                  <div style={{ height: 'var(--section-gap)' }} />
                   <div className="reveal"><ProductComparison /></div>
 
                   {/* Newsletter skrytý — vrátíme, až bude reálný sběr e-mailů */}

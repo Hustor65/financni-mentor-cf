@@ -114,29 +114,29 @@ export const Footer: React.FC = () => (
       </div>
     </div>
 
-    {/* Disclaimer */}
-    <div className="footer-disclaimer">
-      <p style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', margin: '0 0 0.5rem' }}>
-        <span style={{ display: 'inline-flex', color: '#EF4444', flexShrink: 0, marginTop: '1px' }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
-            fill="none" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-        </span>
-        <span>
-          <strong style={{ color: '#94A3B8' }}>Není investiční doporučení.</strong>{' '}
+    {/* Disclaimer — prominent amber trust box */}
+    <div className="footer-disclaimer" role="note">
+      <span className="footer-disclaimer__icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      </span>
+      <div className="footer-disclaimer__body">
+        <p className="footer-disclaimer__lead">
+          <strong>Není investiční doporučení.</strong>{' '}
           Obsah slouží výhradně ke vzdělávání a nepředstavuje investiční doporučení ani
           poradenství ve smyslu zákona č. 256/2004 Sb. Nezohledňuje vaši osobní situaci.
-        </span>
-      </p>
-      <p style={{ margin: 0, color: '#64748B', fontSize: '0.78rem', lineHeight: 1.6 }}>
-        Investování s sebou nese riziko. Hodnota investice v čase kolísá a může klesnout
-        i pod vloženou částku; minulé výnosy nezaručují budoucí. Vyšší očekávaný výnos
-        znamená vyšší riziko. Před rozhodnutím zvažte konzultaci s poradcem
-        s licencí ČNB. Metodiku a zdroje najdete v sekci „Jak hlídáme přesnost".
-      </p>
+        </p>
+        <p>
+          Investování s sebou nese riziko. Hodnota investice v čase kolísá a může klesnout
+          i pod vloženou částku; minulé výnosy nezaručují budoucí. Vyšší očekávaný výnos
+          znamená vyšší riziko. Před rozhodnutím zvažte konzultaci s poradcem
+          s licencí ČNB. Metodiku a zdroje najdete v sekci „Jak hlídáme přesnost".
+        </p>
+      </div>
     </div>
 
     {/* Bottom bar */}

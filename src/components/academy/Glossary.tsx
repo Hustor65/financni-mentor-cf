@@ -26,6 +26,7 @@ export const Glossary: React.FC = () => {
 
   return (
     <div>
+      <span className="eyebrow">Finanční pojmy</span>
       <p className="section-header" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
         <Icon name="book-open" size={24} color="#3ab5e0" />
         Finanční slovníček

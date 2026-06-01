@@ -230,6 +230,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
       {/* ── PRAVÝ SLOUPEC: info panel ── */}
       <aside className="chat-info">
         <div className="glass-panel glass-panel--elevated">
+          <span className="eyebrow eyebrow--cyan">Jak to funguje</span>
           <p
             className="section-header"
             style={{ fontSize: '1.1rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}

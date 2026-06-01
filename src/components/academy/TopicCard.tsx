@@ -12,26 +12,26 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, onClick, completed 
   const live = topic.status === 'live';
   return (
     <div
-      className="glass-panel glass-panel--interactive topic-card"
+      className={`glass-panel glass-panel--interactive topic-card${completed ? ' topic-card--done' : ''}`}
       onClick={() => live && onClick(topic.id)}
       role="button"
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && live && onClick(topic.id)}
       aria-label={`Otevřít téma: ${topic.title}`}
-      style={{ opacity: live ? 1 : 0.55, cursor: live ? 'pointer' : 'default' }}
+      style={{ opacity: live ? 1 : 0.6, cursor: live ? 'pointer' : 'default' }}
     >
-      {/* hlavička: ikona + (badge) */}
+      {/* hlavička: ikona v akcentu + status mini-pill */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-        <Icon name={topic.icon} size={26} color={live ? '#3ab5e0' : '#475569'} />
+        <Icon name={topic.icon} size={26} color={live ? '#3ab5e0' : '#556070'} />
         {completed ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--lg-green-500)', fontSize: '0.75rem', fontWeight: 700 }}>
-            <Icon name="check-circle" size={15} color="var(--lg-green-500)" /> Hotovo
+          <span className="topic-pill topic-pill--done">
+            <Icon name="check-circle" size={14} color="var(--lg-green-500)" /> Hotovo
           </span>
         ) : live ? (
-          <span style={{ color: '#3ab5e0', fontSize: '0.78rem', fontWeight: 600 }}>Otevřít →</span>
+          <span className="topic-pill topic-pill--open">Otevřít →</span>
         ) : (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#64748B', fontSize: '0.75rem', fontWeight: 600 }}>
-            <Icon name="lock" size={13} color="#64748B" /> Brzy
+          <span className="topic-pill topic-pill--soon">
+            <Icon name="lock" size={12} color="var(--accent-trust)" /> Brzy
           </span>
         )}
       </div>

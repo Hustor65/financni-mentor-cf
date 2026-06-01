@@ -29,22 +29,11 @@ const TOPIC_QUIZ: Record<string, QuizQuestion[]> = {
   'riziko': ACADEMY_LESSONS.find(l => l.id === 'riziko-vynos-diverzifikace')?.quiz ?? [],
 };
 
-// ── Section label (ikona + text) ──
+// ── Section label — eyebrow style (small uppercase, accent tick + icon) ──
 function SectionLabel({ icon, label }: { icon: string; label: string }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        marginBottom: '0.9rem',
-        color: '#E2E8F0',
-        fontFamily: "'Space Grotesk', sans-serif",
-        fontSize: '1.05rem',
-        fontWeight: 700,
-      }}
-    >
-      <Icon name={icon} size={18} color="#3ab5e0" />
+    <div className="eyebrow eyebrow--cyan" style={{ marginBottom: '0.9rem' }}>
+      <Icon name={icon} size={15} color="var(--lg-cyan-400)" />
       <span>{label}</span>
     </div>
   );
@@ -74,12 +63,13 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
 
   return (
     <div>
-      {/* ← Zpět */}
-      <button className="btn" onClick={onBack} style={{ marginBottom: '1.5rem' }}>
+      {/* ← Zpět — ghost text-link */}
+      <button className="btn btn--ghost" onClick={onBack} style={{ marginBottom: '1.25rem' }}>
         ← Zpět na témata
       </button>
 
-      {/* Nadpis tématu (1:1: ikona + titulek) */}
+      {/* Nadpis tématu (eyebrow + ikona + titulek) */}
+      <span className="eyebrow">Vzdělávací modul</span>
       <p
         className="section-header"
         style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem' }}

@@ -32,9 +32,10 @@ export const KPIBar: React.FC<KPIBarProps> = ({
     <>
       {/* Nadpis řádku — návštěvník hned ví, že čísla níže jsou jeho osobní statistiky. */}
       <div className="kpi-section reveal" style={{ ['--reveal-i' as string]: 0 }}>
+        <span className="eyebrow">Přehled relace</span>
         <p className="kpi-section-header">
           <Icon name="bar-chart-3" size={22} className="kpi-section-icon" aria-hidden={true} />
-          <span className="grad-text">Vaše statistiky</span>
+          <span>Vaše statistiky</span>
         </p>
       </div>
 

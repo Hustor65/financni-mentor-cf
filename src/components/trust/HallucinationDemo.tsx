@@ -39,6 +39,7 @@ export const HallucinationDemo: React.FC = () => {
     <>
       {/* ── Nadpis sekce ── */}
       <div className="spacer-md" />
+      <span className="eyebrow eyebrow--cyan">Proč Function Calling</span>
       <p className="section-header">Jazykové modely neumí počítat bez Function Callingu</p>
       <p className="section-desc">
         Nejslabší a nejnebezpečnější stránka AI? Generuje textové odpovědi skládáním slov na základě statistické

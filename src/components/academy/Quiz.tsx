@@ -45,21 +45,9 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
 
   return (
     <div>
-      {/* Section label */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          marginBottom: '1.25rem',
-          color: 'var(--lg-cyan-400)',
-          fontSize: '0.8rem',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-        }}
-      >
-        <Icon name="circle-check" size={16} color="var(--lg-cyan-400)" />
+      {/* Section label — eyebrow style */}
+      <div className="eyebrow eyebrow--cyan" style={{ marginBottom: '1.25rem' }}>
+        <Icon name="circle-check" size={15} color="var(--lg-cyan-400)" />
         <span>Ověřte si pochopení</span>
       </div>
 
