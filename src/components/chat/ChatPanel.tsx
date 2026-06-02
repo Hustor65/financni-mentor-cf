@@ -91,17 +91,19 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       {/* ── Doku composer ── */}
       <div className="chat-composer">
         <div className="chat-composer__row">
-          <textarea
-            ref={textareaRef}
-            className="chat-input"
-            value={input}
-            onChange={e => onInputChange(e.target.value)}
-            onKeyDown={onKeyDown}
-            placeholder="Zadejte svůj finanční dotaz..."
-            rows={1}
-            disabled={isLoading}
-            aria-label="Napište zprávu"
-          />
+          <div className="chat-composer__field">
+            <textarea
+              ref={textareaRef}
+              className="chat-input"
+              value={input}
+              onChange={e => onInputChange(e.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder="Zadejte svůj finanční dotaz..."
+              rows={1}
+              disabled={isLoading}
+              aria-label="Napište zprávu"
+            />
+          </div>
           <div className="chat-composer__actions">
             <button
               type="button"
@@ -114,7 +116,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
             </button>
             <button
               type="button"
-              className="btn btn--primary composer-send-btn"
+              className="btn composer-send-btn"
               onClick={() => onSend(input)}
               disabled={isLoading || !input.trim()}
               aria-label="Odeslat zprávu"

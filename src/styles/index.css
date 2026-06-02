@@ -1020,119 +1020,205 @@ body::after {
   font-size: 0.85em;
 }
 
-/* ── Doku composer — připnutý ke spodku panelu (solid) ── */
+/* ── Bezrámečkový composer — text plave přímo na panelu ──
+   Žádný box kolem inputu, žádná hard linka. Oddělení od wellu zpráv řeší
+   jen jemný fade; fokus signalizuje cyan podtržení. Sdílené inline i fullscreen. */
 .chat-composer {
   flex: 0 0 auto;
-  padding: var(--space-sm) var(--space-md) 0.9rem;
+  position: relative;
+  padding: var(--space-md) var(--space-md) 0.9rem;
   background: var(--surface-1);
-  border-top: 1px solid var(--border-default);
+  /* žádný hard border-top — oddělení řeší jemný fade (::before) */
+}
+
+/* Sotva znatelný přechod: tmavší well zpráv se rozplyne do composeru.
+   Panel má overflow:hidden, takže fade zůstává uvnitř (inline i fullscreen). */
+.chat-composer::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 28px;
+  transform: translateY(-100%);
+  background: linear-gradient(to bottom, rgba(14, 29, 51, 0), var(--surface-1));
+  pointer-events: none;
 }
 
 /* obsah composeru drží stejnou čtecí šířku jako zprávy */
 .chat-composer__row {
   display: flex;
   align-items: flex-end;
-  gap: 0.6rem;
+  gap: 0.5rem;
   width: 100%;
   max-width: 48rem;
   margin: 0 auto;
 }
 
-.chat-composer__actions {
+/* Obal pole: nese plovoucí textareu + klidnou fokus linku.
+   Sám je průhledný/bezrámečkový — NENÍ to box. */
+.chat-composer__field {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
-  /* zarovnat tlačítka na účaří jednořádkového inputu */
-  padding-bottom: 0.05rem;
+  align-items: flex-end;
 }
 
+/* Fokus linka: 1px cyan podtržení, které se objeví jen při fokusu. */
+.chat-composer__field::after {
+  content: '';
+  position: absolute;
+  left: 0.2rem;
+  right: 0.2rem;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--lg-cyan-400), transparent);
+  opacity: 0;
+  transform: scaleX(0.6);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  pointer-events: none;
+}
+.chat-composer__field:focus-within::after {
+  opacity: 0.9;
+  transform: scaleX(1);
+}
+
+/* Textarea: opravdu bezrámečková, průhledná — text přímo na panelu. */
 .chat-input {
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  padding: 0.85rem 1.1rem;
-  background: var(--surface-0);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
+  padding: 0.7rem 0.4rem 0.75rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   color: var(--text-primary);
+  caret-color: var(--lg-cyan-400);
   font-family: var(--font-body);
   /* ≥16px → na iOS nezoomuje při fokusu */
   font-size: 1rem;
-  line-height: 1.55;
+  line-height: 1.6;
   outline: none;
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
   resize: none;
-  /* Auto-grow řídí JS (ChatPanel) — spolehlivé i v prohlížečích bez field-sizing.
-     Větší základ, ať uživatel rovnou vidí pohodlné pole bez scrollování. */
-  min-height: 5rem;
+  /* Auto-grow řídí JS (ChatPanel) — nastavujeme jen rozumné rozmezí. */
+  min-height: 2.75rem;
   max-height: 45vh;
   overflow-y: auto;
-}
-
-.chat-input:focus {
-  border-color: var(--border-accent);
-  box-shadow: 0 0 0 3px rgba(37, 150, 190, 0.12);
-}
-
-.chat-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(37, 150, 190, 0.45) transparent;
+  transition: color var(--transition-normal);
 }
 
 .chat-input::placeholder {
-  color: var(--text-dim);
+  color: var(--text-muted);
+  opacity: 1;
 }
 
-/* odesílací tlačítko — čtvercový dotykový cíl (≥36px desktop / ≥44px mobil) */
-.composer-send-btn {
+.chat-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Tlačítka sedí na účaří jednořádkového inputu. */
+.chat-composer__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   flex-shrink: 0;
-  width: 3.4rem;
-  height: 3.4rem;
-  padding: 0;
-  border-radius: var(--radius-md);
+  padding-bottom: 0.25rem;
 }
 
-/* sekundární ikonové tlačítko composeru (rozšířit / zavřít) */
+/* Fullscreen přepínač = tichá ghost ikona, bez boxu. */
 .composer-icon-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: 3.4rem;
-  height: 3.4rem;
-  padding: 0;
-  border: 1px solid var(--border-default);
+  border: 0;
   border-radius: var(--radius-md);
-  background: var(--surface-0);
-  color: var(--text-secondary);
+  background: transparent;
+  color: var(--text-muted);
   cursor: pointer;
   box-shadow: none;
-  transition: background var(--transition-normal), border-color var(--transition-normal),
-              color var(--transition-normal), transform var(--transition-normal);
+  transition: color var(--transition-normal), background var(--transition-normal);
+}
+.composer-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+.composer-icon-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-accent);
 }
 
-.composer-icon-btn:hover {
+/* Odeslat — čistá zaoblená ikona: tichá když prázdné, výrazná cyan + glow s textem.
+   Doubled selektor přebíjí .btn (specificita) bez !important. */
+.composer-send-btn.composer-send-btn {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   background: var(--surface-2);
-  border-color: var(--border-accent);
+  color: var(--text-secondary);
+  box-shadow: none;
+  transition: background var(--transition-normal), color var(--transition-normal),
+    border-color var(--transition-normal), box-shadow var(--transition-normal),
+    transform var(--transition-normal);
+}
+.composer-send-btn.composer-send-btn:enabled {
+  background: var(--lg-cyan-500);
+  border-color: var(--lg-cyan-500);
   color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(37, 150, 190, 0.35), var(--shadow-cyan-glow);
+}
+.composer-send-btn.composer-send-btn:enabled:hover {
+  background: var(--lg-cyan-400);
+  border-color: var(--lg-cyan-400);
+  box-shadow: 0 6px 18px -6px rgba(37, 150, 190, 0.6), var(--shadow-cyan-glow);
   transform: translateY(-1px);
 }
-
-.composer-icon-btn:active {
+.composer-send-btn.composer-send-btn:enabled:active {
+  background: var(--lg-cyan-500);
   transform: translateY(0);
+}
+.composer-send-btn.composer-send-btn:disabled {
+  opacity: 1; /* nešednout — jen ztišit (přebít default .btn disabled) */
+  cursor: not-allowed;
+  background: var(--surface-2);
+  border-color: var(--border-subtle);
+  color: var(--text-muted);
+  box-shadow: none;
+  transform: none;
+}
+.composer-send-btn.composer-send-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-accent);
 }
 
 .chat-composer__hint {
   color: var(--text-muted);
   font-size: 0.72rem;
-  margin: 0.5rem auto 0;
+  margin: 0.6rem auto 0;
   max-width: 48rem;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
+}
+
+/* Mobil: dotykové cíle ≥44px, jemnější okraje. */
+@media (max-width: 640px) {
+  .chat-composer { padding: var(--space-sm) var(--space-sm) 0.8rem; }
+  .composer-icon-btn,
+  .composer-send-btn.composer-send-btn { width: 2.75rem; height: 2.75rem; }
 }
 
 /* ═══════════════════════════════════════════
@@ -2184,7 +2270,7 @@ body::after {
   .chat-dialog[open]::backdrop,
   .chat-dialog[data-closing],
   .chat-dialog[data-closing]::backdrop { animation: none; }
-  .composer-icon-btn:hover { transform: none; }
+  .composer-send-btn:enabled:hover { transform: none; }
   .theory-more { transition: none; }
   .theory-toggle__chevron { transition: none; }
 }
