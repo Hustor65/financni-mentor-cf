@@ -1020,19 +1020,17 @@ body::after {
   font-size: 0.85em;
 }
 
-/* ── Bezrámečkový composer — text plave přímo na panelu ──
-   Žádný box kolem inputu, žádná hard linka. Oddělení od wellu zpráv řeší
-   jen jemný fade; fokus signalizuje cyan podtržení. Sdílené inline i fullscreen. */
+/* ── Composer ve stylu moderního AI inputu (à la Claude Code) ──
+   Jedna zaoblená kapsle s decentním NEUTRÁLNÍM okrajem; uvnitř plave
+   textarea + akce vpravo. Sdílené inline i fullscreen. */
 .chat-composer {
   flex: 0 0 auto;
   position: relative;
-  padding: var(--space-md) var(--space-md) 0.9rem;
+  padding: 0.7rem var(--space-md) 0.85rem;
   background: var(--surface-1);
-  /* žádný hard border-top — oddělení řeší jemný fade (::before) */
 }
 
-/* Sotva znatelný přechod: tmavší well zpráv se rozplyne do composeru.
-   Panel má overflow:hidden, takže fade zůstává uvnitř (inline i fullscreen). */
+/* Sotva znatelný přechod: tmavší well zpráv se rozplyne do composeru. */
 .chat-composer::before {
   content: '';
   position: absolute;
@@ -1046,48 +1044,42 @@ body::after {
 /* obsah composeru drží stejnou čtecí šířku jako zprávy */
 .chat-composer__row {
   display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
   width: 100%;
   max-width: 48rem;
   margin: 0 auto;
 }
 
-/* Obal pole: nese plovoucí textareu + klidnou fokus linku.
-   Sám je průhledný/bezrámečkový — NENÍ to box. */
+/* Kapsle: zaoblený box s jemným okrajem (jako moderní AI input / Claude Code).
+   Uvnitř plave textarea + akce vpravo, zarovnané k 1. řádku. */
 .chat-composer__field {
-  position: relative;
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: flex-end;
+  gap: 0.4rem;
+  padding: 0.3rem 0.45rem 0.3rem 0.95rem;
+  background: var(--surface-0);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-inset);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+/* Fokus: zesílí okraj NEUTRÁLNĚ (žádný modrý rámeček) + decentní stín. */
+.chat-composer__field:focus-within {
+  border-color: var(--border-strong);
+  box-shadow: var(--glass-inset), var(--shadow-elevation-2);
+}
+/* Během odpovědi pole ztlumíme. */
+.chat-composer__field:has(.chat-input:disabled) {
+  opacity: 0.6;
 }
 
-/* Fokus linka: 1px cyan podtržení, které se objeví jen při fokusu. */
-.chat-composer__field::after {
-  content: '';
-  position: absolute;
-  left: 0.2rem;
-  right: 0.2rem;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--lg-cyan-400), transparent);
-  opacity: 0;
-  transform: scaleX(0.6);
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
-  pointer-events: none;
-}
-.chat-composer__field:focus-within::after {
-  opacity: 0.9;
-  transform: scaleX(1);
-}
-
-/* Textarea: opravdu bezrámečková, průhledná — text přímo na panelu. */
+/* Textarea uvnitř kapsle — průhledná, bez rámečku. */
 .chat-input {
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  padding: 0.7rem 0.4rem 0.75rem;
+  padding: 0.6rem 0.1rem 0.6rem 0;
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -1096,16 +1088,15 @@ body::after {
   font-family: var(--font-body);
   /* ≥16px → na iOS nezoomuje při fokusu */
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.55;
   outline: none;
   resize: none;
   /* Auto-grow řídí JS (ChatPanel) — nastavujeme jen rozumné rozmezí. */
-  min-height: 2.75rem;
+  min-height: 2.5rem;
   max-height: 45vh;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(37, 150, 190, 0.45) transparent;
-  transition: color var(--transition-normal);
 }
 
 .chat-input::placeholder {
@@ -1114,23 +1105,22 @@ body::after {
 }
 
 .chat-input:disabled {
-  opacity: 0.55;
   cursor: not-allowed;
 }
 
-/* Tlačítka sedí na účaří jednořádkového inputu. */
+/* Akce uvnitř kapsle, zarovnané k 1. řádku. */
 .chat-composer__actions {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
   flex-shrink: 0;
-  padding-bottom: 0.25rem;
+  padding-bottom: 0.15rem;
 }
 
-/* Fullscreen přepínač = tichá ghost ikona, bez boxu. */
+/* Fullscreen přepínač = tichá ghost ikona. */
 .composer-icon-btn {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.3rem;
+  height: 2.3rem;
   padding: 0;
   display: inline-flex;
   align-items: center;
@@ -1144,26 +1134,25 @@ body::after {
   transition: color var(--transition-normal), background var(--transition-normal);
 }
 .composer-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-primary);
 }
 .composer-icon-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-accent);
+  box-shadow: 0 0 0 2px var(--surface-0), 0 0 0 4px var(--border-accent);
 }
 
-/* Odeslat — čistá zaoblená ikona: tichá když prázdné, výrazná cyan + glow s textem.
-   Doubled selektor přebíjí .btn (specificita) bez !important. */
+/* Odeslat — cyan, bez rámečku, jen měkký glow. */
 .composer-send-btn.composer-send-btn {
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.3rem;
+  height: 2.3rem;
   min-height: 0;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none; /* žádný rámeček — ani na send tlačítku */
+  border: none;
   border-radius: var(--radius-md);
   background: var(--surface-2);
   color: var(--text-secondary);
@@ -1195,7 +1184,7 @@ body::after {
 }
 .composer-send-btn.composer-send-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-accent);
+  box-shadow: 0 0 0 2px var(--surface-0), 0 0 0 4px var(--border-accent);
 }
 
 .chat-composer__hint {

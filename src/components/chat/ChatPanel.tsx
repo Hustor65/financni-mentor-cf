@@ -103,26 +103,26 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               disabled={isLoading}
               aria-label="Napište zprávu"
             />
-          </div>
-          <div className="chat-composer__actions">
-            <button
-              type="button"
-              className="composer-icon-btn"
-              onClick={e => onToggleFullscreen(e.currentTarget)}
-              aria-label={isFullscreen ? 'Zavřít celou obrazovku' : 'Rozšířit na celou obrazovku'}
-              title={isFullscreen ? 'Zavřít' : 'Celá obrazovka'}
-            >
-              <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={18} />
-            </button>
-            <button
-              type="button"
-              className="btn composer-send-btn"
-              onClick={() => onSend(input)}
-              disabled={isLoading || !input.trim()}
-              aria-label="Odeslat zprávu"
-            >
-              <Icon name="arrow-right" size={18} />
-            </button>
+            <div className="chat-composer__actions">
+              <button
+                type="button"
+                className="composer-icon-btn"
+                onClick={e => onToggleFullscreen(e.currentTarget)}
+                aria-label={isFullscreen ? 'Zavřít celou obrazovku' : 'Rozšířit na celou obrazovku'}
+                title={isFullscreen ? 'Zavřít' : 'Celá obrazovka'}
+              >
+                <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={18} />
+              </button>
+              <button
+                type="button"
+                className="btn composer-send-btn"
+                onClick={() => onSend(input)}
+                disabled={isLoading || !input.trim()}
+                aria-label="Odeslat zprávu"
+              >
+                <Icon name="arrow-right" size={18} />
+              </button>
+            </div>
           </div>
         </div>
         <p className="chat-composer__hint">
