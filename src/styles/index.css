@@ -1820,86 +1820,153 @@ body::after {
    FOOTER
    ═══════════════════════════════════════════ */
 
-/* Footer — grounded base: top border + slightly lifted (darker) surface. */
+/* ═══════════════════════════════════════════
+   SITE FOOTER — Stripe-grade structured clarity
+   ═══════════════════════════════════════════ */
 .site-footer {
   margin-top: var(--section-gap);
   border-top: 1px solid var(--border-default);
   background: var(--surface-page);
+  /* hairline cyan seam at the very top edge for a crisp "system" feel */
+  box-shadow: inset 0 1px 0 0 var(--border-accent);
+}
+
+.footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
   padding: var(--space-xl) var(--space-md) var(--space-md);
 }
 
+/* ── Top region: brand column + link grid ── */
 .footer-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 3rem;
+  display: grid;
+  grid-template-columns: minmax(260px, 1.3fr) 2.4fr;
+  gap: var(--space-xl);
   padding-bottom: var(--space-lg);
   border-bottom: 1px solid var(--border-subtle);
-  flex-wrap: wrap;
 }
 
-.footer-brand { max-width: 300px; flex-shrink: 0; }
+/* Brand */
+.footer-brand { max-width: 340px; }
 
 .footer-brand-name {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #FFFFFF;
   letter-spacing: -0.02em;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .footer-brand-name .brand-dot {
   display: inline-block;
-  width: 8px; height: 8px;
+  width: 9px; height: 9px;
   background: var(--lg-cyan-500);
   border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--lg-cyan-glow);
 }
 
 .footer-brand-desc {
   color: var(--text-muted);
   font-size: 0.82rem;
   line-height: 1.7;
+  margin: 0 0 1.25rem;
 }
 
-.footer-links { display: flex; gap: 3rem; flex-wrap: wrap; }
+/* "Vzdělávání, ne doporučení" microcopy chip */
+.footer-edu-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-0);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  letter-spacing: 0.2px;
+}
 
-.footer-col h4 {
+/* ── Link grid: tidy, perfectly-aligned columns ── */
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-lg);
+}
+
+.footer-col__title {
   font-family: var(--font-display);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 1rem;
+  letter-spacing: 1.6px;
+  margin: 0 0 1.1rem;
 }
 
-.footer-col ul { list-style: none; }
-.footer-col li { margin-bottom: 0.5rem; }
+.footer-col__list { list-style: none; margin: 0; padding: 0; }
+.footer-col__list li + li { margin-top: 0.25rem; }
 
-.footer-col a,
-.footer-col span {
+/* Shared link/label row — the interactive premium unit.
+   Color sits on .footer-item so the <Icon> (currentColor) follows it. */
+.footer-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.4;
   text-decoration: none;
-  font-size: 0.82rem;
-  transition: color 300ms ease;
+  border-radius: var(--radius-sm);
+  margin-left: -0.4rem;       /* optical: hover pad aligns text to the grid */
+  padding: 0.28rem 0.4rem;
+  transition: color var(--transition-normal),
+              background var(--transition-normal),
+              transform var(--transition-normal);
 }
 
-.footer-col a:hover { color: var(--lg-cyan-400); }
+.footer-item__label { color: var(--text-secondary); transition: color var(--transition-normal); }
 
-/* Prominent legal disclaimer — amber trust box. Amber is reserved strictly
-   for disclaimers / "Brzy" lock badge / data-source notes. */
+/* Real links — color shift + subtle slide + arrow reveal */
+.footer-item--link { cursor: pointer; }
+.footer-item--link:hover {
+  background: var(--surface-0);
+  transform: translateX(2px);
+  color: var(--lg-cyan-400);
+}
+.footer-item--link:hover .footer-item__label { color: var(--lg-cyan-400); }
+.footer-item--link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--border-accent);
+  background: var(--surface-0);
+}
+
+/* Trailing arrow — hidden until hover (Zdroje column) */
+.footer-item__arrow {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+.footer-item--link:hover .footer-item__arrow { opacity: 1; transform: translateX(0); }
+
+/* Static display labels (Platforma) — clearly non-interactive */
+.footer-item--static { cursor: default; color: var(--text-muted); }
+.footer-item--static .footer-item__label { color: var(--text-muted); }
+
+/* ── Disclaimer — elegant compliance note, slim amber accent rule ── */
 .footer-disclaimer {
   display: flex;
-  gap: 0.85rem;
+  gap: 0.9rem;
   align-items: flex-start;
+  margin-top: var(--space-lg);
+  padding: 1.15rem 1.4rem 1.15rem 1.25rem;
   background: var(--accent-trust-bg);
   border: 1px solid var(--accent-trust-border);
+  border-left: 3px solid var(--accent-trust);   /* refined left accent rule */
   border-radius: var(--radius-md);
-  padding: 1.1rem 1.35rem;
-  margin-top: var(--space-lg);
 }
 
 .footer-disclaimer__icon {
@@ -1914,30 +1981,87 @@ body::after {
 .footer-disclaimer p {
   color: var(--text-secondary);
   font-size: 0.8rem;
-  line-height: 1.7;
+  line-height: 1.75;
   margin: 0;
 }
 .footer-disclaimer p + p { margin-top: 0.5rem; }
 .footer-disclaimer strong { color: #FFFFFF; }
 .footer-disclaimer__lead {
-  color: #E8C98A !important;
-  font-size: 0.85rem !important;
+  color: #EBD09A;            /* legible warm tint, not faint fine-print */
+  font-size: 0.85rem;
 }
 
+/* ── Bottom bar — crisp final statement ── */
 .footer-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-sm) 0;
-  margin-top: var(--space-xs);
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
 }
 
+.footer-trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-0);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  letter-spacing: 0.2px;
+}
+
+.footer-bottom__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
 .footer-copy {
   color: var(--text-secondary);
   font-size: 0.72rem;
   letter-spacing: 0.3px;
+}
+.footer-copy--dim { color: var(--text-muted); }
+
+/* ── Footer responsive ── */
+@media (max-width: 900px) {
+  .footer-top {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+  .footer-brand { max-width: 460px; }
+}
+
+@media (max-width: 640px) {
+  .footer-inner { padding-left: 1rem; padding-right: 1rem; }
+  .footer-links {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md) var(--space-lg);
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .footer-bottom__meta { gap: 0.35rem 1rem; }
+}
+
+@media (max-width: 420px) {
+  .footer-links { grid-template-columns: 1fr; }
+  .footer-edu-badge { white-space: normal; }
+}
+
+/* Honor reduced-motion: kill the slide/arrow translate, keep color feedback */
+@media (prefers-reduced-motion: reduce) {
+  .footer-item,
+  .footer-item__arrow { transform: none !important; }
+  .footer-item--link:hover { transform: none; }
 }
 
 /* ═══════════════════════════════════════════
@@ -2222,11 +2346,6 @@ body::after {
   .topics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .site-footer { padding-left: 1rem; padding-right: 1rem; }
-  .footer-top { flex-direction: column; gap: 2rem; }
-  .footer-links { gap: 2rem; }
-  .footer-bottom { flex-direction: column; text-align: center; }
 
   .quick-prompts {
     grid-template-columns: 1fr;
