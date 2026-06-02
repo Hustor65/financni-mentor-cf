@@ -329,15 +329,15 @@ async function executeTool(
   }
 }
 
-// ── Volání Gemini generateContent ─────────────────────────────────────
-async function callGemini(
+// ── Volání Gemini streamGenerateContent (SSE) ─────────────────────────
+async function callGeminiStream(
   model: string,
   apiKey: string,
   contents: GeminiContent[],
   systemInstruction: string,
 ): Promise<Response> {
   return fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -351,49 +351,73 @@ async function callGemini(
   );
 }
 
-// hlavní smyčka: pošle dotaz, vyřídí případná volání funkcí, vrátí text
-async function runConversation(
+// hlavní smyčka pro streaming: streamuje finální text klientovi přes `write`,
+// vyřídí případná volání funkcí (ta se NEstreamují) a pokračuje, dokud nepřijde
+// finální textová odpověď. Vrací {ok, status, streamed}; streamed=false + !ok
+// znamená, že se ještě nic neodeslalo → je bezpečné zkusit fallback model.
+async function streamConversation(
   model: string,
   apiKey: string,
   contents: GeminiContent[],
   systemInstruction: string,
-): Promise<{ text: string; status: number }> {
+  write: (text: string) => void | Promise<void>,
+): Promise<{ ok: boolean; status: number; streamed: boolean }> {
   const maxIterations = 5;
+  let streamed = false;
+
   for (let i = 0; i < maxIterations; i++) {
-    const resp = await callGemini(model, apiKey, contents, systemInstruction);
-    if (!resp.ok) {
-      return { text: '', status: resp.status };
-    }
-    const data = (await resp.json()) as {
-      candidates?: Array<{ content?: { parts?: GeminiPart[] } }>;
-    };
-    const parts = data.candidates?.[0]?.content?.parts ?? [];
-    if (parts.length === 0) {
-      return {
-        text: '⚠️ Odpověď byla zablokována bezpečnostním filtrem modelu Gemini.',
-        status: 200,
-      };
+    const resp = await callGeminiStream(model, apiKey, contents, systemInstruction);
+    if (!resp.ok || !resp.body) {
+      return { ok: false, status: resp.status, streamed };
     }
 
-    const functionCalls = parts.filter((p) => p.functionCall);
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    const modelParts: GeminiPart[] = [];
+    const functionCalls: NonNullable<GeminiPart['functionCall']>[] = [];
+
+    // SSE: řádky ve tvaru "data: {...}"
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data:')) continue;
+        const payload = trimmed.slice(5).trim();
+        if (!payload || payload === '[DONE]') continue;
+        let json: { candidates?: Array<{ content?: { parts?: GeminiPart[] } }> };
+        try {
+          json = JSON.parse(payload);
+        } catch {
+          continue;
+        }
+        const parts = json.candidates?.[0]?.content?.parts ?? [];
+        for (const p of parts) {
+          if (p.text) {
+            await write(p.text);
+            streamed = true;
+            modelParts.push({ text: p.text });
+          } else if (p.functionCall) {
+            functionCalls.push(p.functionCall);
+            modelParts.push({ functionCall: p.functionCall });
+          }
+        }
+      }
+    }
+
+    // žádné volání funkcí → finální text je odstreamovaný, končíme
     if (functionCalls.length === 0) {
-      const text = parts
-        .filter((p) => p.text)
-        .map((p) => p.text)
-        .join('\n');
-      return {
-        text: text || 'Omlouvám se, nepodařilo se mi vygenerovat odpověď.',
-        status: 200,
-      };
+      return { ok: true, status: 200, streamed };
     }
 
-    // přidej modelův krok s function_call do historie
-    contents.push({ role: 'model', parts });
-
-    // vykonej všechna volání a vrať výsledky modelu
+    // jinak vykonej tool cally a pokračuj další iterací
+    contents.push({ role: 'model', parts: modelParts });
     const responseParts: GeminiPart[] = [];
-    for (const p of functionCalls) {
-      const fc = p.functionCall!;
+    for (const fc of functionCalls) {
       const result = await executeTool(fc.name, fc.args ?? {});
       responseParts.push({
         functionResponse: { name: fc.name, response: { result } },
@@ -401,10 +425,9 @@ async function runConversation(
     }
     contents.push({ role: 'user', parts: responseParts });
   }
-  return {
-    text: 'Omlouvám se, dotaz se nepodařilo dokončit (příliš mnoho kroků).',
-    status: 200,
-  };
+
+  await write('\n\n_(Dotaz se nepodařilo dokončit — příliš mnoho kroků.)_');
+  return { ok: true, status: 200, streamed };
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -415,44 +438,71 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     });
 
+  let message: string;
+  let history: Array<{ role: string; content: string }>;
   try {
-    const { message, history } = (await request.json()) as {
+    ({ message, history } = (await request.json()) as {
       message: string;
       history: Array<{ role: string; content: string }>;
-    };
-
-    if (!message?.trim()) return json({ error: 'Empty message' }, 400);
-
-    const apiKey = env.GEMINI_API_KEY || env.GOOGLE_API_KEY;
-    if (!apiKey) return json({ error: 'API key not configured' }, 500);
-
-    const systemInstruction = buildSystemInstruction();
-
-    // historie → Gemini formát
-    const contents: GeminiContent[] = (history ?? []).map((m) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
-    }));
-    contents.push({ role: 'user', parts: [{ text: message }] });
-
-    // primární model
-    let result = await runConversation(PRIMARY_MODEL, apiKey, contents, systemInstruction);
-
-    // fallback při 429 (quota) — 1:1 logika z core.py
-    if (result.status === 429) {
-      result = await runConversation(FALLBACK_MODEL, apiKey, contents, systemInstruction);
-      if (result.status === 429) {
-        return json({ response: '⏳ Momentálně je velká zátěž. Zkuste to prosím za minutu.' });
-      }
-    }
-
-    if (result.status !== 200) {
-      return json({ response: '⚠️ Chyba při komunikaci s modelem. Zkuste to prosím později.' });
-    }
-
-    return json({ response: result.text });
-  } catch (error) {
-    console.error('Chat API error:', error);
-    return json({ response: '⚠️ Nastala neočekávaná chyba. Zkuste to prosím později.' });
+    });
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400);
   }
+
+  if (!message?.trim()) return json({ error: 'Empty message' }, 400);
+
+  const apiKey = env.GEMINI_API_KEY || env.GOOGLE_API_KEY;
+  if (!apiKey) return json({ error: 'API key not configured' }, 500);
+
+  const systemInstruction = buildSystemInstruction();
+
+  // historie → Gemini formát
+  const contents: GeminiContent[] = (history ?? []).map((m) => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+  contents.push({ role: 'user', parts: [{ text: message }] });
+
+  // Streamuj odpověď klientovi jako text/plain. Tool-calling kola se nestreamují
+  // (potřebujeme z nich celá volání funkcí); streamuje se až finální text modelu.
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const write = (text: string) => controller.enqueue(encoder.encode(text));
+      try {
+        let result = await streamConversation(PRIMARY_MODEL, apiKey, contents, systemInstruction, write);
+
+        // fallback při 429 (quota) — jen dokud se ještě nic neodeslalo
+        if (!result.ok && result.status === 429 && !result.streamed) {
+          result = await streamConversation(FALLBACK_MODEL, apiKey, contents, systemInstruction, write);
+        }
+
+        // chyba bez jediného odeslaného znaku → pošli srozumitelnou hlášku
+        if (!result.ok && !result.streamed) {
+          write(
+            result.status === 429
+              ? '⏳ Momentálně je velká zátěž. Zkuste to prosím za minutu.'
+              : '⚠️ Chyba při komunikaci s modelem. Zkuste to prosím později.',
+          );
+        }
+      } catch (error) {
+        console.error('Chat API error:', error);
+        try {
+          write('⚠️ Nastala neočekávaná chyba. Zkuste to prosím později.');
+        } catch {
+          /* stream už mohl být uzavřen */
+        }
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      'X-Accel-Buffering': 'no',
+    },
+  });
 };

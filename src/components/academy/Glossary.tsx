@@ -7,6 +7,13 @@ function removeDiacritics(s: string): string {
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
+// české skloňování počtu (1 / 2–4 / 5+)
+function plural(n: number, forms: [string, string, string]): string {
+  if (n === 1) return forms[0];
+  if (n >= 2 && n <= 4) return forms[1];
+  return forms[2];
+}
+
 export const Glossary: React.FC = () => {
   const [search, setSearch] = useState('');
 
@@ -35,23 +42,30 @@ export const Glossary: React.FC = () => {
         Rychlé, srozumitelné definice nejdůležitějších pojmů. Hledejte podle názvu i obsahu.
       </p>
 
-      {/* Search s ikonou lupy */}
-      <div style={{ position: 'relative', marginBottom: '1.5rem', maxWidth: '480px' }}>
-        <span style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+      {/* Search s ikonou lupy + počítadlo (vyplní řádek do plné šířky) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+        <div style={{ position: 'relative', flex: '1 1 320px', maxWidth: '480px' }}>
+          <span style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+          <input
+            className="form-input"
+            style={{ width: '100%', paddingLeft: '2.5rem' }}
+            type="text"
+            placeholder="Např. ETF, inflace, dividenda…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            aria-label="Hledat ve slovníčku"
+          />
+        </div>
+        <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+          {search.trim()
+            ? `${filtered.length} ${plural(filtered.length, ['výsledek', 'výsledky', 'výsledků'])}`
+            : `${GLOSSARY.length} ${plural(GLOSSARY.length, ['pojem', 'pojmy', 'pojmů'])} ve slovníčku`}
         </span>
-        <input
-          className="form-input"
-          style={{ width: '100%', paddingLeft: '2.5rem' }}
-          type="text"
-          placeholder="Např. ETF, inflace, dividenda…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          aria-label="Hledat ve slovníčku"
-        />
       </div>
 
       {/* 2-sloupcová mřížka karet */}

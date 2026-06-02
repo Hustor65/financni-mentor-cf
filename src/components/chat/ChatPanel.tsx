@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { TypingIndicator } from './TypingIndicator';
+import { ChatEmptyState, type ChatSuggestion } from './ChatEmptyState';
 import { Icon } from '../Icon';
 
 export interface Message {
@@ -23,6 +24,8 @@ interface ChatPanelProps {
   isFullscreen: boolean;
   /** přepínač fullscreen — předá spouštěcí tlačítko, aby se po zavření vrátil focus */
   onToggleFullscreen: (trigger: HTMLButtonElement) => void;
+  /** návrhové dotazy do uvítací obrazovky (empty state) */
+  suggestions: ChatSuggestion[];
 }
 
 /**
@@ -41,9 +44,27 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   onKeyDown,
   isFullscreen,
   onToggleFullscreen,
+  suggestions,
 }) => {
+  // Dokud uživatel nenapsal první zprávu (v poli je jen uvítací zpráva), ukaž
+  // bohatý empty state místo holé bubliny v prázdné ploše.
+  const showEmptyState = messages.length <= 1 && !isLoading;
+
+  // čekáme na první kus streamované odpovědi (poslední zpráva je prázdný assistant)
+  const last = messages[messages.length - 1];
+  const waitingFirstChunk = isLoading && last?.role === 'assistant' && last.content === '';
+
+  // Auto-grow textarey podle obsahu — spolehlivé i tam, kde CSS field-sizing není
+  // podporované (uživatel pak nemusí scrollovat uvnitř malého pole).
+  useLayoutEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input, textareaRef]);
+
   return (
-    <div className="chat-panel">
+    <div className={`chat-panel${showEmptyState ? ' chat-panel--empty' : ''}`}>
       {/* ── Scrollující zprávy ── */}
       <div
         className="chat-messages"
@@ -52,10 +73,17 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         aria-live="polite"
       >
         <div className="chat-messages__inner">
-          {messages.map((msg, i) => (
-            <ChatMessage key={i} role={msg.role} content={msg.content} />
-          ))}
-          {isLoading && <TypingIndicator />}
+          {showEmptyState ? (
+            <ChatEmptyState suggestions={suggestions} onPick={onSend} disabled={isLoading} />
+          ) : (
+            messages.map((msg, i) => {
+              // poslední, zatím prázdnou odpověď nevykresluj jako bublinu —
+              // místo ní je níže typing indikátor (dokud nepřijde první text)
+              if (i === messages.length - 1 && waitingFirstChunk) return null;
+              return <ChatMessage key={i} role={msg.role} content={msg.content} />;
+            })
+          )}
+          {waitingFirstChunk && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
       </div>

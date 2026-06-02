@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChatPanel, type Message } from './ChatPanel';
+import type { ChatSuggestion } from './ChatEmptyState';
 import { Icon } from '../Icon';
-import { sendChatMessage } from '../../utils/api';
+import { streamChatMessage } from '../../utils/api';
 
 interface ChatInterfaceProps {
   onMessageSent?: () => void;
@@ -15,10 +16,21 @@ const WELCOME: Message = {
     'Jaké téma ohledně správy financí vás zajímá?',
 };
 
-const QUICK_PROMPTS: { label: string; icon: string; prompt: string }[] = [
-  { label: 'Co je ETF?', icon: 'info', prompt: 'Vysvětlete mi teorii: Co je to ETF?' },
-  { label: 'Investice 3 000 Kč / měs.', icon: 'coins', prompt: 'Ukažte mi praktický příklad: Investice 3000 Kč měsíčně.' },
-  { label: 'Test gramotnosti', icon: 'graduation-cap', prompt: 'Otestujte mě z finanční gramotnosti.' },
+const QUICK_PROMPTS: ChatSuggestion[] = [
+  { label: 'Co je to ETF?', icon: 'book-open', desc: 'Vysvětlení pojmu od základů', prompt: 'Vysvětlete mi teorii: Co je to ETF?' },
+  { label: 'Investice 3 000 Kč měsíčně', icon: 'coins', desc: 'Praktický příklad pravidelného investování', prompt: 'Ukažte mi praktický příklad: Investice 3000 Kč měsíčně.' },
+  { label: 'Jak působí inflace na úspory?', icon: 'trending-up', desc: 'Co dělá s hodnotou peněz v čase', prompt: 'Vysvětlete mi, jak inflace ovlivňuje hodnotu mých úspor.' },
+  { label: 'Otestujte moji gramotnost', icon: 'graduation-cap', desc: 'Krátký kvíz finanční gramotnosti', prompt: 'Otestujte mě z finanční gramotnosti.' },
+];
+
+// Okruhy, se kterými mentor pomůže — naplní pravý boční sloupec do výšky chatu
+// a zároveň navádí uživatele, na co se může ptát.
+const INFO_TOPICS: { icon: string; title: string; desc: string }[] = [
+  { icon: 'trending-up', title: 'Investování & ETF', desc: 'Akcie, dluhopisy, fondy a riziko' },
+  { icon: 'coins', title: 'Spoření a rezerva', desc: 'Jak si vytvořit finanční polštář' },
+  { icon: 'scale', title: 'Daně a DIP', desc: 'Daňové úlevy a investiční produkty' },
+  { icon: 'hourglass', title: 'Důchod a penze', desc: 'Plánování na později' },
+  { icon: 'bar-chart-3', title: 'Živá tržní data', desc: 'Ceny akcií, krypta a indexů' },
 ];
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, initialPrompt }) => {
@@ -65,7 +77,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
       if (!text.trim() || isLoading) return;
 
       const userMsg: Message = { role: 'user', content: text.trim() };
-      setMessages(prev => [...prev, userMsg]);
+      // přidej dotaz + prázdnou odpověď, kterou budeme plnit streamem
+      setMessages(prev => [...prev, userMsg, { role: 'assistant', content: '' }]);
       setInput('');
       setIsLoading(true);
       onMessageSent?.();
@@ -74,16 +87,23 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
         const history = [...messages, userMsg]
           .filter(m => m !== WELCOME)
           .map(m => ({ role: m.role, content: m.content }));
-        const response = await sendChatMessage(text.trim(), history);
-        setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+        await streamChatMessage(text.trim(), history, full => {
+          // průběžně aktualizuj poslední (právě streamovanou) zprávu
+          setMessages(prev => {
+            const next = [...prev];
+            next[next.length - 1] = { role: 'assistant', content: full };
+            return next;
+          });
+        });
       } catch {
-        setMessages(prev => [
-          ...prev,
-          {
+        setMessages(prev => {
+          const next = [...prev];
+          next[next.length - 1] = {
             role: 'assistant',
             content: '⚠️ Omlouvám se, nepodařilo se spojit se serverem. Zkuste to prosím později.',
-          },
-        ]);
+          };
+          return next;
+        });
       } finally {
         setIsLoading(false);
         focusActiveInput();
@@ -186,33 +206,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     <div className="chat-layout" id="chat-section">
       {/* ── LEVÝ SLOUPEC: chat ── */}
       <div className="chat-main">
-        {/* Rychlé dotazy */}
-        <div className="glass-panel glass-panel--sunken" style={{ padding: '1rem 1.25rem', marginBottom: 'var(--space-md)' }}>
-          <p
-            style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              color: '#E2E8F0',
-              margin: '0 0 0.75rem',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <Icon name="zap" size={16} color="#F59E0B" /> Rychlé dotazy
-          </p>
-          <div className="quick-prompts" style={{ marginBottom: 0 }}>
-            {QUICK_PROMPTS.map((q, i) => (
-              <button key={i} className="btn quick-prompt" onClick={() => handleSend(q.prompt)} disabled={isLoading}>
-                <Icon name={q.icon} size={16} />
-                {q.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Ucelený chat panel (zprávy + doku composer) — inline verze */}
+        {/* Ucelený chat panel (uvítací empty state / zprávy + doku composer) — inline verze.
+            Návrhové dotazy jsou součástí empty-state uvnitř okna, ne samostatná lišta nad ním. */}
         <ChatPanel
           messages={messages}
           input={input}
@@ -224,6 +219,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           onKeyDown={handleKeyDown}
           isFullscreen={false}
           onToggleFullscreen={trigger => openFullscreen(trigger)}
+          suggestions={QUICK_PROMPTS}
         />
       </div>
 
@@ -254,6 +250,31 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
             Bavíme-li se o kapitálu, vaše prostředky a rozhodnutí byste měli případně řešit jen s
             člověkem s certifikací od ČNB.
           </p>
+        </div>
+
+        {/* „S čím pomůžu" — naplní boční sloupec do výšky chat panelu a zároveň
+            navádí, na co se ptát. Statický seznam = deterministická výška. */}
+        <div className="glass-panel glass-panel--elevated chat-info__panel">
+          <span className="eyebrow eyebrow--cyan">Okruhy</span>
+          <p
+            className="section-header"
+            style={{ fontSize: '1.1rem', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <Icon name="sparkles" size={18} color="#3ab5e0" /> S čím vám pomůžu
+          </p>
+          <ul className="info-topics">
+            {INFO_TOPICS.map((t, i) => (
+              <li key={i} className="info-topic">
+                <span className="info-topic__icon">
+                  <Icon name={t.icon} size={16} />
+                </span>
+                <span className="info-topic__text">
+                  <span className="info-topic__title">{t.title}</span>
+                  <span className="info-topic__desc">{t.desc}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <button
@@ -296,6 +317,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
               onKeyDown={handleKeyDown}
               isFullscreen
               onToggleFullscreen={closeFullscreen}
+              suggestions={QUICK_PROMPTS}
             />
           </div>
         )}

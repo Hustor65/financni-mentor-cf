@@ -2,21 +2,18 @@ import { retrieve, formatContext } from '../data/knowledge';
 
 const API_BASE = '/api';
 
-export async function sendChatMessage(
+export async function streamChatMessage(
   message: string,
   history: Array<{ role: string; content: string }>,
+  onChunk: (fullText: string) => void,
 ): Promise<string> {
   // GROUNDING — stejná logika jako core.py send_message
   const docs = retrieve(message);
   const ctx = formatContext(docs);
 
-  let augmentedMessage: string;
-  if (ctx) {
-    augmentedMessage = `${ctx}\n\n=== DOTAZ UŽIVATELE ===\n${message}`;
-  } else {
-    augmentedMessage =
-      `(K tomuto dotazu nemáme v ověřené databázi materiál — u faktických tvrzení buď opatrný a případně odkaž na lekci, kalkulačku nebo poradce.)\n\n=== DOTAZ UŽIVATELE ===\n${message}`;
-  }
+  const augmentedMessage = ctx
+    ? `${ctx}\n\n=== DOTAZ UŽIVATELE ===\n${message}`
+    : `(K tomuto dotazu nemáme v ověřené databázi materiál — u faktických tvrzení buď opatrný a případně odkaž na lekci, kalkulačku nebo poradce.)\n\n=== DOTAZ UŽIVATELE ===\n${message}`;
 
   const response = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
@@ -24,9 +21,21 @@ export async function sendChatMessage(
     // history obsahuje PŮVODNÍ (neaugmentované) zprávy; augmentujeme jen aktuální message
     body: JSON.stringify({ message: augmentedMessage, history }),
   });
-  if (!response.ok) throw new Error(`Chat error: ${response.status}`);
-  const data = await response.json();
-  return data.response;
+  if (!response.ok || !response.body) throw new Error(`Chat error: ${response.status}`);
+
+  // čti text/plain stream a předávej průběžně narůstající text
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let full = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    full += decoder.decode(value, { stream: true });
+    onChunk(full);
+  }
+  full += decoder.decode(); // dokonči případný vícebajtový znak
+  onChunk(full);
+  return full;
 }
 
 export async function getMarketData(
