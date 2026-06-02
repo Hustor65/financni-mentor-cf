@@ -83,7 +83,34 @@ function buildSystemInstruction(): string {
 
     '10. VÝPOČTY: Konkrétní propočty (kolik našetřím, jaká bude daň, důchod, DIP) nepočítej ' +
     'zpaměti — vždy odkaž uživatele na interaktivní kalkulačky v záložce Nástroje, kde běží ' +
-    'přesná matematika. Tím se vyhneš početní chybě.'
+    'přesná matematika. Tím se vyhneš početní chybě.\n\n' +
+
+    '11. GRAFY A DIAGRAMY: Když to pomůže pochopení, MŮŽEŠ do odpovědi vložit JEDEN vizuál ' +
+    'jako kódový blok. Podle obsahu vyber typ:\n' +
+    '— ČÍSLA (vývoj v čase, porovnání hodnot, rozložení portfolia, složené úročení) → blok ' +
+    '"echarts" s platným JSON (ECharts option): typ jen "line", "bar" nebo "pie"; české popisky; ' +
+    'čísla bez uvozovek; posílej jen title, osy a series (barvy a tmavý styl doplní aplikace).\n' +
+    '— PROCES / VZTAH / „jak to funguje krok za krokem" (cesta pokynu na burzu, koloběh peněz, ' +
+    'vznik ETF, vztah pojmů) → blok "mermaid" s diagramem flowchart. PREFERUJ směr shora dolů ' +
+    '("flowchart TB"), ať se diagram vejde čitelně do úzkého sloupce chatu (LR jen u 2–3 uzlů). ' +
+    'Krátké české popisky uzlů v hranatých závorkách, vztahy šipkami, akci napiš na šipku.\n' +
+    'SPOLEČNÁ PRAVIDLA: čísla buď z nástrojů (živá data), nebo to v názvu/textu označ jako ' +
+    'ILUSTRACI (nevymýšlej si „reálná" čísla); vizuál je doplněk, ne náhrada vysvětlení; ' +
+    'maximálně jeden na odpověď; přesný osobní propočet patří do kalkulaček (bod 10). ' +
+    'Formáty přesně takto:\n' +
+    '```echarts\n' +
+    '{"title":{"text":"Síla složeného úročení (ilustrace, 7 % p.a.)"},"xAxis":{"type":"category",' +
+    '"data":["0","5","10","15","20 let"]},"yAxis":{"type":"value"},"series":[{"type":"line",' +
+    '"data":[100000,140255,196715,275903,386968]}]}\n' +
+    '```\n' +
+    'nebo\n' +
+    '```mermaid\n' +
+    'flowchart TB\n' +
+    '  U["Investor"] -->|"pokyn k nákupu"| B["Broker"]\n' +
+    '  B -->|"předá pokyn"| E["Burza"]\n' +
+    '  E -->|"spáruje s prodávajícím"| V["Vypořádání"]\n' +
+    '  V -->|"akcie na účet"| U\n' +
+    '```'
   );
 }
 
