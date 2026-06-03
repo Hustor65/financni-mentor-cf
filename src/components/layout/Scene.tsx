@@ -132,7 +132,7 @@ const HUB_NAMES = [
 interface ArcDatum {
   startLat: number; startLng: number; endLat: number; endLng: number;
   initGap: number; // 0..1 — de-syncs pulse POSITION
-  animMs: number;  // 1900..3400 — de-syncs pulse SPEED
+  animMs: number;  // 2600..4400 — de-syncs pulse SPEED (slower travel)
   alt: number;     // orbit band: 0.16 | 0.30 | 0.50
 }
 
@@ -171,7 +171,7 @@ function buildArcs(): ArcDatum[] {
     out.push({
       startLat: from.lat, startLng: from.lng, endLat: to.lat, endLng: to.lng,
       initGap: arcRng(),
-      animMs: 1900 + arcRng() * 1500,
+      animMs: 2600 + arcRng() * 1800,
       alt: altBand(gcDist(from, to)),
     });
   };
@@ -852,11 +852,11 @@ function GlobeBody({
               pointsMerge
               pointResolution={6}
               pointAltitude={(d: object) =>
-                (d as PointDatum).tier === 'mega' ? 0.075
-                  : (d as PointDatum).tier === 'major' ? 0.052 : 0.034}
+                (d as PointDatum).tier === 'mega' ? 0.05
+                  : (d as PointDatum).tier === 'major' ? 0.034 : 0.022}
               pointRadius={(d: object) =>
-                (d as PointDatum).tier === 'mega' ? 0.3
-                  : (d as PointDatum).tier === 'major' ? 0.26 : 0.22}
+                (d as PointDatum).tier === 'mega' ? 0.25
+                  : (d as PointDatum).tier === 'major' ? 0.21 : 0.18}
               pointColor={(d: object) =>
                 (d as PointDatum).tier === 'mega' ? PILLAR_HI
                   : (d as PointDatum).tier === 'major' ? PILLAR_MID : PILLAR_LO}
