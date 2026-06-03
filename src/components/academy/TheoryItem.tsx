@@ -47,7 +47,7 @@ export const TheoryItem: React.FC<{ card: TheoryCard; index: number }> = ({ card
             aria-controls={bodyId}
             onClick={() => setOpen(o => !o)}
           >
-            <span>{open ? 'Méně' : 'Číst více'}</span>
+            <span>{open ? 'Sbalit' : 'Číst více'}</span>
             <Icon
               name="chevron-down"
               size={16}

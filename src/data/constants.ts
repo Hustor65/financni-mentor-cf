@@ -31,8 +31,8 @@ export const NEWSLETTER_FALLBACK_EMAIL = 'jakub.simon65@gmail.com';
 // ── Data Sources ──
 export const DATA_SOURCES = [
   { name: 'Česká národní banka (ČNB)', use: 'Ochrana spotřebitele, finanční gramotnost, regulace trhu', url: 'https://www.cnb.cz/cs/o_cnb/financni-a-ekonomicka-gramotnost/' },
-  { name: 'Český statistický úřad (ČSÚ)', use: 'Inflace, vývoj průměrných mezd', url: 'https://csu.gov.cz/' },
-  { name: 'ČSSZ / MPSV', use: 'Parametry starobního důchodu 2026, valorizace, statistika', url: 'https://www.cssz.cz/' },
-  { name: 'ESMA / MiFID II', use: 'Rozdíl mezi vzděláváním a investičním doporučením', url: 'https://www.esma.europa.eu/' },
+  { name: 'Český statistický úřad (ČSÚ)', use: 'Míra inflace a vývoj průměrných mezd', url: 'https://csu.gov.cz/' },
+  { name: 'ČSSZ / MPSV', use: 'Parametry starobního důchodu 2026, valorizace a statistiky', url: 'https://www.cssz.cz/' },
+  { name: 'ESMA / MiFID II', use: 'Hranice mezi finančním vzděláváním a investičním poradenstvím (co je a co není doporučení)', url: 'https://www.esma.europa.eu/' },
   { name: 'Ministerstvo financí ČR', use: 'Daně z investic, DIP, Národní strategie finančního vzdělávání', url: 'https://financnigramotnost.gov.cz/' },
 ];

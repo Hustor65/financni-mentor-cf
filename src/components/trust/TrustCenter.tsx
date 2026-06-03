@@ -10,11 +10,11 @@ export const TrustCenter: React.FC = () => (
     {/* ── ČÁST 2: Centrum důvěry ── */}
     <div style={{ height: 'var(--section-gap)' }} />
 
-    <span className="eyebrow eyebrow--cyan">Důvěra &amp; přesnost</span>
-    <p className="section-header">Důvěra a metodika — bereme to vážně</p>
+    <span className="eyebrow eyebrow--cyan">Přesnost a důvěra</span>
+    <p className="section-header">Důvěra a metodika — bereme ji vážně</p>
     <p className="section-desc">
-      Ve financích je přesnost a transparentnost základ.
-      Tady přesně vidíte, odkud bereme čísla a proč jsme nezávislí.
+      Ve financích jsou přesnost a transparentnost základ.
+      Tady jasně vidíte, odkud bereme čísla a proč jsme nezávislí.
     </p>
 
     {/* Právní upozornění a rizika jsou v zápatí stránky — zde je už neopakujeme. */}
@@ -27,12 +27,13 @@ export const TrustCenter: React.FC = () => (
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
         </span>
-        Nezávislost — učíme, neprodáváme
+        Nezávislost — vzděláváme, neprodáváme
       </p>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.7, margin: 0 }}>
         Nejsme napojení na žádného brokera ani fond a obsah nepíšeme proto, abychom vám prodali konkrétní produkt.
+        (Broker = firma, přes kterou nakupujete a prodáváte cenné papíry.)
         Cílem je <strong style={{ color: '#FFFFFF' }}>nezávislé vzdělávání</strong> — žádné skryté provize za to,
-        kam vás pošleme. Když zmíníme produkt, je to pro ilustraci, ne jako reklama.
+        kam vás nasměrujeme. Když zmíníme konkrétní produkt, je to jen pro ilustraci, ne jako reklama.
       </p>
     </div>
 
@@ -68,18 +69,18 @@ export const TrustCenter: React.FC = () => (
       </ul>
 
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7, margin: '0 0 0.6rem' }}>
-        Číselné výpočty stojí na <strong style={{ color: '#FFFFFF' }}>exaktní matematice v Pythonu</strong>{' '}
-        a oficiálních parametrech (ČNB, ČSSZ, ČSÚ) — žádné „tipování“ jazykového modelu.
-        Vzdělávací obsah průběžně revidujeme a aktualizujeme.
+        Číselné výpočty stojí na <strong style={{ color: '#FFFFFF' }}>přesné matematice</strong> (počítané v Pythonu){' '}
+        a na oficiálních parametrech (ČNB, ČSSZ, ČSÚ) — žádné „tipování“ ze strany jazykového modelu.
+        Vzdělávací obsah pravidelně kontrolujeme a aktualizujeme.
       </p>
 
       <p className="data-note" style={{ margin: 0 }}>
-        Našli jste nepřesnost? Napište na{' '}
+        Našli jste nepřesnost? Napište nám na{' '}
         <a href="mailto:jakub.simon65@gmail.com" style={{ color: 'var(--lg-cyan-400)', textDecoration: 'none' }}>
           jakub.simon65@gmail.com
         </a>{' '}
-        — opravu zveřejníme. &nbsp;·&nbsp; Obsah naposledy aktualizován:{' '}
-        <strong>{CONTENT_LAST_UPDATED}</strong>.
+        — opravíme to a opravu zveřejníme. (Obsah naposledy aktualizován:{' '}
+        <strong>{CONTENT_LAST_UPDATED}</strong>.)
       </p>
     </div>
   </div>

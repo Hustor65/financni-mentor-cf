@@ -36,13 +36,13 @@ export const HallucinationDemo: React.FC = () => {
     <>
       {/* ── Nadpis sekce ── */}
       <div className="spacer-md" />
-      <span className="eyebrow eyebrow--cyan">Proč Function Calling</span>
-      <p className="section-header">Jazykové modely neumí počítat bez Function Callingu</p>
+      <span className="eyebrow eyebrow--cyan">Proč volání funkcí</span>
+      <p className="section-header">Jazykové modely bez „volání funkcí“ neumí spolehlivě počítat</p>
       <p className="section-desc">
-        Nejslabší a nejnebezpečnější stránka AI? Generuje textové odpovědi skládáním slov na základě statistické
+        Nejslabší a nejnebezpečnější stránka AI? Odpovědi tvoří skládáním slov podle statistické
         pravděpodobnosti,{' '}
-        <strong>ale přirozeně neprovádí exaktní matematiku.</strong>{' '}
-        Toto chování ukazuje enormní riziko v oblasti financí.
+        <strong>ale přesnou matematiku sama o sobě nepočítá.</strong>{' '}
+        A právě ve financích je to obrovské riziko.
       </p>
 
       <div className="spacer-md" />
@@ -71,7 +71,7 @@ export const HallucinationDemo: React.FC = () => {
             </svg>
           </span>
           <span>
-            Níže uvedený scénář demonstruje skutečnou halucinaci jazykového modelu, na kterou jsme v praxi upozornili!
+            Níže uvedený scénář ukazuje skutečnou halucinaci jazykového modelu, se kterou jsme se v praxi setkali.
           </span>
         </p>
       </div>
@@ -97,10 +97,10 @@ export const HallucinationDemo: React.FC = () => {
           }}
         >
           <Icon name="sparkles" size={18} color="#3ab5e0" />
-          Vyzkoušejte si to sami — Změňte parametry a sledujte rozdíl v přímém přenosu
+          Vyzkoušejte si to sami — změňte parametry a sledujte rozdíl naživo
         </p>
         <p style={{ color: '#64748B', fontSize: '0.82rem', margin: 0 }}>
-          Zadejte libovolné hodnoty a pozorujte, jak se liší přesný matematický výpočet od toho, co by odpověděl standardní jazykový model.
+          Zadejte libovolné hodnoty a sledujte, jak se přesný výpočet liší od odpovědi, kterou by dal běžný jazykový model.
         </p>
       </div>
 
@@ -144,14 +144,14 @@ export const HallucinationDemo: React.FC = () => {
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </span>
-            Exaktní Matematika (Python)
+            Přesný výpočet (Python)
           </p>
 
           <p style={{ color: '#94A3B8', fontSize: '0.85rem', lineHeight: 2, marginBottom: '1.5rem' }}>
             • Počáteční vklad: <strong style={{ color: '#E2E8F0' }}>{czFmt(initDeposit)} Kč</strong><br />
             • Měsíční splátka: <strong style={{ color: '#E2E8F0' }}>{czFmt(monthly)} Kč</strong><br />
-            • Úroková sazba: <strong style={{ color: '#E2E8F0' }}>{rate} % p.a.</strong><br />
-            • Doba úročení: <strong style={{ color: '#E2E8F0' }}>{years} let</strong> (měsíční úročení)
+            • Úroková sazba: <strong style={{ color: '#E2E8F0' }}>{rate} % ročně (p.a.)</strong><br />
+            • Doba spoření: <strong style={{ color: '#E2E8F0' }}>{years} let</strong> (úročeno měsíčně)
           </p>
 
           <div
@@ -164,7 +164,7 @@ export const HallucinationDemo: React.FC = () => {
             }}
           >
             <p style={{ color: '#64748B', fontSize: '0.75rem', margin: '0 0 0.5rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Přesný vědecký výpočet
+              Přesný výpočet (Python)
             </p>
             <p
               aria-live="polite"
@@ -217,8 +217,8 @@ export const HallucinationDemo: React.FC = () => {
           >
             <p style={{ color: '#64748B', fontSize: '0.8rem', margin: '0 0 0.4rem' }}>Dotaz pro AI:</p>
             <p style={{ color: '#94A3B8', fontSize: '0.82rem', fontStyle: 'italic', margin: 0, lineHeight: 1.7 }}>
-              &quot;Vypočítej stav budoucího konta po {years} letech s vkladem {czFmt(initDeposit)} Kč
-              a měsíční úsporou {czFmt(monthly)} Kč s úrokem {rate}%...&quot;
+              &quot;Spočítej, kolik budu mít naspořeno po {years} letech při počátečním vkladu {czFmt(initDeposit)} Kč,
+              měsíčním spoření {czFmt(monthly)} Kč a úroku {rate} % ročně…&quot;
             </p>
           </div>
 
@@ -234,7 +234,7 @@ export const HallucinationDemo: React.FC = () => {
             }}
           >
             <p style={{ color: '#64748B', fontSize: '0.75rem', margin: '0 0 0.25rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              AI s naprostou jistotou odpoví:
+              AI sebevědomě odpoví:
             </p>
             <p
               aria-live="polite"
@@ -254,13 +254,13 @@ export const HallucinationDemo: React.FC = () => {
           {/* Chyba + vysvětlení */}
           <div style={{ background: 'rgba(239,68,68,0.05)', borderRadius: '12px', padding: '1rem' }}>
             <p style={{ color: '#EF4444', fontWeight: 700, fontSize: '1.05rem', margin: '0 0 0.5rem' }}>
-              Chyba: o {formattedDiff} Kč méně!
+              Chyba: o {formattedDiff} Kč méně, než je správně
             </p>
             <p style={{ color: '#94A3B8', fontSize: '0.8rem', lineHeight: 1.7, margin: 0 }}>
-              Model sice správně popíše postup výpočtu, ale jelikož ve skutečnosti nepočítá exponenty,
-              nýbrž pouze tipuje další slova, vytvoří zcela smyšlenou konečnou částku.
-              Dokud AI modely nepoužívají pokročilé volání funkcí (Function Calling) jako náš FinMentor,
-              nelze jim ve finančních záležitostech důvěřovat!
+              Model sice správně popíše postup výpočtu, ale ve skutečnosti čísla nepočítá — pouze odhaduje,
+              jaké slovo (nebo číslici) má napsat jako další. Výsledná částka je proto vymyšlená.
+              Dokud jazykový model nepoužívá volání funkcí (function calling) — jako to dělá náš mentor
+              v Nachytej AI —, nelze jeho finančním výpočtům věřit.
             </p>
           </div>
         </div>

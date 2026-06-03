@@ -15,16 +15,16 @@ interface ProductRow extends Product {
 }
 
 const PRODUCTS: ProductRow[] = [
-  { name: 'Spořicí účet', liquidity: 'Vysoká — kdykoli', yield: '~1–4 % p.a.', tax: 'Daň 15 % z úroků', horizon: 'Krátkodobý', forWhom: 'Pohotovostní rezerva' },
-  { name: 'ETF (akcie)', liquidity: 'Vysoká — prodej během dní', yield: '~7 % p.a.*', tax: 'Po 3 letech držby osvobozeno', horizon: 'Dlouhodobý (5+ let)', forWhom: 'Růst majetku', featured: true },
-  { name: 'Penzijní spoření', liquidity: 'Nízká — výběr až v 60', yield: '~2–5 % p.a.', tax: 'Příspěvek státu + daňový odpočet', horizon: 'Do důchodu', forWhom: 'Důchodová rezerva' },
-  { name: 'DIP', liquidity: 'Nízká — 10 let a min. 60 let věku', yield: 'Dle zvoleného nástroje', tax: 'Odpočet až 48 000 Kč/rok', horizon: 'Dlouhodobý', forWhom: 'Daňová úspora + důchod' },
+  { name: 'Spořicí účet', liquidity: 'Vysoká — peníze máte hned', yield: '~1–4 % ročně', tax: 'Daň 15 % z úroků', horizon: 'Krátkodobý', forWhom: 'Pohotovostní rezerva' },
+  { name: 'ETF (akcie)', liquidity: 'Vysoká — prodej do několika dní', yield: '~7 % ročně*', tax: 'Po 3 letech držby osvobozeno', horizon: 'Dlouhodobý (5+ let)', forWhom: 'Růst majetku', featured: true },
+  { name: 'Penzijní spoření', liquidity: 'Nízká — výběr až v 60 letech', yield: '~2–5 % ročně', tax: 'Státní příspěvek a daňový odpočet', horizon: 'Do důchodu', forWhom: 'Důchodová rezerva' },
+  { name: 'DIP (dlouhodobý investiční produkt)', liquidity: 'Nízká — minimálně 10 let a věk 60+', yield: 'Podle zvoleného nástroje', tax: 'Odpočet až 48 000 Kč ročně', horizon: 'Dlouhodobý', forWhom: 'Daňová úspora a důchod' },
 ];
 
 const COLS: { key: keyof Product; label: string }[] = [
   { key: 'liquidity', label: 'Likvidita' },
   { key: 'yield', label: 'Výnos' },
-  { key: 'tax', label: 'Daně / výhody' },
+  { key: 'tax', label: 'Daně a výhody' },
   { key: 'horizon', label: 'Horizont' },
   { key: 'forWhom', label: 'Vhodné pro' },
 ];
@@ -38,7 +38,7 @@ export const ProductComparison: React.FC = () => (
       Srovnání produktů
     </h2>
     <p className="section-desc">
-      Rychlá orientace, kam peníze patří podle cíle a horizontu. Obecné informace, ne investiční doporučení.
+      Rychlá orientace, kam peníze patří podle vašeho cíle a časového horizontu. Jde o obecné informace, ne o investiční doporučení.
     </p>
 
     <div className="compare-grid">
@@ -62,7 +62,7 @@ export const ProductComparison: React.FC = () => (
     </div>
 
     <p className="data-note" style={{ marginTop: '0.9rem' }}>
-      * Historický průměr globálních akcií; minulé výnosy nezaručují budoucí. Hodnota investice kolísá.
+      * Orientační historický průměr globálních akcií. Minulé výnosy nezaručují ty budoucí a hodnota investice v čase kolísá.
     </p>
   </div>
 );

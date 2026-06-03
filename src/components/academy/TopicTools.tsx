@@ -119,7 +119,7 @@ export const InflationTool: React.FC = () => {
           min={0} sliderMin={1000} sliderMax={500000} step={10000} />
         <NumberField label="Inflace" suffix="%" value={infl} onChange={setInfl}
           min={0} max={100} sliderMin={1} sliderMax={8} step={0.5} decimals={1} />
-        <NumberField label="Roky" suffix="let" value={years} onChange={setYears}
+        <NumberField label="Doba" suffix="let" value={years} onChange={setYears}
           min={1} max={80} sliderMin={5} sliderMax={40} step={1} />
       </div>
       <Suspense fallback={<ChartSkeleton height={300} />}>
@@ -127,7 +127,7 @@ export const InflationTool: React.FC = () => {
       </Suspense>
       <div style={{ borderLeft: '3px solid #EF4444', padding: '0.6rem 0.75rem', marginTop: '0.4rem', background: 'rgba(239,68,68,0.05)', borderRadius: '0 8px 8px 0' }}>
         <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
-          Z <strong style={{ color: '#E2E8F0' }}>{czNum(amount)} Kč</strong> pod polštářem zbude při {infl}% inflaci za {years} let reálně jen <strong style={{ color: '#EF4444' }}>{czNum(realFinal)} Kč</strong> v dnešní kupní síle. Investice (zelená čára) inflaci naopak poráží.
+          Z <strong style={{ color: '#E2E8F0' }}>{czNum(amount)} Kč</strong> pod polštářem zbude při {infl}% inflaci za {years} let reálně jen <strong style={{ color: '#EF4444' }}>{czNum(realFinal)} Kč</strong> v dnešní kupní síle. Investovaná částka (zelená čára) si naopak s inflací poradí a hodnotu udrží.
         </span>
       </div>
     </div>
