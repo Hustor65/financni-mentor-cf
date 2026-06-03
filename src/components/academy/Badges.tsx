@@ -22,7 +22,11 @@ export const Badges: React.FC<{ completed: number }> = ({ completed }) => (
     {MILESTONES.map(m => {
       const earned = completed >= m.need;
       return (
-        <div key={m.need} className={`badge${earned ? ' badge--earned' : ''}`}>
+        <div
+          key={m.need}
+          className={`badge${earned ? ' badge--earned' : ''}`}
+          aria-label={`${earned ? 'Získaný odznak' : 'Zamčený odznak'}: ${m.label}. ${earned ? m.desc : `Zbývá ${m.need - completed} ${pluralTemata(m.need - completed)}`}`}
+        >
           <span className="badge__icon">
             <Icon name={m.icon} size={22} color={earned ? 'var(--lg-green-500)' : '#475569'} />
           </span>

@@ -17,20 +17,29 @@ export const StocksComparison: React.FC = () => {
     ['ETF', 'Tržní', 'Rozložené', '#F59E0B'],
   ];
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-      {data.map(([name, vyn, riz, color]) => (
-        <div
-          key={name}
-          className="glass-panel glass-panel--elevated"
-          style={{ padding: '1rem', textAlign: 'center' }}
-        >
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, color, fontSize: '1rem' }}>{name}</div>
-          <div style={{ color: '#64748B', fontSize: '0.72rem', marginTop: '0.6rem' }}>Výnos</div>
-          <div style={{ color: '#E2E8F0', fontSize: '0.9rem', fontWeight: 600 }}>{vyn}</div>
-          <div style={{ color: '#64748B', fontSize: '0.72rem', marginTop: '0.4rem' }}>Riziko</div>
-          <div style={{ color: '#E2E8F0', fontSize: '0.9rem', fontWeight: 600 }}>{riz}</div>
-        </div>
-      ))}
+    <div>
+      <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#E2E8F0', fontSize: '0.95rem', margin: '0 0 0.3rem' }}>
+        Tři základní stavební kameny
+      </p>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', lineHeight: 1.6, margin: '0 0 0.9rem' }}>
+        Srovnání tří nejčastějších nástrojů podle toho, jaký výnos můžete čekat a jak velké kolísání hodnoty snesete.
+        Tržní výnos = kopíruje vývoj celého trhu. Rozložené riziko = peníze jsou rozprostřené do desítek firem, takže pád jedné z nich bolí méně.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+        {data.map(([name, vyn, riz, color]) => (
+          <div
+            key={name}
+            className="glass-panel glass-panel--elevated"
+            style={{ padding: '1rem', textAlign: 'center' }}
+          >
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, color, fontSize: '1rem' }}>{name}</div>
+            <div style={{ color: '#64748B', fontSize: '0.72rem', marginTop: '0.6rem' }}>Výnos</div>
+            <div style={{ color: '#E2E8F0', fontSize: '0.9rem', fontWeight: 600 }}>{vyn}</div>
+            <div style={{ color: '#64748B', fontSize: '0.72rem', marginTop: '0.4rem' }}>Riziko</div>
+            <div style={{ color: '#E2E8F0', fontSize: '0.9rem', fontWeight: 600 }}>{riz}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -114,6 +123,12 @@ export const InflationTool: React.FC = () => {
 
   return (
     <div>
+      <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#E2E8F0', fontSize: '0.95rem', margin: '0 0 0.3rem' }}>
+        Jak inflace ukrajuje z úspor
+      </p>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', lineHeight: 1.6, margin: '0 0 0.9rem' }}>
+        Posuňte částku, odhad inflace a počet let a uvidíte, o kolik reálně přijdete, když peníze leží ladem — a jak na tom může být investice. (Inflace v ČR bývá dlouhodobě kolem 2–3 %.)
+      </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
         <NumberField label="Částka" suffix="Kč" value={amount} onChange={setAmount}
           min={0} sliderMin={1000} sliderMax={500000} step={10000} />
@@ -148,9 +163,20 @@ export const RiskProfile: React.FC = () => {
     ['Hotovost / rezerva', '#F59E0B'],
   ];
   const current = alloc[profile];
+  const summary: Record<string, string> = {
+    'Konzervativní': 'Konzervativní profil dává přednost klidu před výnosem — větší podíl dluhopisů a hotovosti tlumí výkyvy.',
+    'Vyvážený': 'Vyvážený profil hledá rozumný kompromis mezi růstem a klidným spánkem.',
+    'Dynamický': 'Dynamický profil sází na dlouhodobý růst a snese i hlubší propady cestou za vyšším výnosem.',
+  };
 
   return (
     <div>
+      <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#E2E8F0', fontSize: '0.95rem', margin: '0 0 0.3rem' }}>
+        Najděte svůj investiční profil
+      </p>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', lineHeight: 1.6, margin: '0 0 0.9rem' }}>
+        Vyberte možnost, která vám je nejbližší. Podle ní vám ukážeme příklad rozložení peněz.
+      </p>
       {/* radio horizontal */}
       <div style={{ marginBottom: '0.5rem', color: '#E2E8F0', fontSize: '0.9rem', fontWeight: 500 }}>
         Jak snášíte výkyvy hodnoty?
@@ -171,12 +197,15 @@ export const RiskProfile: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#E2E8F0', marginBottom: '3px' }}>
               <span>{lab}</span><span>{current[i]} %</span>
             </div>
-            <div style={{ height: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '5px', overflow: 'hidden' }}>
+            <div role="progressbar" aria-valuenow={current[i]} aria-valuemin={0} aria-valuemax={100} aria-label={lab} style={{ height: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '5px', overflow: 'hidden' }}>
               <div style={{ width: `${current[i]}%`, height: '100%', background: color, borderRadius: '5px', transition: 'width 300ms ease' }} />
             </div>
           </div>
         ))}
       </div>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.83rem', lineHeight: 1.6, margin: '0.75rem 0 0' }}>
+        {summary[profile]} Jde o příklad, ne o doporučení — vaše situace může být jiná.
+      </p>
     </div>
   );
 };
