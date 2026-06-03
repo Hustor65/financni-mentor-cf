@@ -43,7 +43,7 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
     ? pct === 100
       ? { icon: 'circle-check', text: `Výborně! ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-green-500)' }
       : pct >= 60
-        ? { icon: 'target', text: `Dobré! ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-cyan-400)' }
+        ? { icon: 'target', text: `Dobrá práce! ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-cyan-400)' }
         : { icon: 'book-open', text: `Skoro to máte — zkuste to znovu. ${correct}/${total} správně (${pct} %)`, color: 'var(--text-secondary)' }
     : null;
 

@@ -14,7 +14,7 @@ export const CompoundInterestCalc = () => {
 
   const option = useMemo(() => {
     const xLabels = data.map(r => {
-      if (r.year === 0) return 'start';
+      if (r.year === 0) return 'Dnes';
       if (r.year === 1) return '1 rok';
       if (r.year < 5) return `${r.year} roky`;
       return `${r.year} let`;
@@ -57,7 +57,7 @@ export const CompoundInterestCalc = () => {
             ['#10b981', 'Investováno', '#e2e8f0', byName['Investováno']],
           ];
           if (hasInfl) rows.push(['#3ab5e0', 'Po inflaci', '#cbd5e1', byName['Po inflaci']]);
-          rows.push(['#475569', 'Bez investice', '#94a3b8', byName['Bez investice']]);
+          rows.push(['#475569', 'Jen spořeno', '#94a3b8', byName['Jen spořeno']]);
           if (hasInfl) rows.push(['#ef4444', 'Pod polštářem', '#fca5a5', byName['Pod polštářem']]);
           for (const [sw, label, vc, val] of rows) {
             html += `<div style="display:flex;justify-content:space-between;gap:18px;padding:3px 0;"><span style="color:#cbd5e1;font-weight:600;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${sw};margin-right:8px;vertical-align:middle;"></span>${label}</span><span style="color:${vc};font-weight:600;font-variant-numeric:tabular-nums;">${fmt(val)}</span></div>`;
@@ -66,7 +66,7 @@ export const CompoundInterestCalc = () => {
         },
       },
       legend: {
-        data: ['Investováno', hasInfl ? 'Po inflaci' : '', 'Bez investice', hasInfl ? 'Pod polštářem' : ''].filter(Boolean),
+        data: ['Investováno', hasInfl ? 'Po inflaci' : '', 'Jen spořeno', hasInfl ? 'Pod polštářem' : ''].filter(Boolean),
         bottom: 6, left: 'center', icon: 'roundRect', itemWidth: 10, itemHeight: 10,
         textStyle: { color: '#94a3b8', fontFamily: 'Inter, sans-serif', fontSize: 11 },
         inactiveColor: '#334155',
@@ -84,7 +84,7 @@ export const CompoundInterestCalc = () => {
       },
       series: [
         {
-          name: 'Bez investice', type: 'line', smooth: true, showSymbol: false, sampling: 'lttb', data: noInvest, z: 2,
+          name: 'Jen spořeno', type: 'line', smooth: true, showSymbol: false, sampling: 'lttb', data: noInvest, z: 2,
           lineStyle: { color: '#64748b', width: 1.6, type: 'dashed' }, itemStyle: { color: '#64748b' },
           emphasis: { focus: 'series', lineStyle: { width: 2 } },
           areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(100,116,139,0.18)' }, { offset: 1, color: 'rgba(100,116,139,0.0)' }] } },
@@ -98,14 +98,14 @@ export const CompoundInterestCalc = () => {
           markPoint: {
             symbol: 'circle', symbolSize: 10,
             itemStyle: { color: '#10b981', borderColor: '#ffffff', borderWidth: 2, shadowColor: 'rgba(16,185,129,0.8)', shadowBlur: 18 },
-            label: { show: true, position: 'top', distance: 12, fontFamily: 'Space Grotesk', fontSize: 11, fontWeight: 700, color: '#10b981', backgroundColor: 'rgba(2,44,34,0.85)', padding: [4, 8], borderRadius: 6, formatter: `Cíl  ${czNum(invested[invested.length - 1] || 0)} Kč` },
+            label: { show: true, position: 'top', distance: 12, fontFamily: 'Space Grotesk', fontSize: 11, fontWeight: 700, color: '#10b981', backgroundColor: 'rgba(2,44,34,0.85)', padding: [4, 8], borderRadius: 6, formatter: `Konečná hodnota  ${czNum(invested[invested.length - 1] || 0)} Kč` },
             data: [{ type: 'max' }],
           },
           ...(breakEvenIdx != null ? {
             markLine: {
               symbol: 'none', silent: true,
               lineStyle: { color: 'rgba(58,181,224,0.55)', type: 'dotted', width: 1.2 },
-              label: { show: true, position: 'insideEndTop', color: '#3ab5e0', fontFamily: 'Space Grotesk, sans-serif', fontSize: 10, fontWeight: 600, formatter: 'úroky překlápějí spoření' },
+              label: { show: true, position: 'insideEndTop', color: '#3ab5e0', fontFamily: 'Space Grotesk, sans-serif', fontSize: 10, fontWeight: 600, formatter: 'tady už výnosy táhnou víc než vklady' },
               data: [{ xAxis: breakEvenIdx }],
             },
           } : {}),
@@ -139,11 +139,15 @@ export const CompoundInterestCalc = () => {
           min={0} sliderMin={500} sliderMax={50000} step={500} />
         <NumberField label="Roční výnos" suffix="%" value={rate} onChange={setRate}
           min={0} max={100} sliderMin={1} sliderMax={15} step={0.5} decimals={1} />
-        <NumberField label="Horizont" suffix="let" value={years} onChange={setYears}
+        <NumberField label="Doba spoření" suffix="let" value={years} onChange={setYears}
           min={1} max={80} sliderMin={1} sliderMax={50} step={1} />
         <NumberField label="Inflace" suffix="%" value={inflation} onChange={setInflation}
           min={0} max={100} sliderMin={0} sliderMax={10} step={0.5} decimals={1} />
       </div>
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 0.25rem', lineHeight: 1.6 }}>
+        Graf ukazuje, jak by vaše pravidelné vklady mohly růst, kdybyste je investovali — a o kolik
+        byste se připravili, kdyby peníze jen ležely stranou. Jde o orientační odhad, ne o příslib výnosu.
+      </p>
       <div style={{ marginTop: '1rem' }}>
         <Suspense fallback={<ChartSkeleton height={320} />}>
           <ReactECharts option={option} style={{ height: 320 }} opts={{ renderer: 'canvas' }} />
