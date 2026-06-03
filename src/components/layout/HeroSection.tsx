@@ -56,6 +56,10 @@ export const HeroSection: React.FC = () => {
   const innerRef = useRef<HTMLDivElement>(null);
   // 3D scéna se pauzne, jakmile hero sjede z obrazovky (šetří CPU/GPU)
   const [sceneActive, setSceneActive] = useState(true);
+  // příchod scény = CSS opacity fade (heroSceneFade); reduced-motion → bez fade
+  const reduce =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
   // Plynulý scroll-fade celé hero vrstvy
   useEffect(() => {
@@ -107,7 +111,7 @@ export const HeroSection: React.FC = () => {
       {/* vrstva, kterou plynule fadeujeme při scrollu */}
       <div className="hero-fs-inner" ref={innerRef}>
         {/* 3D scéna */}
-        <div className="hero-fs-scene">
+        <div className={`hero-fs-scene${reduce ? '' : ' hero-fs-scene--enter'}`}>
           <Suspense fallback={null}>
             <HeroScene accentColor="#2596be" particleCount={2400} paused={!sceneActive} />
           </Suspense>

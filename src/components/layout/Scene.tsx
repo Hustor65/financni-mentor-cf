@@ -71,53 +71,138 @@ interface Hub {
   name: string;
   lat: number;
   lng: number;
+  tier: 'mega' | 'major' | 'regional';
 }
 const HUBS: Hub[] = [
-  { name: 'New York', lat: 40.71, lng: -74.01 },
-  { name: 'London', lat: 51.51, lng: -0.09 },
-  { name: 'Frankfurt', lat: 50.11, lng: 8.67 },
-  { name: 'Zurich', lat: 47.37, lng: 8.54 },
-  { name: 'Tokyo', lat: 35.68, lng: 139.77 },
-  { name: 'Hong Kong', lat: 22.28, lng: 114.16 },
-  { name: 'Shanghai', lat: 31.23, lng: 121.47 },
-  { name: 'Singapore', lat: 1.28, lng: 103.86 },
-  { name: 'Sydney', lat: -33.86, lng: 151.21 },
-  { name: 'São Paulo', lat: -23.55, lng: -46.64 },
+  { name: 'New York (NYSE)', lat: 40.7069, lng: -74.0113, tier: 'mega' },
+  { name: 'New York (Nasdaq)', lat: 40.7561, lng: -73.9857, tier: 'mega' },
+  { name: 'Toronto (TSX)', lat: 43.6479, lng: -79.3812, tier: 'major' },
+  { name: 'Mexico City (BMV)', lat: 19.4338, lng: -99.1419, tier: 'regional' },
+  { name: 'São Paulo (B3)', lat: -23.5708, lng: -46.6336, tier: 'major' },
+  { name: 'Buenos Aires (BYMA)', lat: -34.6086, lng: -58.3739, tier: 'regional' },
+  { name: 'Santiago (BCS)', lat: -33.441, lng: -70.651, tier: 'regional' },
+  { name: 'Bogotá (BVC)', lat: 4.601, lng: -74.068, tier: 'regional' },
+  { name: 'Lima (BVL)', lat: -12.054, lng: -77.033, tier: 'regional' },
+  { name: 'London (LSE)', lat: 51.5155, lng: -0.0922, tier: 'mega' },
+  { name: 'Paris (Euronext)', lat: 48.869, lng: 2.341, tier: 'mega' },
+  { name: 'Amsterdam (Euronext)', lat: 52.3676, lng: 4.895, tier: 'major' },
+  { name: 'Frankfurt (Deutsche Börse)', lat: 50.1155, lng: 8.6842, tier: 'major' },
+  { name: 'Zurich (SIX)', lat: 47.37, lng: 8.536, tier: 'major' },
+  { name: 'Milan (Borsa Italiana)', lat: 45.4654, lng: 9.1859, tier: 'major' },
+  { name: 'Madrid (BME)', lat: 40.4168, lng: -3.6932, tier: 'major' },
+  { name: 'Stockholm (Nasdaq)', lat: 59.332, lng: 18.072, tier: 'major' },
+  { name: 'Oslo (Euronext)', lat: 59.912, lng: 10.735, tier: 'regional' },
+  { name: 'Vienna (Wiener Börse)', lat: 48.2092, lng: 16.359, tier: 'regional' },
+  { name: 'Warsaw (GPW)', lat: 52.233, lng: 21.008, tier: 'regional' },
+  { name: 'Istanbul (BIST)', lat: 41.066, lng: 29.008, tier: 'regional' },
+  { name: 'Moscow (MOEX)', lat: 55.752, lng: 37.628, tier: 'regional' },
+  { name: 'Johannesburg (JSE)', lat: -26.098, lng: 28.056, tier: 'major' },
+  { name: 'Lagos (NGX)', lat: 6.45, lng: 3.396, tier: 'regional' },
+  { name: 'Nairobi (NSE)', lat: -1.284, lng: 36.823, tier: 'regional' },
+  { name: 'Casablanca (BVC)', lat: 33.595, lng: -7.618, tier: 'regional' },
+  { name: 'Cairo (EGX)', lat: 30.044, lng: 31.236, tier: 'regional' },
+  { name: 'Riyadh (Tadawul)', lat: 24.711, lng: 46.674, tier: 'major' },
+  { name: 'Dubai (DFM)', lat: 25.222, lng: 55.284, tier: 'regional' },
+  { name: 'Abu Dhabi (ADX)', lat: 24.499, lng: 54.377, tier: 'regional' },
+  { name: 'Doha (QSE)', lat: 25.287, lng: 51.531, tier: 'regional' },
+  { name: 'Tel Aviv (TASE)', lat: 32.064, lng: 34.774, tier: 'regional' },
+  { name: 'Mumbai (NSE/BSE)', lat: 18.93, lng: 72.835, tier: 'major' },
+  { name: 'Shanghai (SSE)', lat: 31.233, lng: 121.505, tier: 'mega' },
+  { name: 'Shenzhen (SZSE)', lat: 22.543, lng: 114.057, tier: 'mega' },
+  { name: 'Hong Kong (HKEX)', lat: 22.281, lng: 114.159, tier: 'mega' },
+  { name: 'Taipei (TWSE)', lat: 25.033, lng: 121.565, tier: 'major' },
+  { name: 'Tokyo (JPX)', lat: 35.683, lng: 139.777, tier: 'mega' },
+  { name: 'Seoul (KRX)', lat: 37.525, lng: 126.927, tier: 'major' },
+  { name: 'Singapore (SGX)', lat: 1.281, lng: 103.85, tier: 'major' },
+  { name: 'Bangkok (SET)', lat: 13.753, lng: 100.539, tier: 'regional' },
+  { name: 'Kuala Lumpur (Bursa Malaysia)', lat: 3.148, lng: 101.713, tier: 'regional' },
+  { name: 'Jakarta (IDX)', lat: -6.224, lng: 106.809, tier: 'regional' },
+  { name: 'Ho Chi Minh City (HOSE)', lat: 10.778, lng: 106.7, tier: 'regional' },
+  { name: 'Manila (PSE)', lat: 14.556, lng: 121.025, tier: 'regional' },
+  { name: 'Sydney (ASX)', lat: -33.867, lng: 151.207, tier: 'major' },
+  { name: 'Wellington (NZX)', lat: -41.287, lng: 174.776, tier: 'regional' },
 ];
-const hub = (n: string): Hub => {
-  const h = HUBS.find((x) => x.name === n);
-  if (!h) throw new Error(`hub ${n} not found`);
-  return h;
-};
+/* Hub-and-spoke generátor oblouků (deterministický). „Páteřní“ huby (mega burzy),
+ * z nichž/do nichž putují pulzy z okolních menších burz (spokes). */
+const HUB_NAMES = [
+  'New York (NYSE)', 'London (LSE)', 'Frankfurt (Deutsche Börse)',
+  'Hong Kong (HKEX)', 'Tokyo (JPX)',
+] as const;
 
 interface ArcDatum {
-  startLat: number;
-  startLng: number;
-  endLat: number;
-  endLng: number;
+  startLat: number; startLng: number; endLat: number; endLng: number;
+  initGap: number; // 0..1 — de-syncs pulse POSITION
+  animMs: number;  // 1900..3400 — de-syncs pulse SPEED
+  alt: number;     // orbit band: 0.16 | 0.30 | 0.50
 }
-const toArc = ([a, b]: [Hub, Hub]): ArcDatum => ({
-  startLat: a.lat,
-  startLng: a.lng,
-  endLat: b.lat,
-  endLng: b.lng,
-});
-/* Mezikontinentální koridory burz (9 oblouků). */
-const ARC_PAIRS: [Hub, Hub][] = [
-  [hub('New York'), hub('London')],
-  [hub('London'), hub('Frankfurt')],
-  [hub('Frankfurt'), hub('Zurich')],
-  [hub('London'), hub('Tokyo')],
-  [hub('Tokyo'), hub('Hong Kong')],
-  [hub('Hong Kong'), hub('Shanghai')],
-  [hub('Hong Kong'), hub('Singapore')],
-  [hub('Singapore'), hub('Sydney')],
-  [hub('New York'), hub('São Paulo')],
-];
-const ARCS: ArcDatum[] = ARC_PAIRS.map(toArc);
 
-/* Markery = body na všech hubech (drobné azurové tečky). */
-const POINTS = HUBS.map((h) => ({ lat: h.lat, lng: h.lng }));
+// great-circle distance (radians 0..pi), haversine. Pure, module scope.
+function gcDist(a: Hub, b: Hub): number {
+  const R = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * R, dLng = (b.lng - a.lng) * R;
+  const la1 = a.lat * R, la2 = b.lat * R;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+const ALT_BANDS = [0.16, 0.3, 0.5] as const;
+function altBand(d: number): number {
+  return d < 0.35 ? ALT_BANDS[0] : d < 1.0 ? ALT_BANDS[1] : ALT_BANDS[2];
+}
+
+const arcRng = mulberry32(0xa12c); // deterministic seed → identical every load
+function buildArcs(): ArcDatum[] {
+  const names = HUB_NAMES as readonly string[];
+  const hubs = HUBS.filter((h) => names.includes(h.name));
+  const spokes = HUBS.filter((h) => !names.includes(h.name));
+  const byName = (n: string): Hub => {
+    const h = HUBS.find((x) => x.name === n);
+    if (!h) throw new Error('hub ' + n);
+    return h;
+  };
+  const seen = new Set<string>();
+  const out: ArcDatum[] = [];
+  // START = spoke, END = hub → pulse launches FROM the smaller exchange's pillar.
+  const push = (from: Hub, to: Hub) => {
+    if (from.name === to.name) return;
+    if (gcDist(from, to) < 0.02) return; // skip degenerate co-located arcs (NYSE↔Nasdaq…)
+    const k = [from.name, to.name].sort().join('|');
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push({
+      startLat: from.lat, startLng: from.lng, endLat: to.lat, endLng: to.lng,
+      initGap: arcRng(),
+      animMs: 1900 + arcRng() * 1500,
+      alt: altBand(gcDist(from, to)),
+    });
+  };
+  // Rule A: every spoke → nearest hub. Rule B: mega spokes also → 2nd-nearest hub.
+  for (const s of spokes) {
+    const ranked = hubs.slice().sort((x, y) => gcDist(s, x) - gcDist(s, y));
+    if (ranked[0]) push(s, ranked[0]);
+    if (s.tier === 'mega' && ranked[1]) push(s, ranked[1]);
+  }
+  // Rule C: trunk backbone (hub↔hub) — the iconic transoceanic main lines.
+  const TRUNKS: [string, string][] = [
+    ['New York (NYSE)', 'London (LSE)'],
+    ['London (LSE)', 'Frankfurt (Deutsche Börse)'],
+    ['Frankfurt (Deutsche Börse)', 'Hong Kong (HKEX)'],
+    ['Hong Kong (HKEX)', 'Tokyo (JPX)'],
+    ['Tokyo (JPX)', 'New York (NYSE)'],
+    ['New York (NYSE)', 'Hong Kong (HKEX)'],
+    ['London (LSE)', 'Tokyo (JPX)'],
+  ];
+  for (const [a, b] of TRUNKS) push(byName(a), byName(b));
+  return out;
+}
+const ARCS: ArcDatum[] = buildArcs(); // ≈ 50 arcs after dedup/skip
+
+/* Markery = vertikální válečky („pillars“) na všech hubech. Výška/barva per tier
+ * (mega = nejvyšší/nejjasnější). pointsMerge → všech 47 v jednom draw callu. */
+interface PointDatum { lat: number; lng: number; tier: Hub['tier']; }
+const POINTS: PointDatum[] = HUBS.map((h) => ({ lat: h.lat, lng: h.lng, tier: h.tier }));
+const PILLAR_HI = '#9fe6ff';   // mega — bright icy-cyan caps
+const PILLAR_MID = '#2596be';  // major — accent (note: this equals accentColor)
+const PILLAR_LO = '#2f8fb8';   // regional — dimmer cyan (depth)
 
 /* Azurový gradient pro oblouky (průhledný → azur → průhledný = putující pulz). */
 const ARC_COLOR: string[] = ['rgba(58,181,224,0)', CYAN, 'rgba(58,181,224,0)'];
@@ -534,7 +619,6 @@ function GlobeBody({
   const globeWrapRef = useRef<THREE.Group>(null);
   const parallaxRef = useRef<THREE.Group>(null);
   const spinRef = useRef<THREE.Group>(null);
-  const entranceRef = useRef<THREE.Group>(null);
   const dragRef = useRef(false);
   const features = useCountries();
   const { camera, size, gl } = useThree();
@@ -601,6 +685,7 @@ function GlobeBody({
     const apply = () => {
       let hexFound = 0;
       let gratFound = false;
+      let pointsFound = false;
       wrap.traverse((obj) => {
         // hex-tečky pevnin
         if ((obj as { __globeObjType?: string }).__globeObjType === 'hexPolygon') {
@@ -634,10 +719,29 @@ function GlobeBody({
           line.renderOrder = 1;
           gratFound = true;
         }
+        // válečky (pillars) = merged points mesh → emissivní žhnutí + depth flagy
+        // jako tečky (čitelné na OBOU polokoulích, konzistentní s průsvitnou planetou)
+        if ((obj as { __globeObjType?: string }).__globeObjType === 'points') {
+          const mesh = obj as THREE.Mesh;
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          for (const m of mats) {
+            if (!m) continue;
+            const sm = m as THREE.MeshLambertMaterial;
+            sm.emissive = new THREE.Color('#3ab5e0');
+            sm.emissiveIntensity = 0.85;
+            sm.toneMapped = false;
+            sm.depthTest = false;
+            sm.depthWrite = false;
+            sm.transparent = true;
+            sm.needsUpdate = true;
+          }
+          mesh.renderOrder = 1;
+          pointsFound = true;
+        }
       });
       // hex meshe se tvoří async; když ještě nejsou (nebo graticule), zkus znovu (max ~2 s).
       const featuresExpected = features.length > 0;
-      const done = (!featuresExpected || hexFound > 0) && gratFound;
+      const done = (!featuresExpected || hexFound > 0) && gratFound && pointsFound;
       if (!done && tries < 40) {
         tries++;
         timer = setTimeout(apply, 50);
@@ -649,33 +753,10 @@ function GlobeBody({
     };
   }, [features, accentColor]);
 
-  // Graceful entrance: škálu skupiny povolíme 0.7→1 (~1 s) přes ref na transformu.
-  // NE traversal hex meshů — animujeme jen jeden group.scale. reduced-motion → rovnou 1.
-  const entranceDone = useRef(false);
-  useEffect(() => {
-    const g = entranceRef.current;
-    if (!g) return;
-    if (still) {
-      g.scale.setScalar(1);
-      entranceDone.current = true;
-    } else {
-      g.scale.setScalar(0.7);
-      entranceDone.current = false;
-    }
-  }, [still]);
-
-  // Auto-rotace + entrance scale — vše v jednom useFrame (žádné alokace/frame).
+  // Auto-rotace (žádné alokace/frame). Příchod planety řeší CSS opacity fade na
+  // wrapperu (.hero-fs-scene--enter), ne JS scale → imunní vůči rAF-pauze
+  // v odpojené záložce; knihovní animateIn/waitForGlobeReady jsou vypnuté.
   useFrame((_, delta) => {
-    // entrance: kriticky tlumený lerp k 1 (mutujeme jen group.scale, ne meshe)
-    const eg = entranceRef.current;
-    if (eg && !entranceDone.current) {
-      const s = eg.scale.x + (1 - eg.scale.x) * Math.min(1, delta * 4.5);
-      eg.scale.setScalar(s);
-      if (s > 0.999) {
-        eg.scale.setScalar(1);
-        entranceDone.current = true;
-      }
-    }
     if (still || paused) return;
     const sp = spinRef.current;
     if (sp && !dragRef.current) sp.rotation.y += Math.min(delta, 0.05) * 0.06;
@@ -719,7 +800,7 @@ function GlobeBody({
   }, [gl]);
 
   return (
-    <group ref={entranceRef}>
+    <group>
       <group ref={parallaxRef}>
         {/* lehký náklon osy zeměkoule pro „živější“ pohled */}
         <group rotation={[0.32, 0, 0.05]}>
@@ -733,6 +814,10 @@ function GlobeBody({
               ref={globeRef}
               rendererSize={rendererSize}
               globeMaterial={globeMaterial}
+              // příchod neřeší knihovna (scale 1e-6→1 + spin) ani blank-frame čekání —
+              // planeta je full-size od 1. snímku; grace zařídí CSS opacity fade
+              animateIn={false}
+              waitForGlobeReady={false}
               // atmosféra — tlumená (jen měkký objem), siluetu řeší fresnel lem
               showAtmosphere
               atmosphereColor={accentColor}
@@ -748,24 +833,33 @@ function GlobeBody({
               hexPolygonAltitude={0.005}
               hexPolygonColor={() => 'rgba(58,181,224,0.6)'}
               hexPolygonsTransitionDuration={0}
-              // oblouky burz (azurový pulz) — „nakreslí se“ při příchodu
+              // oblouky burz (azurový pulz) — „nakreslí se“ při příchodu;
+              // výška/rychlost/fáze pulzu per-arc (předpočítané pole na datu)
               arcsData={arcsData}
               arcColor={() => ARC_COLOR}
-              arcAltitudeAutoScale={0.42}
-              arcStroke={0.32}
-              arcCurveResolution={64}
-              arcCircularResolution={6}
-              arcDashLength={0.42}
-              arcDashGap={1.4}
-              arcDashAnimateTime={still ? 0 : 2000}
-              arcsTransitionDuration={still ? 0 : 2000}
-              // markery = drobné azurové body
+              arcAltitude={(d: object) => (d as ArcDatum).alt}
+              arcAltitudeAutoScale={0.5}
+              arcStroke={0.3}
+              arcCurveResolution={48}
+              arcCircularResolution={4}
+              arcDashLength={still ? 1 : 0.34}
+              arcDashGap={still ? 0 : 2.2}
+              arcDashInitialGap={(d: object) => (still ? 0 : (d as ArcDatum).initGap)}
+              arcDashAnimateTime={(d: object) => (still ? 0 : (d as ArcDatum).animMs)}
+              arcsTransitionDuration={still ? 0 : 1500}
+              // markery = vertikální válečky („pillars“) — výška/poloměr/barva per tier
               pointsData={POINTS}
-              pointColor={() => accentColor}
-              pointAltitude={0.012}
-              pointRadius={0.34}
-              pointResolution={10}
               pointsMerge
+              pointResolution={6}
+              pointAltitude={(d: object) =>
+                (d as PointDatum).tier === 'mega' ? 0.075
+                  : (d as PointDatum).tier === 'major' ? 0.052 : 0.034}
+              pointRadius={(d: object) =>
+                (d as PointDatum).tier === 'mega' ? 0.3
+                  : (d as PointDatum).tier === 'major' ? 0.26 : 0.22}
+              pointColor={(d: object) =>
+                (d as PointDatum).tier === 'mega' ? PILLAR_HI
+                  : (d as PointDatum).tier === 'major' ? PILLAR_MID : PILLAR_LO}
             />
             </group>
           </group>

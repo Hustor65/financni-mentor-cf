@@ -488,6 +488,13 @@ body::after {
   inset: 0;
   z-index: 1;
 }
+/* příchod scény: jemný opacity fade (planeta je full-size od 1. snímku, jen se
+   prolne) — nahrazuje dřívější JS scale entrance; imunní vůči rAF-pauze v tabu */
+@keyframes heroSceneFade { from { opacity: 0; } to { opacity: 1; } }
+.hero-fs-scene--enter { animation: heroSceneFade 600ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-fs-scene--enter { animation: none; opacity: 1; }
+}
 /* glóbus jde chytit a táhnout (drag rotace) — kurzor jako affordance */
 .hero-fs-scene canvas { cursor: grab; }
 .hero-fs-scene canvas:active { cursor: grabbing; }
