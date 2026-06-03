@@ -199,13 +199,38 @@ function stem(t: string): string {
   return t.length >= 4 ? t.slice(0, 4) : t;
 }
 
+// Token-level index dokumentu: množina přesných tokenů (O(1) lookup) + jejich seznam pro
+// volnější shodu. V retrieve porovnáváme dotaz vůči TOKENŮM dokumentu na hranici slova
+// (prefix nebo 4-znakový stem), ne raw substring → odpadnou mid-word false-shody a přesná
+// shoda rozliší blízké pojmy („Index" vs „Indexový fond"). (M22)
+interface TokenIndex {
+  tokens: Set<string>;
+  list: string[];
+}
+function tokenIndex(s: string): TokenIndex {
+  const t = contentTokens(s);
+  return { tokens: new Set(t), list: t };
+}
+
+// Volnější shoda dotazového tokenu s NĚJAKÝM tokenem dokumentu (na hranici slova, ne mid-
+// word): kratší prefixem delšího (min. 3 znaky; daň→daně, etf→etfs) NEBO shodný 4-znakový
+// stem (burza→burzovní, akcie→akcionář). „akci" tak nematchne „transakce".
+function looseHit(qt: string, list: string[]): boolean {
+  return list.some(dt => {
+    const short = qt.length <= dt.length ? qt : dt;
+    const long = qt.length <= dt.length ? dt : qt;
+    if (short.length >= 3 && long.startsWith(short)) return true;
+    return qt.length >= 4 && dt.length >= 4 && stem(qt) === stem(dt);
+  });
+}
+
 interface KBDoc {
   id: string;
   title: string;
   source: string;
   text: string;
-  _titleNorm: string;
-  _textNorm: string;
+  _title: TokenIndex;
+  _text: TokenIndex;
 }
 
 function buildDocs(): KBDoc[] {
@@ -215,20 +240,20 @@ function buildDocs(): KBDoc[] {
     docs.push({
       id: 'lesson-' + l.id, title: l.title,
       source: `Akademie → lekce ${i + 1}: ${l.title}`, text: body,
-      _titleNorm: norm(l.title), _textNorm: norm(l.title + ' ' + body),
+      _title: tokenIndex(l.title), _text: tokenIndex(l.title + ' ' + body),
     });
   });
   GLOSSARY.forEach(g => {
     docs.push({
       id: 'term-' + g.term, title: g.term,
       source: `Slovníček → ${g.term}`, text: g.term + ': ' + g.def,
-      _titleNorm: norm(g.term), _textNorm: norm(g.term + ': ' + g.def),
+      _title: tokenIndex(g.term), _text: tokenIndex(g.term + ': ' + g.def),
     });
   });
   EXTRA_FACTS.forEach(f => {
     docs.push({
       id: f.id, title: f.title, source: f.source, text: f.text,
-      _titleNorm: norm(f.title), _textNorm: norm(f.title + ' ' + f.text),
+      _title: tokenIndex(f.title), _text: tokenIndex(f.title + ' ' + f.text),
     });
   });
   return docs;
@@ -245,9 +270,10 @@ export function retrieve(query: string, k = 4, minScore = 2): KBDoc[] {
   for (const d of KB_DOCS) {
     let score = 0;
     for (const t of qTokens) {
-      const s = stem(t);
-      if (d._titleNorm.includes(s)) score += 3;
-      else if (d._textNorm.includes(s)) score += 1;
+      if (d._title.tokens.has(t)) score += 3;            // přesná shoda tokenu v názvu
+      else if (looseHit(t, d._title.list)) score += 2;   // slovní tvar (prefix/stem) v názvu
+      else if (d._text.tokens.has(t)) score += 2;        // přesná shoda tokenu v těle
+      else if (looseHit(t, d._text.list)) score += 1;    // slovní tvar (prefix/stem) v těle
     }
     if (score >= threshold) scored.push([score, d]);
   }

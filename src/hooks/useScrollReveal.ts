@@ -8,8 +8,14 @@ import { useEffect } from 'react';
  * přidají své `.reveal` prvky až po prvním renderu, takže je doobservujeme, jakmile
  * se objeví. Bez toho zůstaly skryté, dokud uživatel nepřepnul tab.
  */
-export function useScrollReveal(deps: unknown[] = []) {
+export function useScrollReveal() {
   useEffect(() => {
+    // Bez IntersectionObserveru (velmi staré prohlížeče) by `.reveal{opacity:0}` nechal
+    // obsah natrvalo skrytý → zobraz vše rovnou (žádný scroll-reveal, ale obsah je vidět). (M38)
+    if (typeof IntersectionObserver === 'undefined') {
+      document.querySelectorAll<HTMLElement>('.reveal').forEach(el => el.classList.add('is-visible'));
+      return;
+    }
     const io = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
@@ -48,6 +54,7 @@ export function useScrollReveal(deps: unknown[] = []) {
       io.disconnect();
       mo.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+    // Bez deps: hook se sám stará o nově přidané `.reveal` přes MutationObserver, takže
+    // nepotřebuje re-run při změně tabu/filtru (a odpadá křehké spreadování deps). (M37)
+  }, []);
 }

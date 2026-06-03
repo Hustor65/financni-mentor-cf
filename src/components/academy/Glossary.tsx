@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { GLOSSARY } from '../../data/knowledge';
 import { Icon } from '../Icon';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 function removeDiacritics(s: string): string {
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -28,8 +27,7 @@ export const Glossary: React.FC = () => {
     return [...base].sort((a, b) => a.term.localeCompare(b.term, 'cs'));
   }, [search]);
 
-  // reveal položek slovníčku — re-scan i po filtrování (search mění seznam)
-  useScrollReveal([filtered]);
+  // (reveal karet řeší jediná instance useScrollReveal v App.tsx přes MutationObserver — M36)
 
   return (
     <div>

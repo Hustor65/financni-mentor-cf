@@ -76,8 +76,9 @@ export const HeroSection: React.FC = () => {
       const eased = Math.pow(1 - p, 1.5);
       inner.style.opacity = String(eased);
       inner.style.transform = 'translate3d(0, 0, 0)';
-      // hned jak hero začne mizet, pusť kliky na obsah v popředí
-      inner.style.pointerEvents = p > 0.25 ? 'none' : '';
+      // pointer-events vypni až když je hero prakticky neviditelné (eased ≈ 0.06 při p=0.85),
+      // jinak by CTA/scroll-cue přestaly reagovat, dokud je hero ještě dobře vidět (M27)
+      inner.style.pointerEvents = p > 0.85 ? 'none' : '';
       // pauza 3D scény, když je hero prakticky mimo obrazovku (setState jen při změně)
       setSceneActive(prev => (prev === p < 0.99 ? prev : p < 0.99));
     };

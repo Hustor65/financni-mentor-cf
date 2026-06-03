@@ -87,7 +87,9 @@ const App: React.FC = () => {
   }, []);
 
   // Scroll-reveal: prvky s .reveal se při vstupu do viewportu plynule "rozbalí".
-  useScrollReveal([activeTab, selectedTopic]);
+  // Jediná instance pro celou appku — MutationObserver uvnitř pokryje i lazy/filtrovaný
+  // obsah (témata, glossář, chat), takže další volání hooku nejsou potřeba (M36).
+  useScrollReveal();
 
   // Start: deep-link (sdílený odkaz na sekci/téma) sjede rovnou na obsah,
   // jinak začni nahoře na hero. (Prohlížeč jinak občas obnoví starou pozici.)
