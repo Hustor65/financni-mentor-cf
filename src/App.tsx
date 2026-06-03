@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { useScrollReveal } from './hooks/useScrollReveal';
 import { Navigation } from './components/layout/Navigation';
 import { KPIBar } from './components/layout/KPIBar';
@@ -27,6 +27,19 @@ const App: React.FC = () => {
   const [sessionStart] = useState(() => Date.now());
   const [chatPrompt, setChatPrompt] = useState<string | null>(null);
   const [cmdkOpen, setCmdkOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Po navigaci z Command palette: když uživatel kouká na hero (je nahoře),
+  // sjeď plynule dolů na obsah, ať vidí to, co vyhledal — ne pořád hero.
+  // Když už je níž v obsahu, nech ho být (neškubej s ním).
+  const scrollToContentIfAtHero = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    if (window.scrollY < window.innerHeight * 0.9) {
+      requestAnimationFrame(() =>
+        contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      );
+    }
+  }, []);
 
   // Znalostní skóre = % zvládnutých témat (originál počítá z dokončených modulů)
   const knowledgeScore = Math.min(
@@ -92,7 +105,7 @@ const App: React.FC = () => {
 
         <div className="spacer-xl" />
 
-        <div className="reveal">
+        <div className="reveal" ref={contentRef} style={{ scrollMarginTop: 'var(--space-xl)' }}>
           <Navigation activeTab={activeTab} onTabChange={setActiveTab} onOpenCommand={() => setCmdkOpen(true)} />
         </div>
 
@@ -170,9 +183,9 @@ const App: React.FC = () => {
       <CommandPalette
         open={cmdkOpen}
         onClose={() => setCmdkOpen(false)}
-        onSelectTab={setActiveTab}
-        onOpenTopic={id => { setActiveTab('temata'); setSelectedTopic(id); }}
-        onAskMentor={prompt => { setChatPrompt(prompt); setSelectedTopic(null); setActiveTab('mentor'); }}
+        onSelectTab={tab => { setActiveTab(tab); scrollToContentIfAtHero(); }}
+        onOpenTopic={id => { setActiveTab('temata'); setSelectedTopic(id); scrollToContentIfAtHero(); }}
+        onAskMentor={prompt => { setChatPrompt(prompt); setSelectedTopic(null); setActiveTab('mentor'); scrollToContentIfAtHero(); }}
       />
     </>
   );
