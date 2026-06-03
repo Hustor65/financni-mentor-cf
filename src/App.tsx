@@ -12,6 +12,7 @@ import { Badges } from './components/academy/Badges';
 import { ProductComparison } from './components/academy/ProductComparison';
 const TrustCenter = lazy(() => import('./components/trust/TrustCenter').then(m => ({ default: m.TrustCenter })));
 import { TOPICS } from './data/topics';
+import { CommandPalette } from './components/CommandPalette';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('mentor');
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   });
   const [sessionStart] = useState(() => Date.now());
   const [chatPrompt, setChatPrompt] = useState<string | null>(null);
+  const [cmdkOpen, setCmdkOpen] = useState(false);
 
   // Znalostní skóre = % zvládnutých témat (originál počítá z dokončených modulů)
   const knowledgeScore = Math.min(
@@ -56,6 +58,18 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // globální Cmd/Ctrl+K → přepni rychlé hledání (Command palette)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCmdkOpen(o => !o);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   // pamatuj dokončená témata → znalostní skóre přežije refresh i návrat
   useEffect(() => {
     try { localStorage.setItem('fm-completed-topics', JSON.stringify([...completedTopics])); } catch { /* ignore */ }
@@ -79,7 +93,7 @@ const App: React.FC = () => {
         <div className="spacer-xl" />
 
         <div className="reveal">
-          <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+          <Navigation activeTab={activeTab} onTabChange={setActiveTab} onOpenCommand={() => setCmdkOpen(true)} />
         </div>
 
         <main style={{ padding: 'var(--space-lg) 0 var(--space-2xl)', minHeight: '60vh' }}>
@@ -153,6 +167,13 @@ const App: React.FC = () => {
         </div>
         <Footer />
       </div>
+      <CommandPalette
+        open={cmdkOpen}
+        onClose={() => setCmdkOpen(false)}
+        onSelectTab={setActiveTab}
+        onOpenTopic={id => { setActiveTab('temata'); setSelectedTopic(id); }}
+        onAskMentor={prompt => { setChatPrompt(prompt); setSelectedTopic(null); setActiveTab('mentor'); }}
+      />
     </>
   );
 };
