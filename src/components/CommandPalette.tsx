@@ -44,7 +44,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, o
     const tabs: CmdItem[] = [
       { id: 'tab-mentor', label: 'AI Mentor', hint: 'Chat', icon: 'message-circle', group: 'Navigace', run: () => { onSelectTab('mentor'); onClose(); } },
       { id: 'tab-temata', label: 'Témata', hint: 'Vzdělávací moduly', icon: 'book-open', group: 'Navigace', run: () => { onSelectTab('temata'); onClose(); } },
-      { id: 'tab-presnost', label: 'Přesnost & důvěra', hint: 'Metodika', icon: 'shield-check', group: 'Navigace', run: () => { onSelectTab('presnost'); onClose(); } },
+      { id: 'tab-presnost', label: 'Přesnost a důvěra', hint: 'Odkud bereme čísla', icon: 'shield-check', group: 'Navigace', run: () => { onSelectTab('presnost'); onClose(); } },
     ];
     const topics: CmdItem[] = TOPICS.map(t => ({
       id: 'topic-' + t.id, label: t.title, hint: t.summary, icon: t.icon || 'book-open', group: 'Témata',

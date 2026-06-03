@@ -11,11 +11,11 @@ const HeroScene = lazy(() => import('./Scene').then(m => ({ default: m.HeroScene
  *    re-renderů a bez zasekávání. Pozadí hera ladí s pozadím stránky = bezešvý přechod.
  */
 
-const TITLE_HEAD = 'Váš Finanční AI';
-const TITLE_ACCENT = 'Mentor';
+const TITLE_HEAD = 'Váš osobní AI';
+const TITLE_ACCENT = 'finanční mentor';
 const SUBTITLE =
-  'Průvodce světem dlouhodobých investic bez rizikových zkratek. Vzdělání místo spekulací.';
-const CTA = 'Začít prozkoumávat';
+  'Provedeme vás světem dlouhodobého investování bez rizikových zkratek. Vzdělání místo spekulací.';
+const CTA = 'Pojďme začít';
 
 function useTypewriter(text: string, speed = 32, startDelay = 520) {
   const reduce =
@@ -144,8 +144,15 @@ export const HeroSection: React.FC = () => {
         </div>
 
         {/* scroll hint */}
-        <div className="hero-fs-scroll-cue" onClick={scrollDown}>
-          <span className="cue-text">scroll</span>
+        <div
+          className="hero-fs-scroll-cue"
+          onClick={scrollDown}
+          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollDown(); } }}
+          role="button"
+          tabIndex={0}
+          aria-label="Přejít na obsah"
+        >
+          <span className="cue-text">posunout dolů</span>
           <div className="cue-track" />
         </div>
       </div>

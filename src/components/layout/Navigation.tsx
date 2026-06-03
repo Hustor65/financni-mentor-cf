@@ -15,9 +15,9 @@ interface NavigationProps {
 }
 
 const TABS: { id: string; label: string; icon: string; title: string }[] = [
-  { id: 'mentor', label: 'Mentor', icon: 'message-circle', title: 'AI Chat' },
-  { id: 'temata', label: 'Témata', icon: 'book-open', title: 'Vzdělávací moduly' },
-  { id: 'presnost', label: 'Přesnost & důvěra', icon: 'shield-check', title: 'Metodika' },
+  { id: 'mentor', label: 'Mentor', icon: 'message-circle', title: 'Ptejte se finančního mentora' },
+  { id: 'temata', label: 'Témata', icon: 'book-open', title: 'Učte se srozumitelně — teorie, grafy i kalkulačky' },
+  { id: 'presnost', label: 'Přesnost a důvěra', icon: 'shield-check', title: 'Odkud bereme čísla a proč nám můžete věřit' },
 ];
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange, onOpenCommand }) => {
@@ -39,7 +39,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange, 
   };
 
   return (
-    <nav className="nav-tabs" role="tablist" aria-label="Hlavní navigace">
+    <nav className="nav-tabs" role="tablist" aria-label="Hlavní sekce aplikace">
       {TABS.map((tab, i) => {
         const active = activeTab === tab.id;
         return (

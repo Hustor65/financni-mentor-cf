@@ -197,11 +197,11 @@ const App: React.FC = () => {
               ) : (
                 <>
                   <div className="section-head reveal">
-                    <span className="eyebrow">Vzdělávací moduly</span>
+                    <span className="eyebrow">Akademie</span>
                     <p className="section-header">Témata</p>
                     <p className="section-desc">
-                      Vyberte si téma. U každého najdete teorii, názornou ukázku na grafu
-                      i kalkulačku — vše přehledně na jednom místě.
+                      Vyberte si téma. U každého najdete srozumitelnou teorii, názornou ukázku
+                      na grafu i kalkulačku — vše přehledně na jednom místě.
                     </p>
                   </div>
                   <div className="reveal"><Badges completed={completedTopics.size} /></div>

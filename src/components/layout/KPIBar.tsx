@@ -32,7 +32,7 @@ export const KPIBar: React.FC<KPIBarProps> = ({
     <>
       {/* Nadpis řádku — návštěvník hned ví, že čísla níže jsou jeho osobní statistiky. */}
       <div className="kpi-section reveal" style={{ ['--reveal-i' as string]: 0 }}>
-        <span className="eyebrow">Přehled relace</span>
+        <span className="eyebrow">Přehled vaší relace</span>
         <p className="kpi-section-header">
           <Icon name="bar-chart-3" size={22} className="kpi-section-icon" aria-hidden={true} />
           <span>Vaše statistiky</span>
@@ -46,8 +46,8 @@ export const KPIBar: React.FC<KPIBarProps> = ({
         marginBottom: '1.5rem',
       }}>
 
-      {/* KPI 1 — Konverzací */}
-      <div className="kpi-card reveal" style={{ ['--reveal-i' as string]: 1 }}>
+      {/* KPI 1 — Položených dotazů */}
+      <div className="kpi-card reveal" title="Kolik dotazů jste během této návštěvy položili mentorovi." style={{ ['--reveal-i' as string]: 1 }}>
         <span className="kpi-icon" style={{ ['--icon-glow' as string]: 'rgba(58,181,224,0.4)' }}>
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
             fill="none" stroke="#3ab5e0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -55,11 +55,11 @@ export const KPIBar: React.FC<KPIBarProps> = ({
           </svg>
         </span>
         <div className="kpi-value">{conversationCount}</div>
-        <div className="kpi-label">Konverzací</div>
+        <div className="kpi-label">Položených dotazů</div>
       </div>
 
-      {/* KPI 2 — Délka Session */}
-      <div className="kpi-card reveal" style={{ ['--reveal-i' as string]: 2 }}>
+      {/* KPI 2 — Délka relace */}
+      <div className="kpi-card reveal" title="Jak dlouho máte aplikaci právě otevřenou." style={{ ['--reveal-i' as string]: 2 }}>
         <span className="kpi-icon" style={{ ['--icon-glow' as string]: 'rgba(245,158,11,0.4)' }}>
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
             fill="none" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -68,11 +68,11 @@ export const KPIBar: React.FC<KPIBarProps> = ({
           </svg>
         </span>
         <div className="kpi-value">{formatElapsed(elapsedSec)}</div>
-        <div className="kpi-label">Délka Session</div>
+        <div className="kpi-label">Délka relace</div>
       </div>
 
-      {/* KPI 3 — Znalostní Skóre */}
-      <div className="kpi-card reveal" style={{ ['--reveal-i' as string]: 3 }}>
+      {/* KPI 3 — Znalostní skóre */}
+      <div className="kpi-card reveal" title="Podíl témat v Akademii, která už máte dokončená." style={{ ['--reveal-i' as string]: 3 }}>
         <span className="kpi-icon" style={{ ['--icon-glow' as string]: 'rgba(16,185,129,0.4)' }}>
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
             fill="none" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -82,11 +82,11 @@ export const KPIBar: React.FC<KPIBarProps> = ({
           </svg>
         </span>
         <div className="kpi-value">{knowledgeScore}%</div>
-        <div className="kpi-label">Znalostní Skóre</div>
+        <div className="kpi-label">Znalostní skóre</div>
       </div>
 
-      {/* KPI 4 — AI Model Status */}
-      <div className="kpi-card reveal" style={{ ['--reveal-i' as string]: 4 }}>
+      {/* KPI 4 — Stav AI modelu */}
+      <div className="kpi-card reveal" title="Dostupnost AI mentora. Online = mentor je připraven odpovídat." style={{ ['--reveal-i' as string]: 4 }}>
         <span className="kpi-icon" style={{ ['--icon-glow' as string]: 'rgba(139,92,246,0.4)' }}>
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
             fill="none" stroke="#8B5CF6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -105,7 +105,7 @@ export const KPIBar: React.FC<KPIBarProps> = ({
         <div className="kpi-value" style={{ fontSize: '1.5rem' }}>
           <span className="status-dot" />Online
         </div>
-        <div className="kpi-label">AI Model Status</div>
+        <div className="kpi-label">Stav AI modelu</div>
       </div>
 
       </div>
