@@ -21,13 +21,14 @@ export const HallucinationDemo: React.FC = () => {
       const n = years * 12;
       const exact = initDeposit * Math.pow(1 + r, n) + monthly * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
       const hallucinated = exact * 0.9904;
-      const diff = exact - hallucinated;
+      const hallucShown = Math.floor(hallucinated);  // přesně tak, jak halucinaci zobrazíme
+      const diff = exact - hallucShown;              // rozdíl ze ZOBRAZENÉ halucinace → tři čísla na stránce sedí
       return {
         exactValue: exact,
         hallucinatedValue: hallucinated,
         diffValue: diff,
         formattedExact: czFmt2(exact),
-        formattedHallucinated: czFmt(Math.floor(hallucinated)),
+        formattedHallucinated: czFmt(hallucShown),
         formattedDiff: czFmt2(diff),
       };
     }, [initDeposit, monthly, rate, years]);

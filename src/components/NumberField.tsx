@@ -63,6 +63,8 @@ export function NumberField({
     let n = parseRaw(raw);
     if (!Number.isFinite(n)) n = Number.isFinite(value) ? value : min;
     n = clamp(n, min, max);
+    const factor = Math.pow(10, decimals);   // zaokrouhli na `decimals`, ať se uložená
+    n = Math.round(n * factor) / factor;     // hodnota shoduje se zobrazenou (3000,5 → „3 001" i ve stavu)
     onChange(n);
   };
 

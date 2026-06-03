@@ -14,7 +14,10 @@ export const PensionCalc: React.FC = () => {
   const retirementAge = useMemo(() => czRetirementAgeMonths(birthYear), [birthYear]);
   const retYears = Math.floor(retirementAge / 12);
   const retMonths = retirementAge % 12;
-  const replacementRatio = salary > 0 ? Math.round((result.total / salary) * 100) : 0;
+  // Poměr má smysl jen pro mzdu v podporovaném rozsahu (>= sliderMin). Pod ním
+  // (zadáno ručně textem) by spodní hranice důchodu dala nesmyslné % (mzda 100 →
+  // 5 670 %), proto zobrazíme „—".
+  const replacementRatio = salary >= 10000 ? Math.round((result.total / salary) * 100) : null;
 
   const projOption = useMemo(() => {
     const startYear = 2026;
@@ -94,7 +97,7 @@ export const PensionCalc: React.FC = () => {
         </div>
         <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Náhradový poměr</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: replacementRatio >= 50 ? 'var(--lg-green-500)' : 'var(--lg-cyan-400)' }}>{replacementRatio} %</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: replacementRatio !== null && replacementRatio >= 50 ? 'var(--lg-green-500)' : 'var(--lg-cyan-400)' }}>{replacementRatio !== null ? `${replacementRatio} %` : '—'}</div>
         </div>
         <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Důchodový věk</div>

@@ -27,8 +27,12 @@ export interface PensionResult {
 /** Odhad měsíčního státního starobního důchodu (2026) */
 export function czStatePension(ovz: number, yearsInsured: number): PensionResult {
   const vz = czVypocetovyZaklad(Math.max(0, ovz));
-  let pct = vz * PENSION_PCT_RATE_2026 * Math.max(0, Math.floor(yearsInsured));
-  pct = Math.max(pct, PENSION_MIN_PCT_2026);
+  const yrs = Math.max(0, Math.floor(yearsInsured));
+  // Minimální procentní výměra je zákonná SPODNÍ HRANICE pro toho, kdo už nárok
+  // má — při 0 letech pojištění nárok není, takže žádná procentní výměra (jinak
+  // by appka tvrdila ~5 670 Kč důchod i člověku bez jediného odpracovaného roku).
+  let pct = vz * PENSION_PCT_RATE_2026 * yrs;
+  pct = yrs > 0 ? Math.max(pct, PENSION_MIN_PCT_2026) : 0;
   return {
     total: PENSION_BASE_2026 + pct,
     baseAmount: PENSION_BASE_2026,
@@ -95,6 +99,7 @@ export interface CompoundRow {
 export function compoundInterest(
   monthly: number, annualRate: number, years: number, inflation = 0,
 ): CompoundRow[] {
+  years = Math.max(0, Math.floor(years)); // celé roky — desetinný horizont (např. 30,5) se do cyklu nedostane
   const rows: CompoundRow[] = [{ year: 0, invested: 0, noInvest: 0, investedAfterInflation: 0, mattressReal: 0 }];
   const monthlyRate = annualRate / 100 / 12;
   let balance = 0;
@@ -119,9 +124,7 @@ export function compoundInterest(
 
 /** Formátování čísla (český styl s mezerami) */
 export function czNum(v: number | string): string {
-  try {
-    return Math.round(Number(v)).toLocaleString('cs-CZ');
-  } catch {
-    return String(v);
-  }
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '—'; // NaN/±Infinity → pomlčka místo literálu „NaN"
+  return Math.round(n).toLocaleString('cs-CZ');
 }

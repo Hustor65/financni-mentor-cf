@@ -53,8 +53,9 @@ export const TaxCalc: React.FC = () => {
       <div className="calc-form">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
           <div className="form-group">
-            <label className="form-label">Nákupní cena (Kč)</label>
+            <label className="form-label" htmlFor="tax-buy">Nákupní cena (Kč)</label>
             <input
+              id="tax-buy"
               className="form-input"
               type="number"
               min={0}
@@ -63,8 +64,9 @@ export const TaxCalc: React.FC = () => {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Prodejní cena (Kč)</label>
+            <label className="form-label" htmlFor="tax-sell">Prodejní cena (Kč)</label>
             <input
+              id="tax-sell"
               className="form-input"
               type="number"
               min={0}
@@ -74,8 +76,9 @@ export const TaxCalc: React.FC = () => {
           </div>
         </div>
         <div className="form-group">
-          <label className="form-label">Roční úhrn příjmů z prodeje CP (Kč)</label>
+          <label className="form-label" htmlFor="tax-proceeds">Roční úhrn příjmů z prodeje CP (Kč)</label>
           <input
+            id="tax-proceeds"
             className="form-input"
             type="number"
             min={0}
@@ -164,8 +167,9 @@ export const TaxCalc: React.FC = () => {
       <div className="calc-form">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
           <div className="form-group">
-            <label className="form-label">Roční vklad do DIP (Kč)</label>
+            <label className="form-label" htmlFor="tax-dip">Roční vklad do DIP (Kč)</label>
             <input
+              id="tax-dip"
               className="form-input"
               type="number"
               min={0}
@@ -175,8 +179,9 @@ export const TaxCalc: React.FC = () => {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Penzijko / životko (Kč/rok)</label>
+            <label className="form-label" htmlFor="tax-other">Penzijko / životko (Kč/rok)</label>
             <input
+              id="tax-other"
               className="form-input"
               type="number"
               min={0}
