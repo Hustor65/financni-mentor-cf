@@ -61,7 +61,7 @@ export const Glossary: React.FC = () => {
             aria-label="Hledat ve slovníčku"
           />
         </div>
-        <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+        <span aria-live="polite" style={{ color: 'var(--text-muted)', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
           {search.trim()
             ? `${filtered.length} ${plural(filtered.length, ['výsledek', 'výsledky', 'výsledků'])}`
             : `${GLOSSARY.length} ${plural(GLOSSARY.length, ['pojem', 'pojmy', 'pojmů'])} ve slovníčku`}
@@ -82,7 +82,7 @@ export const Glossary: React.FC = () => {
       </div>
 
       {filtered.length === 0 && (
-        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem', fontSize: '0.88rem' }}>
+        <div role="status" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem', fontSize: '0.88rem' }}>
           Žádný pojem neodpovídá hledání. Zkuste jiné slovo, nebo se zeptejte AI Mentora.
         </div>
       )}

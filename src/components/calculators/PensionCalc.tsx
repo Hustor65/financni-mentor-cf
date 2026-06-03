@@ -29,6 +29,7 @@ export const PensionCalc: React.FC = () => {
     const real = years.map((_, i) => Math.round(result.total * Math.pow(1 + growthRate, i) * Math.pow(1 / (1 + inflRate), i)));
 
     return {
+      aria: { enabled: true }, // textový popis grafu pro čtečky (canvas je jinak neviditelný)
       animationDuration: 1400, animationEasing: 'cubicOut',
       grid: { left: 10, right: 24, top: 30, bottom: 50, containLabel: true },
       tooltip: {

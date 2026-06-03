@@ -35,6 +35,7 @@ export const CompoundInterestCalc = () => {
     }
 
     return {
+      aria: { enabled: true }, // ECharts vygeneruje textový popis grafu pro čtečky (canvas je jinak neviditelný)
       animationDuration: 1400,
       animationEasing: 'cubicOut',
       grid: { left: 10, right: 24, top: 30, bottom: 50, containLabel: true },

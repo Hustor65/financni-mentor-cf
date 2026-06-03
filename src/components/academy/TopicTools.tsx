@@ -64,6 +64,7 @@ export const InflationTool: React.FC = () => {
   const option = useMemo(() => {
     const xLabels = rows.map(r => (r.year === 0 ? 'start' : r.year === 1 ? '1 rok' : r.year < 5 ? `${r.year} roky` : `${r.year} let`));
     return {
+      aria: { enabled: true }, // textový popis grafu pro čtečky (canvas je jinak neviditelný)
       animationDuration: 1400, animationEasing: 'cubicOut',
       grid: { left: 10, right: 24, top: 30, bottom: 50, containLabel: true },
       tooltip: {

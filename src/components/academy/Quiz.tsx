@@ -58,6 +58,7 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
             <div key={qi}>
               {/* Question */}
               <div
+                id={`quiz-q-${qi}-label`}
                 style={{
                   fontFamily: 'var(--font-display)',
                   fontWeight: 600,
@@ -71,7 +72,7 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
               </div>
 
               {/* Options */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div role="radiogroup" aria-labelledby={`quiz-q-${qi}-label`} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {q.options.map((opt, oi) => {
                   let cls = 'quiz-option';
                   const isSelected = userAns === oi;
@@ -159,6 +160,8 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
       ) : (
         <div
           className="glass-panel--elevated"
+          role="status"
+          aria-live="polite"
           style={{
             marginTop: '1.5rem',
             padding: '1rem 1.25rem',

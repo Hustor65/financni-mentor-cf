@@ -33,6 +33,7 @@ export const GoalCalc = () => {
     const balance = rows.map(r => r.invested);
     const deposits = rows.map(r => r.noInvest);
     return {
+      aria: { enabled: true }, // textový popis grafu pro čtečky (canvas je jinak neviditelný)
       animationDuration: 1200,
       animationEasing: 'cubicOut',
       grid: { left: 8, right: 16, top: 18, bottom: 42, containLabel: true },
