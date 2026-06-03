@@ -75,6 +75,10 @@ const App: React.FC = () => {
     setConversationCount(c => c + 1);
   }, []);
 
+  // po předvyplnění chatu z initialPrompt prompt vynuluj (M16/M23) → klik na STEJNÉ
+  // téma podruhé ho pošle znovu (jinak identický string a efekt v ChatInterface se nespustí)
+  const clearChatPrompt = useCallback(() => setChatPrompt(null), []);
+
   // z detailu tématu rovnou do Mentora s předvyplněným dotazem (kontextový chat)
   const handleAskMentor = useCallback((topicTitle: string) => {
     setChatPrompt(`Vysvětli mi prosím téma „${topicTitle}" co nejjednodušeji.`);
@@ -172,7 +176,7 @@ const App: React.FC = () => {
             <div role="tabpanel" id="panel-mentor" aria-labelledby="tab-mentor">
               <div className="spacer-md" />
               <div className="reveal">
-                <ChatInterface onMessageSent={handleMessageSent} initialPrompt={chatPrompt} />
+                <ChatInterface onMessageSent={handleMessageSent} initialPrompt={chatPrompt} onPromptConsumed={clearChatPrompt} />
               </div>
             </div>
           )}

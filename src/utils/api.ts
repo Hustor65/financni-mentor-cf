@@ -29,15 +29,20 @@ export async function streamChatMessage(
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let full = '';
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    full += decoder.decode(value, { stream: true });
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      full += decoder.decode(value, { stream: true });
+      onChunk(full);
+    }
+    full += decoder.decode(); // dokonči případný vícebajtový znak
     onChunk(full);
+    return full;
+  } finally {
+    // uvolni reader i když onChunk vyhodí výjimku → spojení nezůstane viset (M4)
+    reader.releaseLock();
   }
-  full += decoder.decode(); // dokonči případný vícebajtový znak
-  onChunk(full);
-  return full;
 }
 
 export async function getMarketData(

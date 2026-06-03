@@ -7,6 +7,8 @@ import { streamChatMessage } from '../../utils/api';
 interface ChatInterfaceProps {
   onMessageSent?: () => void;
   initialPrompt?: string | null;
+  /** zavolá se po předvyplnění inputu z initialPrompt → rodič prompt vynuluje (M16/M23) */
+  onPromptConsumed?: () => void;
 }
 
 const WELCOME: Message = {
@@ -40,7 +42,7 @@ const INFO_TOPICS: { icon: string; title: string; desc: string }[] = [
   { icon: 'bar-chart-3', title: 'Živá tržní data', desc: 'Ceny akcií, krypta a indexů' },
 ];
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, initialPrompt }) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, initialPrompt, onPromptConsumed }) => {
   const [messages, setMessages] = useState<Message[]>([WELCOME]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -105,19 +107,31 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
         const history = messages
           .filter(m => m !== WELCOME)
           .map(m => ({ role: m.role, content: m.content }));
-        await streamChatMessage(
+        const full = await streamChatMessage(
           text.trim(),
           history,
-          full => {
+          chunk => {
             // průběžně aktualizuj poslední (právě streamovanou) zprávu
             setMessages(prev => {
               const next = [...prev];
-              next[next.length - 1] = { role: 'assistant', content: full };
+              next[next.length - 1] = { role: 'assistant', content: chunk };
               return next;
             });
           },
           controller.signal,
         );
+        // prázdná odpověď (200 + prázdné tělo / model nic nevrátil) → ať nezůstane
+        // jen prázdná bublina s avatarem bez jakékoli indikace (M15/M18)
+        if (!full.trim() && abortRef.current === controller) {
+          setMessages(prev => {
+            const next = [...prev];
+            next[next.length - 1] = {
+              role: 'assistant',
+              content: '⚠️ Mentor neposlal žádnou odpověď. Zkuste dotaz prosím přeformulovat.',
+            };
+            return next;
+          });
+        }
       } catch (err) {
         // přerušení (unmount / nový dotaz) není chyba — nic nehlásíme
         if ((err as Error)?.name === 'AbortError') return;
@@ -159,8 +173,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setInput(initialPrompt);
       focusActiveInput();
+      // spotřebuj prompt → rodič ho vynuluje, takže klik na STEJNÉ téma podruhé
+      // ho pošle znovu (jinak by se string nezměnil a efekt by se nespustil) (M16/M23)
+      onPromptConsumed?.();
     }
-  }, [initialPrompt, focusActiveInput]);
+  }, [initialPrompt, focusActiveInput, onPromptConsumed]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // !isComposing → neodesílat uprostřed IME kompozice (diakritika, asijské jazyky)
@@ -171,6 +188,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
   };
 
   const resetChat = () => {
+    // tlačítko je sice disabled při isLoading, ale guard navíc → běžící stream nikdy
+    // nezapíše osiřelý chunk do nového [WELCOME] (M24)
+    if (isLoading) return;
     if (messages.length > 1 && !window.confirm('Opravdu smazat celou konverzaci?')) return;
     setMessages([WELCOME]);
     setInput('');

@@ -16,6 +16,16 @@ import { ChartSkeleton } from '../ChartSkeleton';
 let initialized = false; // mermaid.initialize stačí jednou za session
 let seq = 0; // unikátní id pro každý render (mermaid.render ho vyžaduje)
 
+// Mermaid má globální/singletonový stav — souběžné render() z VÍCE instancí (např. dva
+// ```mermaid bloky v jedné odpovědi mentora) se navzájem rozhodí. Serializujeme je
+// modulovou frontou, ať render() běží jeden po druhém napříč všemi instancemi (M21).
+let renderChain: Promise<unknown> = Promise.resolve();
+function serialRender(doRender: () => Promise<{ svg: string }>): Promise<{ svg: string }> {
+  const run = renderChain.then(doRender);
+  renderChain = run.then(() => undefined, () => undefined); // řetěz pokračuje i po chybě
+  return run;
+}
+
 const WRAP: React.CSSProperties = {
   margin: '0.85rem 0',
   padding: '0.9rem 0.6rem',
@@ -47,6 +57,10 @@ export const ChatMermaid: React.FC<{ code: string }> = ({ code }) => {
   useEffect(() => {
     const myReq = ++reqRef.current;
     let cancelled = false;
+    // M20: při změně kódu zahoď předchozí `failed`, ať během streamu nebliká raw zdroj
+    // místo diagramu (raw zdroj se ukáže až když poslední/ustálený kód selže).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState(s => (s.failed ? {} : s));
     // Počkej, až se kód ustálí (≈ konec streamu daného bloku), pak teprve renderuj.
     const timer = setTimeout(() => {
       (async () => {
@@ -74,7 +88,7 @@ export const ChatMermaid: React.FC<{ code: string }> = ({ code }) => {
             });
             initialized = true;
           }
-          const out = await mermaid.render('mmd-' + ++seq, code);
+          const out = await serialRender(() => mermaid.render('mmd-' + ++seq, code));
           if (!cancelled && myReq === reqRef.current) setState({ svg: out.svg });
         } catch {
           if (!cancelled && myReq === reqRef.current) setState({ failed: true });

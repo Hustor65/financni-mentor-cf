@@ -1343,8 +1343,9 @@ body::after {
   border-color: var(--border-strong);
   box-shadow: var(--glass-inset), var(--shadow-elevation-2);
 }
-/* Během odpovědi pole ztlumíme. */
-.chat-composer__field:has(.chat-input:disabled) {
+/* Během odpovědi pole ztlumíme. (readOnly místo disabled → pole zůstane
+   focusovatelné a v tab orderu, jen do něj nejde psát — viz M19.) */
+.chat-composer__field:has(.chat-input:read-only) {
   opacity: 0.6;
 }
 
@@ -1378,7 +1379,7 @@ body::after {
   opacity: 1;
 }
 
-.chat-input:disabled {
+.chat-input:read-only {
   cursor: not-allowed;
 }
 

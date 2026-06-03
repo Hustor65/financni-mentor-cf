@@ -138,7 +138,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               onKeyDown={onKeyDown}
               placeholder="Zadejte svůj finanční dotaz..."
               rows={1}
-              disabled={isLoading}
+              readOnly={isLoading}
               aria-label="Napište zprávu"
             />
             <div className="chat-composer__actions">
