@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { czInvestmentTax, czDipDeduction, czNum } from '../../utils/calculators';
+import { DIP_DEDUCT_LIMIT_2026 } from '../../data/constants';
 import { Icon } from '../Icon';
 
 export const TaxCalc: React.FC = () => {
@@ -21,6 +22,13 @@ export const TaxCalc: React.FC = () => {
     () => czDipDeduction(dipContrib, otherContrib),
     [dipContrib, otherContrib],
   );
+
+  // cap meter — sdílený strop se plní penzijkem jako první, pak DIP
+  const CAP = DIP_DEDUCT_LIMIT_2026;
+  const otherCapped = Math.min(otherContrib, CAP);
+  const otherPct = Math.min(100, (otherCapped / CAP) * 100);
+  const dipPct = Math.max(0, Math.min(100 - otherPct, (dipResult.deductible / CAP) * 100));
+  const dipOverCap = Math.max(0, dipContrib - dipResult.deductible);
 
   return (
     <div>
@@ -194,12 +202,33 @@ export const TaxCalc: React.FC = () => {
         ))}
       </div>
 
-      {dipResult.unused > 0 && (
-        <div style={{ marginTop: '0.75rem', fontSize: '0.82rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'flex-start', gap: '0.4rem' }}>
-          <span style={{ marginTop: '1px', flexShrink: 0 }}><Icon name="info" size={14} color="#64748B" /></span>
-          <span>Nevyužitý limit DIP: <strong style={{ color: 'var(--text-secondary)' }}>{czNum(dipResult.unused)} Kč</strong> — celkový strop je 48 000 Kč/rok (DIP + penzijko + životko dohromady).</span>
+      {/* Cap meter — vizualizuje, kde se DIP přestává vyplácet (sdílený strop) */}
+      <div style={{ marginTop: '1.1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+          <span>Roční strop odpočtu (DIP + penzijko + životko)</span>
+          <span style={{ fontVariantNumeric: 'tabular-nums' }}>{czNum(CAP)} Kč</span>
         </div>
-      )}
+        <div style={{ display: 'flex', height: '14px', borderRadius: '7px', overflow: 'hidden', background: 'rgba(148,163,184,0.1)' }}>
+          <div style={{ width: `${otherPct}%`, background: '#64748b', transition: 'width 300ms ease' }} title="Penzijko / životko" />
+          <div style={{ width: `${dipPct}%`, background: 'var(--lg-cyan-500)', transition: 'width 300ms ease' }} title="DIP s odpočtem" />
+        </div>
+        <div style={{ display: 'flex', gap: '0.4rem 1.1rem', flexWrap: 'wrap', marginTop: '0.55rem', fontSize: '0.72rem' }}>
+          {otherCapped > 0 && (
+            <span style={{ color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: '#64748b' }} /> Penzijko/životko {czNum(otherCapped)} Kč
+            </span>
+          )}
+          <span style={{ color: 'var(--lg-cyan-400)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            <span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--lg-cyan-500)' }} /> DIP s odpočtem {czNum(dipResult.deductible)} Kč
+          </span>
+          {dipResult.unused > 0 && (
+            <span style={{ color: 'var(--text-muted)' }}>Volný strop {czNum(dipResult.unused)} Kč</span>
+          )}
+          {dipOverCap > 0 && (
+            <span style={{ color: '#f59e0b' }}>DIP nad strop {czNum(dipOverCap)} Kč — už bez úspory</span>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

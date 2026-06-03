@@ -53,12 +53,24 @@ export const PensionCalc: React.FC = () => {
           name: 'Důchod dnešními penězi', type: 'line', smooth: true, showSymbol: false, data: real, z: 2,
           lineStyle: { color: '#3ab5e0', width: 1.8, type: 'dashed' }, itemStyle: { color: '#3ab5e0' },
           areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(58,181,224,0.12)' }, { offset: 1, color: 'rgba(58,181,224,0.0)' }] } },
+          markPoint: {
+            symbol: 'circle', symbolSize: 8,
+            itemStyle: { color: '#3ab5e0', borderColor: '#ffffff', borderWidth: 1.5 },
+            label: { show: true, position: 'left', distance: 10, fontFamily: 'Space Grotesk', fontSize: 10, fontWeight: 700, color: '#3ab5e0', backgroundColor: 'rgba(8,28,46,0.85)', padding: [3, 6], borderRadius: 5, formatter: `reálně ${czNum(real[real.length - 1] || 0)} Kč` },
+            data: [{ type: 'max' }],
+          },
         },
         {
           name: 'Důchod nominálně', type: 'line', smooth: true, showSymbol: false, data: nominal, z: 3,
           lineStyle: { color: '#10b981', width: 2.6, shadowColor: 'rgba(16,185,129,0.55)', shadowBlur: 14 },
           itemStyle: { color: '#10b981' },
           areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(16,185,129,0.55)' }, { offset: 0.55, color: 'rgba(16,185,129,0.15)' }, { offset: 1, color: 'rgba(16,185,129,0.0)' }] } },
+          markPoint: {
+            symbol: 'circle', symbolSize: 9,
+            itemStyle: { color: '#10b981', borderColor: '#ffffff', borderWidth: 2, shadowColor: 'rgba(16,185,129,0.7)', shadowBlur: 14 },
+            label: { show: true, position: 'left', distance: 10, fontFamily: 'Space Grotesk', fontSize: 10, fontWeight: 700, color: '#10b981', backgroundColor: 'rgba(2,44,34,0.85)', padding: [3, 6], borderRadius: 5, formatter: `nominálně ${czNum(nominal[nominal.length - 1] || 0)} Kč` },
+            data: [{ type: 'max' }],
+          },
         },
       ],
     };
