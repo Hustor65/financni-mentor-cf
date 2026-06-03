@@ -86,7 +86,7 @@ export const PensionCalc: React.FC = () => {
       <div className="calc-form">
         <NumberField label="Hrubá měsíční mzda" suffix="Kč" value={salary} onChange={setSalary}
           min={0} sliderMin={10000} sliderMax={150000} step={1000} />
-        <NumberField label="Roky pojištění" suffix="let" value={yearsIns} onChange={setYearsIns}
+        <NumberField label="Doba pojištění" suffix="let" value={yearsIns} onChange={setYearsIns}
           min={0} max={60} sliderMin={15} sliderMax={50} step={1} />
         <NumberField label="Ročník narození" value={birthYear} onChange={setBirthYear}
           min={1940} max={2010} sliderMin={1960} sliderMax={2010} step={1} />
@@ -96,13 +96,13 @@ export const PensionCalc: React.FC = () => {
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Odhad důchodu</div>
           <div className="grad-text--green" style={{ fontSize: '1.3rem', fontWeight: 700 }}>{czNum(result.total)} Kč</div>
         </div>
-        <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
+        <div className="glass-panel" title="Jaká část vaší dnešní mzdy vám zůstane v podobě státního důchodu." style={{ padding: '1rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Náhradový poměr</div>
           <div style={{ fontSize: '1.3rem', fontWeight: 700, color: replacementRatio !== null && replacementRatio >= 50 ? 'var(--lg-green-500)' : 'var(--lg-cyan-400)' }}>{replacementRatio !== null ? `${replacementRatio} %` : '—'}</div>
         </div>
         <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Důchodový věk</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)' }}>{retYears} let{retMonths > 0 ? ` ${retMonths} m.` : ''}</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)' }}>{retYears} let{retMonths > 0 ? ` a ${retMonths} měs.` : ''}</div>
         </div>
       </div>
       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>

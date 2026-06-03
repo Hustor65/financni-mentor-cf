@@ -76,7 +76,7 @@ export const TaxCalc: React.FC = () => {
           </div>
         </div>
         <div className="form-group">
-          <label className="form-label" htmlFor="tax-proceeds">Roční úhrn příjmů z prodeje CP (Kč)</label>
+          <label className="form-label" htmlFor="tax-proceeds">Roční příjmy z prodeje cenných papírů (Kč)</label>
           <input
             id="tax-proceeds"
             className="form-input"
@@ -97,7 +97,7 @@ export const TaxCalc: React.FC = () => {
             style={{ accentColor: 'var(--lg-cyan-500)', width: '15px', height: '15px', flexShrink: 0 }}
           />
           <span className="form-label" style={{ cursor: 'pointer', marginBottom: 0 }}>
-            Drženo déle než 3 roky (časový test)
+            Cenné papíry držím déle než 3 roky (časový test)
           </span>
         </label>
       </div>
@@ -131,13 +131,13 @@ export const TaxCalc: React.FC = () => {
             <>
               <strong style={{ color: 'var(--lg-green-500)' }}>Osvobozeno</strong> —{' '}
               {taxResult.passedTimeTest
-                ? 'držíte déle než 3 roky, zisk nedaníte.'
-                : 'úhrn prodejů je do 100 000 Kč, zisk nedaníte.'}
+                ? 'držíte je déle než 3 roky, takže zisk nedaníte.'
+                : 'souhrn vašich prodejů je do 100 000 Kč za rok, takže zisk nedaníte.'}
             </>
           ) : (
             <>
-              Neprošel žádný test → daníte zisk.{' '}
-              <strong style={{ color: 'var(--lg-green-500)' }}>Tip: při držbě nad 3 roky je osvobozeno.</strong>
+              Neplatí žádné osvobození, proto zisk daníte 15 %.{' '}
+              <strong style={{ color: 'var(--lg-green-500)' }}>Tip: když cenné papíry držíte déle než 3 roky, je zisk od daně osvobozený.</strong>
             </>
           )}
         </span>
@@ -161,7 +161,7 @@ export const TaxCalc: React.FC = () => {
           gap: '0.5rem',
         }}
       >
-        <Icon name="coins" size={16} color="var(--lg-cyan-400)" /> DIP — kolik ušetříte
+        <Icon name="coins" size={16} color="var(--lg-cyan-400)" /> DIP — kolik ušetříte na daních
       </div>
 
       <div className="calc-form">
@@ -179,7 +179,7 @@ export const TaxCalc: React.FC = () => {
             />
           </div>
           <div className="form-group">
-            <label className="form-label" htmlFor="tax-other">Penzijko / životko (Kč/rok)</label>
+            <label className="form-label" htmlFor="tax-other">Penzijní a životní pojištění (Kč/rok)</label>
             <input
               id="tax-other"
               className="form-input"
@@ -196,7 +196,7 @@ export const TaxCalc: React.FC = () => {
       {/* KPI řádek — DIP */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', marginTop: '1rem' }}>
         {[
-          { label: 'Odečtete od daní', value: `${czNum(dipResult.deductible)} Kč`, color: 'var(--text-primary)' },
+          { label: 'Odečet od základu daně', value: `${czNum(dipResult.deductible)} Kč`, color: 'var(--text-primary)' },
           { label: 'Daňová úspora', value: `${czNum(dipResult.taxSaving)} Kč`, color: 'var(--lg-green-500)' },
           { label: 'Čistá cena vkladu', value: `${czNum(dipResult.netCost)} Kč`, color: 'var(--lg-cyan-400)' },
         ].map(k => (
@@ -210,7 +210,7 @@ export const TaxCalc: React.FC = () => {
       {/* Cap meter — vizualizuje, kde se DIP přestává vyplácet (sdílený strop) */}
       <div style={{ marginTop: '1.1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-          <span>Roční strop odpočtu (DIP + penzijko + životko)</span>
+          <span>Roční strop odpočtu (DIP + penzijní a životní pojištění)</span>
           <span style={{ fontVariantNumeric: 'tabular-nums' }}>{czNum(CAP)} Kč</span>
         </div>
         <div style={{ display: 'flex', height: '14px', borderRadius: '7px', overflow: 'hidden', background: 'rgba(148,163,184,0.1)' }}>
