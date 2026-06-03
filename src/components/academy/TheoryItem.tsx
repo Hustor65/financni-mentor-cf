@@ -3,13 +3,13 @@ import type { TheoryCard } from '../../data/topicContent';
 import { Icon } from '../Icon';
 
 /**
- * TheoryItem — jedna teorie-karta s rozbalovacím vysvětlením („Číst více").
+ * TheoryItem — jedna teorie-karta s rozbalovacím vysvětlením („Číst více“).
  *
  * `p` je vždy viditelný náhled, `more[]` je delší pokračování, které se po
  * kliknutí plynule odhalí. Každá karta drží vlastní stav (rozbaleno/sbaleno),
  * takže se rozbalují nezávisle na sobě.
  *
- * Animace = „CSS grid trick" (grid-template-rows 0fr → 1fr) — funguje napříč
+ * Animace = „CSS grid trick“ (grid-template-rows 0fr → 1fr) — funguje napříč
  * prohlížeči, bez JS výpočtů výšky a bez knihovny. Panel zůstává v DOM
  * (žádné display:none/hidden), jen se vizuálně sbalí — kvůli přístupnosti.
  */

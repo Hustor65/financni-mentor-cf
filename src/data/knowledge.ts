@@ -49,7 +49,7 @@ export const ACADEMY_LESSONS: Lesson[] = [
     ],
     quiz: [
       { q: 'Co dělá inflace s úsporami na běžném účtu?', options: ['Zvyšuje jejich kupní sílu', 'Snižuje jejich kupní sílu', 'Nemá na ně vliv'], correct: 1, explain: 'Inflace snižuje reálnou hodnotu (kupní sílu) peněz v čase.' },
-      { q: 'Co je složené úročení?', options: ['Daň z výnosů', 'Výnosy, které samy vydělávají další výnosy', 'Poplatek brokerovi'], correct: 1, explain: 'Reinvestované výnosy generují další výnosy → exponenciální růst.' },
+      { q: 'Co je složené úročení?', options: ['Daň z výnosů', 'Výnosy, které samy vydělávají další výnosy', 'Poplatek brokerovi'], correct: 1, explain: 'Reinvestované výnosy vydělávají další výnosy, takže hodnota roste exponenciálně.' },
       { q: 'Co je u dlouhodobého investování nejcennější?', options: ['Čas — začít brzy', 'Dokonalé načasování trhu', 'Co největší jednorázová částka'], correct: 0, explain: 'Čas a pravidelnost dlouhodobě porazí snahu trh načasovat.' },
     ],
   },
@@ -71,12 +71,12 @@ export const ACADEMY_LESSONS: Lesson[] = [
     id: 'riziko-vynos-diverzifikace', title: 'Riziko, výnos a diverzifikace', icon: 'shield-check',
     minutes: 6, summary: 'Proč vyšší výnos vždy znamená vyšší riziko.',
     blocks: [
-      { h: 'Výnos a riziko jdou ruku v ruce', p: 'Neexistuje vysoký výnos bez rizika. Kdokoli slibuje „zaručené" vysoké zhodnocení, je to varovný signál — často podvod.' },
+      { h: 'Výnos a riziko jdou ruku v ruce', p: 'Neexistuje vysoký výnos bez rizika. Kdokoli slibuje „zaručené“ vysoké zhodnocení, je to varovný signál — často podvod.' },
       { h: 'Diverzifikace = nesázet vše na jednu kartu', p: 'Rozložením peněz mezi více aktiv, regionů a sektorů snížíte dopad toho, když se jedné investici nedaří. Velkou část diverzifikace za vás udělají ETF.' },
       { h: 'Časový horizont určuje, jaké riziko unesete', p: 'Na peníze, které budete potřebovat za rok, patří spíš konzervativní nástroje. Na 15+ let snesete víc akcií, protože máte čas přečkat propady.' },
     ],
     quiz: [
-      { q: 'Co znamená slib „zaručeného" vysokého výnosu?', options: ['Skvělá příležitost', 'Varovný signál / možný podvod', 'Běžná nabídka bank'], correct: 1, explain: 'Vysoký výnos bez rizika neexistuje — je to klasický znak podvodu.' },
+      { q: 'Co znamená slib „zaručeného“ vysokého výnosu?', options: ['Skvělá příležitost', 'Varovný signál / možný podvod', 'Běžná nabídka bank'], correct: 1, explain: 'Vysoký výnos bez rizika neexistuje — je to klasický znak podvodu.' },
       { q: 'K čemu slouží diverzifikace?', options: ['Ke zvýšení poplatků', 'Ke snížení dopadu neúspěchu jedné investice', 'K zaručení zisku'], correct: 1, explain: 'Rozloží riziko mezi více aktiv, takže jeden propadák tolik nebolí.' },
       { q: 'Pro peníze potřebné až za 15+ let je vhodnější:', options: ['Spíš akcie / ETF', 'Jen spořicí účet'], correct: 0, explain: 'Delší horizont umožní přečkat výkyvy a využít vyšší výnos akcií.' },
     ],
@@ -99,9 +99,9 @@ export const ACADEMY_LESSONS: Lesson[] = [
     id: 'chyby-psychologie', title: 'Nejčastější chyby a psychologie', icon: 'alert-triangle',
     minutes: 6, summary: 'Časování trhu, panika, poplatky a FOMO.',
     blocks: [
-      { h: 'Časování trhu nefunguje', p: 'Snaha „nakoupit dole a prodat nahoře" dlouhodobě selhává i profíkům. Pravidelné investování stejné částky (DCA) zbavuje rozhodování emocí.' },
+      { h: 'Časování trhu nefunguje', p: 'Snaha „nakoupit dole a prodat nahoře“ dlouhodobě selhává i profíkům. Pravidelné investování stejné částky (DCA) zbavuje rozhodování emocí.' },
       { h: 'Největší nepřítel je panika', p: 'Propady trhu jsou normální. Kdo v panice prodá, promění dočasný pokles v trvalou ztrátu. Historicky se trhy z propadů vždy zotavily — odměnou je trpělivost.' },
-      { h: 'Hlídejte poplatky a hype', p: 'Vysoké poplatky ukrojí za desítky let obrovskou část výnosu. A pozor na FOMO (strach z propásnutí) u krypto a „zaručených" trendů — častá cesta ke ztrátě.' },
+      { h: 'Hlídejte poplatky a hype', p: 'Vysoké poplatky ukrojí za desítky let obrovskou část výnosu. A pozor na FOMO (strach z propásnutí) u krypto a „zaručených“ trendů — častá cesta ke ztrátě.' },
     ],
     quiz: [
       { q: 'Funguje dlouhodobě časování trhu?', options: ['Ano, spolehlivě', 'Ne, ani profíkům', 'Jen u krypta'], correct: 1, explain: 'Časování trhu dlouhodobě selhává; pomáhá pravidelnost (DCA).' },
@@ -127,7 +127,7 @@ export const GLOSSARY: GlossaryTerm[] = [
   { term: 'Výnos', def: 'Zhodnocení investice za období, obvykle v % ročně (p.a.).' },
   { term: 'Likvidita', def: 'Jak rychle a bez ztráty lze aktivum prodat za hotovost.' },
   { term: 'Dividenda', def: 'Podíl na zisku firmy vyplácený akcionářům.' },
-  { term: 'P/E poměr', def: 'Cena akcie dělená ziskem na akcii. Hrubý ukazatel, jak je akcie „drahá".' },
+  { term: 'P/E poměr', def: 'Cena akcie dělená ziskem na akcii. Hrubý ukazatel, jak je akcie „drahá“.' },
   { term: 'DCA', def: 'Pravidelné investování stejné částky (např. měsíčně). Zbavuje rozhodování emocí a načasování.' },
   { term: 'DIP', def: 'Dlouhodobý investiční produkt — daňový odpočet až 48 000 Kč/rok, peníze vázané do 60 let a min. 10 let.' },
   { term: 'Penzijní spoření', def: 'Doplňkové penzijní spoření se státním příspěvkem; spoření na penzi s daňovou výhodou.' },
@@ -161,7 +161,7 @@ export const EXTRA_FACTS: ExtraFact[] = [
   {
     id: 'fakt-slozene-uroceni', title: 'Složené úročení, inflace a pravidlo 72',
     source: 'Nástroje → Simulátor složeného úročení',
-    text: 'Složené úročení znamená, že reinvestované výnosy samy vydělávají další výnosy — hodnota proto v čase roste exponenciálně a vyplatí se začít co nejdříve. Inflace působí opačně: snižuje kupní sílu peněz (dlouhodobý cíl ČNB je 2 % ročně), takže hotovost ležící „pod polštářem" reálně ztrácí hodnotu. Pravidlo 72: počet let do zdvojnásobení investice přibližně odhadnete jako 72 dělené roční úrokovou sazbou v procentech.',
+    text: 'Složené úročení znamená, že reinvestované výnosy samy vydělávají další výnosy — hodnota proto v čase roste exponenciálně a vyplatí se začít co nejdříve. Inflace působí opačně: snižuje kupní sílu peněz (dlouhodobý cíl ČNB je 2 % ročně), takže hotovost ležící „pod polštářem“ reálně ztrácí hodnotu. Pravidlo 72: počet let do zdvojnásobení investice přibližně odhadnete jako 72 dělené roční úrokovou sazbou v procentech.',
   },
 ];
 
@@ -202,7 +202,7 @@ function stem(t: string): string {
 // Token-level index dokumentu: množina přesných tokenů (O(1) lookup) + jejich seznam pro
 // volnější shodu. V retrieve porovnáváme dotaz vůči TOKENŮM dokumentu na hranici slova
 // (prefix nebo 4-znakový stem), ne raw substring → odpadnou mid-word false-shody a přesná
-// shoda rozliší blízké pojmy („Index" vs „Indexový fond"). (M22)
+// shoda rozliší blízké pojmy („Index“ vs „Indexový fond“). (M22)
 interface TokenIndex {
   tokens: Set<string>;
   list: string[];
@@ -214,7 +214,7 @@ function tokenIndex(s: string): TokenIndex {
 
 // Volnější shoda dotazového tokenu s NĚJAKÝM tokenem dokumentu (na hranici slova, ne mid-
 // word): kratší prefixem delšího (min. 3 znaky; daň→daně, etf→etfs) NEBO shodný 4-znakový
-// stem (burza→burzovní, akcie→akcionář). „akci" tak nematchne „transakce".
+// stem (burza→burzovní, akcie→akcionář). „akci“ tak nematchne „transakce“.
 function looseHit(qt: string, list: string[]): boolean {
   return list.some(dt => {
     const short = qt.length <= dt.length ? qt : dt;

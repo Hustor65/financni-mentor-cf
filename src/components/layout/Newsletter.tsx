@@ -59,7 +59,7 @@ export const Newsletter: React.FC = () => {
           lineHeight: 1.6,
         }}
       >
-        Srozumitelně, nezávisle a bez spamu. Žádné „zaručené tipy" — jen vzdělávání.
+        Srozumitelně, nezávisle a bez spamu. Žádné „zaručené tipy“ — jen vzdělávání.
         Odhlásíte se kdykoli jedním kliknutím.
       </p>
 

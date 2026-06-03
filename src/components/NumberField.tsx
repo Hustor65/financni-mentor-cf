@@ -2,10 +2,10 @@ import { useId, useState } from 'react';
 
 /**
  * NumberField — slider + textové pole, synchronizované přes jeden float.
- * Vzor dle UX výzkumu (NN/g „linked controls", GOV.UK currency input):
+ * Vzor dle UX výzkumu (NN/g „linked controls“, GOV.UK currency input):
  *  - slider = hrubá explorace, textové pole = přesnost (napsat libovolné číslo)
  *  - type="text" + inputMode="decimal" (NE type=number — rozbíjí CZ čárku)
- *  - formátování „3 250" na blur, holé číslo při psaní (kurzor neskáče)
+ *  - formátování „3 250“ na blur, holé číslo při psaní (kurzor neskáče)
  *  - text smí přesáhnout rozsah slideru; thumb se jen zastaví na sliderMax
  *  - akceptuje čárku i tečku i mezery; tvrdá validace min/max až na blur
  */
@@ -64,7 +64,7 @@ export function NumberField({
     if (!Number.isFinite(n)) n = Number.isFinite(value) ? value : min;
     n = clamp(n, min, max);
     const factor = Math.pow(10, decimals);   // zaokrouhli na `decimals`, ať se uložená
-    n = Math.round(n * factor) / factor;     // hodnota shoduje se zobrazenou (3000,5 → „3 001" i ve stavu)
+    n = Math.round(n * factor) / factor;     // hodnota shoduje se zobrazenou (3000,5 → „3 001“ i ve stavu)
     onChange(n);
   };
 

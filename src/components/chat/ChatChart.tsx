@@ -29,7 +29,7 @@ function styleAxis(axis: any): any {
   return Array.isArray(axis) ? axis.map(one) : one(axis);
 }
 
-// Vezme „holý" option od modelu a doplní tmavý styl. Tooltip je VŽDY náš
+// Vezme „holý“ option od modelu a doplní tmavý styl. Tooltip je VŽDY náš
 // (model nesmí podstrčit vlastní HTML formatter). Pie nemá osy ani mřížku.
 function withTheme(model: any): any {
   const isPie = Array.isArray(model.series) && model.series.some((s: any) => s?.type === 'pie');
@@ -108,7 +108,7 @@ const FALLBACK: React.CSSProperties = {
 export const ChatChart: React.FC<{ code: string }> = ({ code }) => {
   // Debounce: během streamu se `code` mění po každém chunku. Renderujeme až
   // když se ustálí — a když je finální JSON vadný, ukážeme zdroj místo
-  // věčného „Připravuji graf…" (stejný princip jako ChatMermaid).
+  // věčného „Připravuji graf…“ (stejný princip jako ChatMermaid).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [state, setState] = useState<{ option?: any; failed?: boolean }>({});
   const reqRef = useRef(0);

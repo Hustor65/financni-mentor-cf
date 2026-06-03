@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    ChartSkeleton — pulzující zástupný obrys grafu (sloupce pulzují
-   mezi --surface-1 a --surface-2). Nahrazuje textové „Načítám graf…"
+   mezi --surface-1 a --surface-2). Nahrazuje textové „Načítám graf…“
    fallbacky během lazy-loadu ECharts/Mermaid i streamu v chatu.
    `bare` = bez vlastního okraje/pozadí (pro vložení do už orámované karty).
    ════════════════════════════════════════════════════════════ */

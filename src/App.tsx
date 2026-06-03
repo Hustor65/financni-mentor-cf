@@ -16,7 +16,7 @@ import { CommandPalette } from './components/CommandPalette';
 
 /* ════════════════════════════════════════════════════════════
    Hash routing — #temata · #temata/<topicId> · #presnost
-   (výchozí „mentor" = čistá URL bez hashe). Funkční Back/Forward
+   (výchozí „mentor“ = čistá URL bez hashe). Funkční Back/Forward
    v prohlížeči + sdílitelné odkazy na konkrétní sekci/téma.
    ════════════════════════════════════════════════════════════ */
 const VALID_TABS = new Set(['mentor', 'temata', 'presnost']);
@@ -81,7 +81,7 @@ const App: React.FC = () => {
 
   // z detailu tématu rovnou do Mentora s předvyplněným dotazem (kontextový chat)
   const handleAskMentor = useCallback((topicTitle: string) => {
-    setChatPrompt(`Vysvětli mi prosím téma „${topicTitle}" co nejjednodušeji.`);
+    setChatPrompt(`Vysvětli mi prosím téma „${topicTitle}“ co nejjednodušeji.`);
     setSelectedTopic(null);
     setActiveTab('mentor');
   }, []);
@@ -201,7 +201,8 @@ const App: React.FC = () => {
                     <p className="section-header">Témata</p>
                     <p className="section-desc">
                       Vyberte si téma. U každého najdete srozumitelnou teorii, názornou ukázku
-                      na grafu i kalkulačku — vše přehledně na jednom místě.
+                      na grafu a vlastní kalkulačku — vše přehledně na jednom místě. Na konci si
+                      krátkým kvízem ověříte, že jste vše pochopili.
                     </p>
                   </div>
                   <div className="reveal"><Badges completed={completedTopics.size} /></div>

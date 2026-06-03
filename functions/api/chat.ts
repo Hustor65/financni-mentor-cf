@@ -61,7 +61,7 @@ function buildSystemInstruction(): string {
     'Pro hlubší analýzu odkaž na TradingView, Yahoo Finance, CoinMarketCap.\n\n' +
 
     '5. TÓN KOMUNIKACE: S uživatelem komunikuj zásadně zdvořilým, profesionálním, ale ' +
-    'přátelským vykáním (např. „Vy", „Váš", „můžete"). Tykání je přísně zakázáno. ' +
+    'přátelským vykáním (např. „Vy“, „Váš“, „můžete“). Tykání je přísně zakázáno. ' +
     'Odpovídej vždy česky, srozumitelně a bez zbytečného odborného žargonu; pokud musíš ' +
     'použít odborný pojem (např. likvidita, volatilita), krátce ho vysvětli vlastními slovy.\n\n' +
 
@@ -81,7 +81,7 @@ function buildSystemInstruction(): string {
 
     '9. MIMO ROZSAH: Pokud kontext téma nepokrývá a nejde o obecně známý vzdělávací pojem, ' +
     'raději přiznej, že to přesně nevíš, a nasměruj uživatele na příslušnou lekci či ' +
-    'kalkulačku v aplikaci nebo na poradce s licencí ČNB. Lepší upřímné „to přesně nevím" ' +
+    'kalkulačku v aplikaci nebo na poradce s licencí ČNB. Lepší upřímné „to přesně nevím“ ' +
     'než nepřesnost nebo smyšlené číslo.\n\n' +
 
     '10. VÝPOČTY: Konkrétní propočty (kolik si naspořím, jaká bude daň, důchod, DIP) nepočítej ' +
@@ -93,12 +93,12 @@ function buildSystemInstruction(): string {
     '— ČÍSLA (vývoj v čase, porovnání hodnot, rozložení portfolia, složené úročení) → blok ' +
     '"echarts" s platným JSON (ECharts option): typ jen "line", "bar" nebo "pie"; české popisky; ' +
     'čísla bez uvozovek; posílej jen title, osy a series (barvy a tmavý styl doplní aplikace).\n' +
-    '— PROCES / VZTAH / „jak to funguje krok za krokem" (cesta pokynu na burzu, koloběh peněz, ' +
+    '— PROCES / VZTAH / „jak to funguje krok za krokem“ (cesta pokynu na burzu, koloběh peněz, ' +
     'vznik ETF, vztah pojmů) → blok "mermaid" s diagramem flowchart. PREFERUJ směr shora dolů ' +
     '("flowchart TB"), ať se diagram vejde čitelně do úzkého sloupce chatu (LR jen u 2–3 uzlů). ' +
     'Krátké české popisky uzlů v hranatých závorkách, vztahy šipkami, akci napiš na šipku.\n' +
     'SPOLEČNÁ PRAVIDLA: čísla buď z nástrojů (živá data), nebo to v názvu/textu označ jako ' +
-    'ILUSTRACI (nevymýšlej si „reálná" čísla); vizuál je doplněk, ne náhrada vysvětlení; ' +
+    'ILUSTRACI (nevymýšlej si „reálná“ čísla); vizuál je doplněk, ne náhrada vysvětlení; ' +
     'maximálně jeden na odpověď; přesný osobní propočet patří do kalkulaček (bod 10). ' +
     'Formáty přesně takto:\n' +
     '```echarts\n' +
@@ -272,7 +272,7 @@ async function getCryptoPrice(symbol: string): Promise<Record<string, unknown>> 
     name: m.shortName ?? only,
     price_usd: m.regularMarketPrice,
     // pozor: pctChange je změna vůči PŘEDCHOZÍ DENNÍ ZAVÍRAČCE (z 1d svíčky), ne
-    // skutečná trailing-24h změna → pole jmenujeme jako u akcií, ne „24h" (M2)
+    // skutečná trailing-24h změna → pole jmenujeme jako u akcií, ne „24h“ (M2)
     change_percent: pctChange(m),
     day_high: m.regularMarketDayHigh,
     day_low: m.regularMarketDayLow,

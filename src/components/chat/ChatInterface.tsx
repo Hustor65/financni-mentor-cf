@@ -156,13 +156,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     [isLoading, messages, onMessageSent, focusActiveInput],
   );
 
-  // „Zkusit znovu" — přepošli poslední dotaz uživatele (regenerace odpovědi)
+  // „Zkusit znovu“ — přepošli poslední dotaz uživatele (regenerace odpovědi)
   const handleRetry = useCallback(() => {
     const lastUser = [...messages].reverse().find(m => m.role === 'user');
     if (lastUser) handleSend(lastUser.content);
   }, [messages, handleSend]);
 
-  // „Vysvětli jednodušeji" — doplňující dotaz na zjednodušení poslední odpovědi
+  // „Vysvětli jednodušeji“ — doplňující dotaz na zjednodušení poslední odpovědi
   const handleSimplify = useCallback(() => {
     handleSend('Vysvětlete to prosím jednodušeji a stručněji, jako pro úplného začátečníka.');
   }, [handleSend]);
@@ -318,7 +318,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           </p>
         </div>
 
-        {/* „S čím pomůžu" — naplní boční sloupec do výšky chat panelu a zároveň
+        {/* „S čím pomůžu“ — naplní boční sloupec do výšky chat panelu a zároveň
             navádí, na co se ptát. Statický seznam = deterministická výška. */}
         <div className="glass-panel glass-panel--elevated chat-info__panel">
           <span className="eyebrow eyebrow--cyan">Okruhy</span>

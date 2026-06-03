@@ -69,7 +69,7 @@ export const TrustCenter: React.FC = () => (
 
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7, margin: '0 0 0.6rem' }}>
         Číselné výpočty stojí na <strong style={{ color: '#FFFFFF' }}>exaktní matematice v Pythonu</strong>{' '}
-        a oficiálních parametrech (ČNB, ČSSZ, ČSÚ) — žádné „tipování" jazykového modelu.
+        a oficiálních parametrech (ČNB, ČSSZ, ČSÚ) — žádné „tipování“ jazykového modelu.
         Vzdělávací obsah průběžně revidujeme a aktualizujeme.
       </p>
 

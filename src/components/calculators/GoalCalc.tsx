@@ -20,7 +20,7 @@ export const GoalCalc = () => {
     const monthlyRounded = Math.max(0, Math.ceil(m));
     const inv = monthlyRounded * n;
     // Výnos počítáme z REÁLNÉ budoucí hodnoty zaokrouhleného vkladu (ne z cíle),
-    // aby „vložíš + výnosy" = skutečně naspořená částka (= konec grafu). Při ceil
+    // aby „vložíš + výnosy“ = skutečně naspořená částka (= konec grafu). Při ceil
     // vkladu totiž FV mírně přesáhne cíl, takže gain = goal − inv by byl podhodnocený.
     const realFV = r === 0 ? inv : monthlyRounded * (((Math.pow(1 + r, n) - 1) / r) * (1 + r));
     return { monthly: monthlyRounded, invested: inv, gain: Math.max(0, Math.round(realFV) - inv) };

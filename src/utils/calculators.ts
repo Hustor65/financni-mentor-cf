@@ -71,15 +71,15 @@ export interface DipResult {
 }
 
 /** DIP daňový odpočet (2026).
- *  Roční strop 48 000 Kč je SDÍLENÝ (DIP + penzijko + životko). „Other" ho
+ *  Roční strop 48 000 Kč je SDÍLENÝ (DIP + penzijko + životko). „Other“ ho
  *  zaplňuje jako první, takže na DIP zbývá jen (limit − other) → vracíme
- *  MARGINÁLNÍ přínos DIP (sekce „DIP — kolik ušetříte"), ne kombinovaný. */
+ *  MARGINÁLNÍ přínos DIP (sekce „DIP — kolik ušetříte“), ne kombinovaný. */
 export function czDipDeduction(
   dipContrib: number, otherContrib = 0, rate = TAX_RATE_BASE,
 ): DipResult {
   dipContrib = Math.max(0, dipContrib);
   otherContrib = Math.max(0, otherContrib);
-  // marginální odpočet připadající na DIP (po zaplnění stropu „other")
+  // marginální odpočet připadající na DIP (po zaplnění stropu „other“)
   const deductible = Math.max(0, Math.min(DIP_DEDUCT_LIMIT_2026 - otherContrib, dipContrib));
   const taxSaving = deductible * rate;
   const unused = Math.max(0, DIP_DEDUCT_LIMIT_2026 - otherContrib - dipContrib);
@@ -125,6 +125,6 @@ export function compoundInterest(
 /** Formátování čísla (český styl s mezerami) */
 export function czNum(v: number | string): string {
   const n = Number(v);
-  if (!Number.isFinite(n)) return '—'; // NaN/±Infinity → pomlčka místo literálu „NaN"
+  if (!Number.isFinite(n)) return '—'; // NaN/±Infinity → pomlčka místo literálu „NaN“
   return Math.round(n).toLocaleString('cs-CZ');
 }

@@ -16,7 +16,7 @@ export const PensionCalc: React.FC = () => {
   const retMonths = retirementAge % 12;
   // Poměr má smysl jen pro mzdu v podporovaném rozsahu (>= sliderMin). Pod ním
   // (zadáno ručně textem) by spodní hranice důchodu dala nesmyslné % (mzda 100 →
-  // 5 670 %), proto zobrazíme „—".
+  // 5 670 %), proto zobrazíme „—“.
   const replacementRatio = salary >= 10000 ? Math.round((result.total / salary) * 100) : null;
 
   const projOption = useMemo(() => {

@@ -52,7 +52,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, o
     }));
     const terms: CmdItem[] = GLOSSARY.map(g => ({
       id: 'term-' + g.term, label: g.term, hint: 'Zeptat se mentora', icon: 'sparkles', group: 'Slovníček',
-      run: () => { onAskMentor(`Vysvětlete mi prosím pojem „${g.term}".`); onClose(); },
+      run: () => { onAskMentor(`Vysvětlete mi prosím pojem „${g.term}“.`); onClose(); },
     }));
     return [...actions, ...tabs, ...topics, ...terms];
   }, [onSelectTab, onOpenTopic, onAskMentor, onClose]);

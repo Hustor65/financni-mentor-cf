@@ -35,7 +35,7 @@ export const StocksComparison: React.FC = () => {
   );
 };
 
-// ── inflace: graf „Jak inflace ukrajuje" + hláška ──
+// ── inflace: graf „Jak inflace ukrajuje“ + hláška ──
 export const InflationTool: React.FC = () => {
   const [amount, setAmount] = useState(100000);
   const [infl, setInfl] = useState(3);

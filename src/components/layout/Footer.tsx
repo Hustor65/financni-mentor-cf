@@ -109,7 +109,7 @@ export const Footer: React.FC = () => (
             Investování s sebou nese riziko. Hodnota investice v čase kolísá a může klesnout
             i pod vloženou částku; minulé výnosy nezaručují budoucí. Vyšší očekávaný výnos
             znamená vyšší riziko. Před rozhodnutím zvažte konzultaci s poradcem
-            s licencí ČNB. Metodiku a zdroje najdete v sekci „Jak hlídáme přesnost".
+            s licencí ČNB. Metodiku a zdroje najdete v sekci „Jak hlídáme přesnost“.
           </p>
         </div>
       </aside>

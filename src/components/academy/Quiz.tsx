@@ -12,7 +12,7 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
   const [answers, setAnswers] = useState<(number | null)[]>(() => questions.map(() => null));
   const [submitted, setSubmitted] = useState(false);
 
-  // prázdný kvíz by se po „Vyhodnotit" sám označil za 100% zvládnutý (0===0) a zavolal
+  // prázdný kvíz by se po „Vyhodnotit“ sám označil za 100% zvládnutý (0===0) a zavolal
   // onComplete bez jediné odpovědi → defenzivně nic nevykresluj (L49)
   if (!questions.length) return null;
 
@@ -44,7 +44,7 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
       ? { icon: 'circle-check', text: `Výborně! ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-green-500)' }
       : pct >= 60
         ? { icon: 'target', text: `Dobré! ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-cyan-400)' }
-        : { icon: 'book-open', text: `Zkuste to znovu — ${correct}/${total} správně (${pct} %)`, color: 'var(--text-secondary)' }
+        : { icon: 'book-open', text: `Skoro to máte — zkuste to znovu. ${correct}/${total} správně (${pct} %)`, color: 'var(--text-secondary)' }
     : null;
 
   return (
@@ -142,7 +142,7 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
                     />
                   </span>
                   <span style={{ color: 'var(--text-secondary)', fontSize: '0.84rem', lineHeight: 1.55 }}>
-                    Správně: <strong style={{ color: 'var(--text-primary)' }}>{q.options[q.correct]}</strong> — {q.explain}
+                    {answers[qi] === q.correct ? 'Správně:' : 'Správná odpověď:'} <strong style={{ color: 'var(--text-primary)' }}>{q.options[q.correct]}</strong> — {q.explain}
                   </span>
                 </div>
               )}
