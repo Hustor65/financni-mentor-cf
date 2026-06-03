@@ -32,8 +32,8 @@ export const ChatEmptyState: React.FC<ChatEmptyStateProps> = ({
     </div>
     <h3 className="chat-empty__title">Váš osobní finanční mentor</h3>
     <p className="chat-empty__lead">
-      Zeptejte se na cokoli kolem investování, spoření, daní nebo důchodu — srozumitelně
-      vysvětlím teorii a ukážu živá tržní data. Žádné investiční rady, jen pochopení.
+      Zeptejte se na cokoli ohledně investování, spoření, daní nebo důchodu. Srozumitelně
+      vysvětlím teorii a ukážu živá tržní data — žádné konkrétní investiční rady, jen pochopení souvislostí.
     </p>
 
     <div className="chat-empty__suggestions">
@@ -44,6 +44,7 @@ export const ChatEmptyState: React.FC<ChatEmptyStateProps> = ({
           className="chat-suggestion"
           onClick={() => onPick(s.prompt)}
           disabled={disabled}
+          aria-label={`Zeptat se: ${s.label}`}
         >
           <span className="chat-suggestion__icon">
             <Icon name={s.icon} size={18} />

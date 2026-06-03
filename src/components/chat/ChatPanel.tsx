@@ -136,7 +136,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               value={input}
               onChange={e => onInputChange(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Zadejte svůj finanční dotaz..."
+              placeholder="Napište svůj finanční dotaz…"
               rows={1}
               readOnly={isLoading}
               aria-label="Napište zprávu"
@@ -165,7 +165,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
         <p className="chat-composer__hint">
           <Icon name="info" size={12} color="#64748B" />
-          Vzdělávací nástroj, ne investiční doporučení. AI se může mýlit — informace si ověřujte.
+          Vzdělávací nástroj, nikoli investiční doporučení. AI se může mýlit — důležité informace si prosím ověřte.
         </p>
       </div>
     </div>

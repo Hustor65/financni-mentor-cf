@@ -14,15 +14,16 @@ interface ChatInterfaceProps {
 const WELCOME: Message = {
   role: 'assistant',
   content:
-    'Dobrý den! Jsem váš osobní finanční mentor z projektu **Nachytej AI**. ' +
-    'Jaké téma ohledně správy financí vás zajímá?',
+    'Dobrý den, jsem váš finanční mentor z projektu **Nachytej AI**. ' +
+    'Pomohu vám zorientovat se ve financích a investování — srozumitelně a od základů. ' +
+    'Co byste se rád(a) dozvěděl(a)? Můžete se zeptat vlastními slovy, nebo využít některý z tipů níže.',
 };
 
 const QUICK_PROMPTS: ChatSuggestion[] = [
-  { label: 'Co je to ETF?', icon: 'book-open', desc: 'Vysvětlení pojmu od základů', prompt: 'Vysvětlete mi teorii: Co je to ETF?' },
-  { label: 'Investice 3 000 Kč měsíčně', icon: 'coins', desc: 'Praktický příklad pravidelného investování', prompt: 'Ukažte mi praktický příklad: Investice 3000 Kč měsíčně.' },
-  { label: 'Jak působí inflace na úspory?', icon: 'trending-up', desc: 'Co dělá s hodnotou peněz v čase', prompt: 'Vysvětlete mi, jak inflace ovlivňuje hodnotu mých úspor.' },
-  { label: 'Otestujte moji gramotnost', icon: 'graduation-cap', desc: 'Krátký kvíz finanční gramotnosti', prompt: 'Otestujte mě z finanční gramotnosti.' },
+  { label: 'Co je to ETF?', icon: 'book-open', desc: 'Burzovně obchodovaný fond — vysvětlení od základů', prompt: 'Vysvětlete mi srozumitelně a od základů, co je to ETF.' },
+  { label: 'Investuji 3 000 Kč měsíčně', icon: 'coins', desc: 'Praktický příklad pravidelného investování', prompt: 'Ukažte mi na praktickém příkladu, jak může vypadat pravidelné investování 3 000 Kč měsíčně.' },
+  { label: 'Jak inflace ovlivňuje úspory?', icon: 'trending-down', desc: 'Proč peníze v čase ztrácejí hodnotu', prompt: 'Vysvětlete mi srozumitelně, jak inflace ovlivňuje hodnotu mých úspor.' },
+  { label: 'Otestujte mé znalosti', icon: 'graduation-cap', desc: 'Krátký kvíz finanční gramotnosti', prompt: 'Otestujte mé znalosti krátkým kvízem finanční gramotnosti.' },
 ];
 
 // Navazující chipy pod dokončenou odpovědí mentora — posunou konverzaci dál (à la Claude/ChatGPT).
@@ -139,7 +140,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           const next = [...prev];
           next[next.length - 1] = {
             role: 'assistant',
-            content: '⚠️ Omlouvám se, nepodařilo se spojit se serverem. Zkuste to prosím později.',
+            content: '⚠️ Omlouvám se, spojení se serverem se nezdařilo. Zkuste prosím odeslat dotaz znovu za okamžik. Pokud potíže přetrvávají, zkontrolujte připojení k internetu.',
           };
           return next;
         });
@@ -191,7 +192,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     // tlačítko je sice disabled při isLoading, ale guard navíc → běžící stream nikdy
     // nezapíše osiřelý chunk do nového [WELCOME] (M24)
     if (isLoading) return;
-    if (messages.length > 1 && !window.confirm('Opravdu smazat celou konverzaci?')) return;
+    if (messages.length > 1 && !window.confirm('Opravdu chcete smazat celou konverzaci? Tuto akci nelze vrátit zpět.')) return;
     setMessages([WELCOME]);
     setInput('');
   };
@@ -348,7 +349,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           style={{ marginTop: 'var(--space-md)' }}
           disabled={isLoading}
         >
-          Smazat historii
+          Smazat konverzaci
         </button>
       </aside>
 
