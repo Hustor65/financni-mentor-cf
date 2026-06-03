@@ -54,7 +54,7 @@
 - [ ] **~62 low** zbývá — z toho většina latentní/kosmetika/ověřeno-NE-bug/už opravené; reálně k uvážení jen ~6 MODERATE (L1, L12, L20/L55, L33, L39, L58 — viz HOTOVO #15). Nízká priorita.
 
 ### Copy
-- [ ] **223 copy vylepšení** (české texty po sekcích) — v reportu.
+- [x] ~~**223 copy vylepšení**~~ — HOTOVO+nasazeno (7 commitů `e1427af`→`833d244`, ~210/223). Globální typografie českých uvozovek (76× `„…"`→`„…"`, repo-wide perl) + všechny sekce (Hero/Navigace/KPI/Chat+systémový prompt/Témata/lekce/slovníček/kvíz/kalkulačky/Trust/Halucinace demo/porovnání/odznaky/topic tools/konstanty). Vzory: anglicismy→čeština, vykání, malá písmena, `&`→`a`, žargon vysvětlen, `~`/`+`/`→`/`p.a.`→slova, `FinMentor`→`mentor v Nachytej AI`. Ověřeno produkčním chatem (systémový prompt OK). **Odloženo ~13 net-new UX přídavků** (úvodní nadpisy StocksComparison/RiskProfile + mikrocopy v TopicTools, zero-state pobídky, aria-label odznaků) — chtějí nové UI, ne revizi textu. Newsletter (10) skip — skrytý.
 
 ### Volitelné / budoucí
 - [ ] **OpenAI API** (škola financuje klíč) — přidat/přepnout vedle Gemini v `functions/api/chat.ts` (vizualizační vrstva je provider-agnostic, jede beze změny). Učitelovy „custom GPT" odkazy NEJDOU volat přes API — replikovat zkopírováním jejich Instructions do promptu. Detail v paměti `openai-migration-plan.md`.
