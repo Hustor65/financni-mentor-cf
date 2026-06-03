@@ -37,7 +37,7 @@ export const Glossary: React.FC = () => {
         Finanční slovníček
       </p>
       <p className="section-desc">
-        Rychlé, srozumitelné definice nejdůležitějších pojmů. Hledejte podle názvu i obsahu.
+        Rychlé a srozumitelné definice nejdůležitějších finančních pojmů. Hledat můžete podle názvu i podle obsahu definice.
       </p>
 
       {/* Search s ikonou lupy + počítadlo (vyplní řádek do plné šířky) */}
@@ -53,7 +53,7 @@ export const Glossary: React.FC = () => {
             className="form-input"
             style={{ width: '100%', paddingLeft: '2.5rem' }}
             type="text"
-            placeholder="Např. ETF, inflace, dividenda…"
+            placeholder="Hledat pojem… (např. ETF, inflace, dividenda)"
             value={search}
             onChange={e => setSearch(e.target.value)}
             aria-label="Hledat ve slovníčku"
@@ -62,7 +62,7 @@ export const Glossary: React.FC = () => {
         <span aria-live="polite" style={{ color: 'var(--text-muted)', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
           {search.trim()
             ? `${filtered.length} ${plural(filtered.length, ['výsledek', 'výsledky', 'výsledků'])}`
-            : `${GLOSSARY.length} ${plural(GLOSSARY.length, ['pojem', 'pojmy', 'pojmů'])} ve slovníčku`}
+            : `Celkem ${GLOSSARY.length} ${plural(GLOSSARY.length, ['pojem', 'pojmy', 'pojmů'])} ve slovníčku`}
         </span>
       </div>
 
@@ -81,7 +81,7 @@ export const Glossary: React.FC = () => {
 
       {filtered.length === 0 && (
         <div role="status" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem', fontSize: '0.88rem' }}>
-          Žádný pojem neodpovídá hledání. Zkuste jiné slovo, nebo se zeptejte AI Mentora.
+          Tomuto hledání neodpovídá žádný pojem. Zkuste jiné nebo kratší slovo — anebo se rovnou zeptejte AI Mentora.
         </div>
       )}
     </div>

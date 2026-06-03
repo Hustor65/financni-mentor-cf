@@ -99,12 +99,12 @@ export const ACADEMY_LESSONS: Lesson[] = [
     id: 'chyby-psychologie', title: 'Nejčastější chyby a psychologie', icon: 'alert-triangle',
     minutes: 6, summary: 'Časování trhu, panika, poplatky a FOMO.',
     blocks: [
-      { h: 'Časování trhu nefunguje', p: 'Snaha „nakoupit dole a prodat nahoře“ dlouhodobě selhává i profíkům. Pravidelné investování stejné částky (DCA) zbavuje rozhodování emocí.' },
+      { h: 'Časování trhu nefunguje', p: 'Snaha „nakoupit dole a prodat nahoře“ dlouhodobě selhává i profesionálům. Pravidelné investování stejné částky (DCA) zbavuje rozhodování emocí.' },
       { h: 'Největší nepřítel je panika', p: 'Propady trhu jsou normální. Kdo v panice prodá, promění dočasný pokles v trvalou ztrátu. Historicky se trhy z propadů vždy zotavily — odměnou je trpělivost.' },
       { h: 'Hlídejte poplatky a hype', p: 'Vysoké poplatky ukrojí za desítky let obrovskou část výnosu. A pozor na FOMO (strach z propásnutí) u krypto a „zaručených“ trendů — častá cesta ke ztrátě.' },
     ],
     quiz: [
-      { q: 'Funguje dlouhodobě časování trhu?', options: ['Ano, spolehlivě', 'Ne, ani profíkům', 'Jen u krypta'], correct: 1, explain: 'Časování trhu dlouhodobě selhává; pomáhá pravidelnost (DCA).' },
+      { q: 'Funguje dlouhodobě časování trhu?', options: ['Ano, spolehlivě', 'Ne, ani profesionálům', 'Jen u krypta'], correct: 1, explain: 'Časování trhu dlouhodobě selhává; pomáhá pravidelnost (DCA).' },
       { q: 'Co má při propadu trhu dělat dlouhodobý investor?', options: ['Spanikařit a prodat', 'Zachovat klid a držet plán', 'Vsadit vše na jednu akcii'], correct: 1, explain: 'Propady jsou normální; panický prodej mění dočasný pokles v trvalou ztrátu.' },
       { q: 'Proč hlídat poplatky?', options: ['Nemají vliv', 'Za desítky let ukrojí velkou část výnosu', 'Zvyšují výnos'], correct: 1, explain: 'Poplatky se složeně načítají a výrazně sníží konečný výnos.' },
     ],
@@ -113,32 +113,32 @@ export const ACADEMY_LESSONS: Lesson[] = [
 
 // ── SLOVNÍČEK ──
 export const GLOSSARY: GlossaryTerm[] = [
-  { term: 'Akcie', def: 'Podíl (vlastnictví) ve firmě. Vyděláváte na růstu hodnoty a dividendách; vyšší výnos i kolísání.' },
+  { term: 'Akcie', def: 'Podíl (vlastnictví) ve firmě. Vyděláváte na růstu její hodnoty a na dividendách. Dlouhodobě nabízí vyšší výnos, ale i větší kolísání (a tím vyšší riziko).' },
   { term: 'Dluhopis', def: 'Půjčka státu nebo firmě, která vám za to platí úrok. Stabilnější než akcie, nižší výnos.' },
   { term: 'ETF', def: 'Burzovně obchodovaný fond — v jednom nákupu drží koš mnoha aktiv, typicky kopíruje index. Levné, diverzifikované.' },
-  { term: 'Index', def: 'Ukazatel vývoje koše cenných papírů (např. S&P 500 = 500 velkých firem USA).' },
+  { term: 'Index', def: 'Ukazatel vývoje koše cenných papírů. Příklad: index S&P 500 sleduje 500 největších amerických firem.' },
   { term: 'Indexový fond', def: 'Fond, který pasivně kopíruje index místo aktivního výběru akcií. Nízké poplatky.' },
   { term: 'Podílový fond', def: 'Fond, kde správce spojuje peníze investorů a investuje je. Bývá dražší než ETF.' },
   { term: 'Diverzifikace', def: 'Rozložení peněz mezi více aktiv/regionů/sektorů, aby jeden neúspěch tolik nebolel.' },
   { term: 'Složené úročení', def: 'Výnosy, které samy vydělávají další výnosy. V čase roste exponenciálně.' },
-  { term: 'Inflace', def: 'Růst cen v čase = pokles kupní síly peněz. Cíl ČNB je 2 % ročně.' },
+  { term: 'Inflace', def: 'Růst cen v čase, tedy pokles kupní síly peněz (za stejnou částku si koupíte méně). Cíl ČNB je 2 % ročně.' },
   { term: 'Volatilita', def: 'Míra kolísání ceny. Vyšší volatilita = větší výkyvy nahoru i dolů.' },
   { term: 'Riziko', def: 'Možnost, že skutečný výnos bude jiný (i horší) než očekávaný. Vyšší výnos = vyšší riziko.' },
-  { term: 'Výnos', def: 'Zhodnocení investice za období, obvykle v % ročně (p.a.).' },
+  { term: 'Výnos', def: 'Zhodnocení investice za dané období, obvykle uváděné v % ročně (p.a. = per annum, tj. za rok).' },
   { term: 'Likvidita', def: 'Jak rychle a bez ztráty lze aktivum prodat za hotovost.' },
   { term: 'Dividenda', def: 'Podíl na zisku firmy vyplácený akcionářům.' },
-  { term: 'P/E poměr', def: 'Cena akcie dělená ziskem na akcii. Hrubý ukazatel, jak je akcie „drahá“.' },
+  { term: 'P/E poměr', def: 'Cena akcie dělená ročním ziskem na akcii. Hrubě napoví, jak je akcie „drahá“ vůči svým ziskům.' },
   { term: 'DCA', def: 'Pravidelné investování stejné částky (např. měsíčně). Zbavuje rozhodování emocí a načasování.' },
-  { term: 'DIP', def: 'Dlouhodobý investiční produkt — daňový odpočet až 48 000 Kč/rok, peníze vázané do 60 let a min. 10 let.' },
-  { term: 'Penzijní spoření', def: 'Doplňkové penzijní spoření se státním příspěvkem; spoření na penzi s daňovou výhodou.' },
+  { term: 'DIP', def: 'Dlouhodobý investiční produkt. Umožňuje daňový odpočet až 48 000 Kč ročně; peníze jsou vázané nejméně 10 let a zároveň do 60 let věku.' },
+  { term: 'Penzijní spoření', def: 'Doplňkové penzijní spoření se státním příspěvkem a možností daňového odpočtu. Dlouhodobé spoření na penzi v regulovaném fondu.' },
   { term: 'Broker', def: 'Zprostředkovatel, přes kterého nakupujete a prodáváte cenné papíry. Ověřte regulaci (ČNB/EU).' },
-  { term: 'Robo-advisor', def: 'Služba, která za roční poplatek automaticky sestaví a spravuje portfolio (Portu, Fondee aj.).' },
+  { term: 'Robo-advisor', def: 'Online služba, která za vás za roční poplatek automaticky sestaví a spravuje portfolio podle vašeho profilu (např. Portu, Fondee).' },
   { term: 'TER', def: 'Celková roční nákladovost fondu/ETF v %. Čím nižší, tím lépe — poplatky ujídají výnos.' },
-  { term: 'Časový test', def: 'Daňové pravidlo: po více než 3 letech držby cenných papírů je zisk z prodeje osvobozen od daně.' },
+  { term: 'Časový test', def: 'Daňové pravidlo: pokud cenné papíry držíte déle než 3 roky, je zisk z jejich prodeje osvobozen od daně z příjmu.' },
   { term: 'Portfolio', def: 'Souhrn všech vašich investic dohromady.' },
   { term: 'Rebalancování', def: 'Občasné srovnání portfolia zpět na cílové rozložení (např. 80 % akcie / 20 % dluhopisy).' },
   { term: 'Býčí / medvědí trh', def: 'Býčí trh = dlouhodobý růst, medvědí trh = pokles o 20 %+ od vrcholu.' },
-  { term: 'FIRE', def: 'Financial Independence, Retire Early — strategie naspořit dost na předčasnou finanční nezávislost.' },
+  { term: 'FIRE', def: 'Z anglického „Financial Independence, Retire Early“ (finanční nezávislost, dřívější odchod do penze). Strategie naspořit a investovat dost na to, abyste mohli přestat pracovat dříve než v důchodovém věku.' },
 ];
 
 // ── EXTRA FAKTA ──
@@ -146,7 +146,7 @@ export const EXTRA_FACTS: ExtraFact[] = [
   {
     id: 'fakt-dane-prodej', title: 'Daně z prodeje investic (2026)',
     source: 'Nástroje → Daň z prodeje investic',
-    text: 'Zisk z prodeje cenných papírů (akcie, ETF) je v ČR osvobozen od daně z příjmů, pokud splníte alespoň jeden test: ČASOVÝ TEST (držba déle než 3 roky) NEBO HODNOTOVÝ TEST (úhrn vašich ročních příjmů z prodeje cenných papírů nepřesáhne 100 000 Kč). Od roku 2026 byl u cenných papírů zrušen dřívější 40milionový strop osvobození. Pokud nejste osvobozeni, daníte ZISK (prodejní cena minus nákupní cena minus poplatky) sazbou 15 %, případně 23 % z části celkového ročního základu daně nad 1 762 812 Kč. Osvobozený příjem nad 5 000 000 Kč je nutné oznámit finančnímu úřadu.',
+    text: 'Zisk z prodeje cenných papírů (akcie, ETF) je v ČR osvobozen od daně z příjmů, pokud splníte alespoň jeden test: ČASOVÝ TEST (držba déle než 3 roky) NEBO HODNOTOVÝ TEST (úhrn vašich ročních příjmů z prodeje cenných papírů nepřesáhne 100 000 Kč). Od roku 2026 byl u cenných papírů zrušen dřívější 40milionový strop osvobození. Pokud nejste osvobozeni, daníte ZISK (prodejní cena minus nákupní cena minus poplatky) sazbou 15 %, případně 23 % z části celkového ročního základu daně nad 1 762 812 Kč. Do tohoto základu se přitom sčítají i další zdanitelné příjmy (např. ze zaměstnání), nejen zisk z investic. Osvobozený příjem nad 5 000 000 Kč je nutné oznámit finančnímu úřadu.',
   },
   {
     id: 'fakt-dip', title: 'DIP — dlouhodobý investiční produkt (2026)',
@@ -156,7 +156,7 @@ export const EXTRA_FACTS: ExtraFact[] = [
   {
     id: 'fakt-duchod', title: 'Státní starobní důchod (2026)',
     source: 'Nástroje → Důchodová kalkulačka',
-    text: 'Český státní starobní důchod se skládá ze základní výměry (v roce 2026 činí 4 900 Kč) a procentní výměry (1,495 % výpočtového základu za každý rok pojištění). U průměrné mzdy je náhradový poměr (důchod vůči mzdě) zhruba 45 %; u nižších příjmů více, u vyšších méně. Důchodový věk se podle ročníku narození zvyšuje až na strop 67 let (ročník 1989 a mladší podle aktuálně platné reformy). Protože stát nahradí jen část příjmu, je rozumné si na penzi spořit i samostatně.',
+    text: 'Český státní starobní důchod se skládá ze dvou částí, které se sčítají: základní výměry (v roce 2026 činí 4 900 Kč měsíčně, stejná pro všechny) a procentní výměry (1,495 % tzv. výpočtového základu za každý rok pojištění). U průměrné mzdy je náhradový poměr (důchod vůči mzdě) zhruba 45 %; u nižších příjmů více, u vyšších méně. Důchodový věk se podle ročníku narození zvyšuje až na strop 67 let (ročník 1989 a mladší podle aktuálně platné reformy). Protože stát nahradí jen část příjmu, je rozumné si na penzi spořit i samostatně.',
   },
   {
     id: 'fakt-slozene-uroceni', title: 'Složené úročení, inflace a pravidlo 72',

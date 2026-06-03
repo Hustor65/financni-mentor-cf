@@ -40,9 +40,9 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       h: 'Pravidlo 72',
       p: 'Dobu zdvojnásobení investice odhadnete jako 72 dělené úrokem. Při 8 % ročně se peníze zdvojnásobí zhruba za 9 let.',
       more: [
-        'Pravidlo 72 je rychlá pomůcka z hlavy: vydělíte číslo 72 ročním úrokem v procentech a vyjde přibližný počet let, za který se vklad zdvojnásobí. Při 8 % to je 72 ÷ 8 = 9 let, při 6 % je to 12 let a při 4 % 18 let. Vyšší výnos tedy dobu zdvojnásobení výrazně zkracuje.',
-        'Pomůcka funguje díky tomu, že složené úročení roste geometricky, a 72 se dělí na celá čísla. Není to přesný vzorec, ale pro běžné úroky (zhruba 4–12 %) dává odhad blízko skutečnosti — pro hrubou představu úplně stačí.',
-        'Stejné pravidlo umí ukázat i ničivou sílu inflace. Při 3% inflaci se „smáčkne“ kupní síla peněz na polovinu zhruba za 72 ÷ 3 = 24 let. Hotovost bez zhodnocení tak na poloviční hodnotu klesne během jedné generace.',
+        'Pravidlo 72 je rychlá pomůcka, kterou spočítáte z hlavy: číslo 72 vydělíte ročním úrokem v procentech a vyjde přibližný počet let, za který se vklad zdvojnásobí. Při 8 % to je 72 ÷ 8 = 9 let, při 6 % je to 12 let a při 4 % 18 let. Vyšší výnos tedy dobu zdvojnásobení výrazně zkracuje.',
+        'Pomůcka funguje proto, že složené úročení roste geometricky a 72 se dobře dělí mnoha čísly (2, 3, 4, 6, 8, 9, 12). Není to přesný vzorec, ale pro běžné úroky (zhruba 4–12 %) dává odhad blízko skutečnosti — pro hrubou představu úplně stačí.',
+        'Stejné pravidlo umí ukázat i ničivou sílu inflace. Při 3% inflaci klesne kupní síla peněz na polovinu zhruba za 72 ÷ 3 = 24 let. Hotovost bez zhodnocení tak na poloviční hodnotu klesne během jedné generace.',
         'Pozor na meze pravidla: u velmi vysokých úroků (nad ~20 %) už začíná být nepřesné a předpokládá stabilní výnos. Reálné trhy kolísají, takže ho berte jako orientační odhad, ne jako záruku.',
       ],
     },
@@ -52,7 +52,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       h: 'Akcie = podíl ve firmě',
       p: 'Koupí akcie se stáváte spolumajitelem firmy; vyděláváte na růstu hodnoty a z dividend. Vyšší dlouhodobý výnos, ale i vyšší kolísání.',
       more: [
-        'Akcie je podíl na vlastnictví konkrétní společnosti. Když ji koupíte, držíte malý kousek firmy a máte nárok na odpovídající díl jejího zisku. Vydělat můžete dvěma způsoby: růstem ceny akcie (koupíte levně, prodáte dráž) a výplatou dividendy, což je část zisku, kterou firma rozdělí akcionářům.',
+        'Akcie je podíl na vlastnictví konkrétní společnosti. Když akcii koupíte, držíte malý kousek firmy a máte nárok na odpovídající díl jejího zisku. Vydělat můžete dvěma způsoby: růstem ceny akcie (koupíte levně, prodáte dráž) a výplatou dividendy, což je část zisku, kterou firma rozdělí akcionářům.',
         'Cena akcie se ale řídí očekáváním trhu a může výrazně kolísat nahoru i dolů — během krize klidně o desítky procent. To je důvod, proč akcie nesou historicky vyšší dlouhodobý výnos: investor je odměňován za to, že snáší tuto nejistotu. Akcie jsou tak nástroj „na dlouho“, ne na peníze, které budete brzy potřebovat.',
         'Příklad: koupíte akcii za 1 000 Kč, firmě se daří a po čase ji prodáte za 1 200 Kč — vyděláte 200 Kč na růstu ceny. Pokud mezitím vyplatila dividendu 30 Kč, máte ji navíc. Kdyby ale firma zklamala, mohla cena spadnout třeba na 700 Kč.',
         'Začátečníci často vsadí všechno na jednu „jistou“ firmu, kterou znají. To je velké riziko — i zavedená společnost může zkrachovat nebo dlouhodobě klesat. Proto se akcie obvykle drží rozložené přes mnoho firem, nejjednodušeji přes ETF.',
@@ -63,7 +63,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       p: 'Půjčujete státu nebo firmě a ony vám platí úrok. Stabilnější než akcie, nižší výnos.',
       more: [
         'Dluhopis je v podstatě potvrzení o půjčce. Když ho koupíte, půjčujete své peníze tomu, kdo dluhopis vydal — státu, městu nebo firmě. Ten se zavazuje platit vám předem dohodnutý úrok (kupón) a na konci splatnosti vrátit půjčenou částku (jmenovitou hodnotu).',
-        'Na rozdíl od akcie nejste spolumajitel, ale věřitel. Proto je výnos zpravidla nižší a předem známější — víte, kolik vám má kdy přijít. Hlavní riziko je, že dlužník nezaplatí (úvěrové riziko). U státních dluhopisů vyspělé země je toto riziko nízké, u méně bonitních firem vyšší, a proto nabízejí vyšší úrok jako kompenzaci.',
+        'Na rozdíl od akcie nejste spolumajitel, ale věřitel. Proto je výnos zpravidla nižší a předem známější — víte, kolik vám má kdy přijít. Hlavní riziko je, že dlužník nezaplatí (kreditní riziko). U státních dluhopisů vyspělé země je toto riziko nízké, u méně bonitních firem vyšší — a proto firmy nabízejí vyšší úrok jako kompenzaci.',
         'Příklad: koupíte dluhopis za 10 000 Kč s 5% ročním kupónem na 3 roky. Každý rok vám přijde 500 Kč a po třech letech dostanete zpět i původních 10 000 Kč.',
         'Pozor na představu, že dluhopis je vždy bezpečný. Existují i rizikové firemní dluhopisy s lákavě vysokým úrokem, kde hrozí, že firma nesplatí nic. A pokud dluhopis prodáváte před splatností, jeho tržní cena kolísá — zejména když se mění úrokové sazby v ekonomice.',
       ],
@@ -75,7 +75,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
         'ETF (burzovně obchodovaný fond) je jeden cenný papír, za kterým se skrývá celý koš aktiv. Místo abyste pracně kupovali stovky akcií jednotlivě, koupíte jeden podíl ETF a rázem vlastníte malý díl ode všech firem v koši. Většina ETF pasivně kopíruje nějaký index — třeba akcie největších firem světa.',
         'Hlavní výhody jsou tři. Za prvé okamžitá diverzifikace: riziko je rozprostřené přes mnoho firem, sektorů i zemí, takže krach jedné společnosti vás téměř nezasáhne. Za druhé nízké poplatky, protože fond jen kopíruje index a nemusí ho draze řídit. Za třetí jednoduchost a obchodovatelnost na burze jako běžná akcie.',
         'Příklad: jedním nákupem širokého světového akciového ETF získáte podíl v tisících firem napříč obory. Když se nedaří jedné, často to vyrovnají jiné — výsledkem je klidnější vývoj než u sázky na jednotlivou akcii.',
-        'Časté nedorozumění je, že ETF je „bez rizika“. Diverzifikace tlumí riziko jednotlivé firmy, ale ne pokles celého trhu — i akciové ETF v krizi klesá. A pozor na poplatek fondu (ukazatel TER): u vhodných širokých ETF bývá velmi nízký, ale vyplatí se ho sledovat.',
+        'Časté nedorozumění je, že ETF je „bez rizika“. Diverzifikace tlumí riziko jednotlivé firmy, ale ne pokles celého trhu — i akciové ETF v krizi klesá. A pozor na poplatek fondu (ukazatel TER, tedy celková roční nákladovost): u vhodných širokých ETF bývá velmi nízký, ale vyplatí se ho sledovat.',
       ],
     },
   ],
@@ -107,7 +107,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
         'Smyslem investování není „zbohatnout přes noc“, ale udržet a navýšit reálnou kupní sílu peněz — tedy aby vaše úspory rostly aspoň stejně rychle jako ceny, nejlépe rychleji. Investice, jejíž výnos dlouhodobě překonává inflaci, vaše peníze chrání; ta, která za inflací zaostává, vás reálně stojí hodnotu.',
         'Rozlišujte nominální a reálný výnos. Když investice vynese 6 % a inflace je 2 %, váš reálný výnos je zhruba 4 % — o tolik reálně zbohatnete. Naopak spořicí účet s 1 % při 3% inflaci znamená reálnou ztrátu, i když číslo na účtu mírně roste.',
         'Historicky patří mezi nástroje, které dlouhodobě překonávají inflaci, hlavně akcie (například přes široká ETF), protože rostou společně s ekonomikou a zisky firem. Krátkodobě ale kolísají, takže fungují jako ochrana proti inflaci jen na delším horizontu.',
-        'Pozor na dva extrémy. Nechat vše v hotovosti znamená jistou pomalou ztrátu kvůli inflaci. Honit „zaručené“ vysoké výnosy bez rizika zase obvykle končí podvodem. Rozumná obrana proti inflaci je dlouhodobé, rozložené investování — ne sázka na zázrak.',
+        'Pozor na dva extrémy. Nechat vše v hotovosti znamená jistou pomalou ztrátu kvůli inflaci. Honba za „zaručenými“ vysokými výnosy bez rizika zase obvykle končí podvodem. Rozumná obrana proti inflaci je dlouhodobé, rozložené investování — ne sázka na zázrak.',
       ],
     },
   ],
@@ -117,17 +117,17 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       p: 'Státní starobní důchod má dvě části: základní výměru (2026: 4 900 Kč, stejná pro všechny) a procentní výměru, která závisí na výdělcích a době pojištění (1,495 % za rok).',
       more: [
         'Státní starobní důchod se skládá ze dvou částí, které se sčítají. Základní výměra je pevná a stejná pro všechny bez ohledu na to, kolik kdo vydělával — v roce 2026 činí 4 900 Kč měsíčně. Tvoří jakýsi společný základ, na který má nárok každý důchodce.',
-        'Druhá, obvykle větší část je procentní výměra. Ta už je „zásluhová“: odvíjí se od toho, kolik let jste platili sociální pojištění a jak vysoké jste měli výdělky. Za každý odpracovaný rok pojištění se připisuje 1,495 % z tzv. výpočtového základu (zjednodušeně z vašich průměrných, přepočtených výdělků).',
+        'Druhá, obvykle větší část je procentní výměra. Ta už je „zásluhová“: odvíjí se od toho, kolik let jste platili sociální pojištění a jak vysoké jste měli výdělky. Za každý rok pojištění se připisuje 1,495 % z tzv. výpočtového základu (zjednodušeně z vašich průměrných, přepočtených výdělků).',
         'Z toho plyne jednoduchá logika: čím déle pracujete a čím vyšší máte (započitatelné) příjmy, tím vyšší procentní výměru získáte. Krátká doba pojištění nebo dlouhé výpadky bez placení pojistného důchod naopak snižují.',
         'Důležité je nepřeceňovat zásluhovou složku. Systém je solidární a výdělky se pro výpočet „zastropují“ a redukují, takže lidé s vysokým platem nedostávají úměrně tak vysoký důchod — náhrada jejich příjmu je v procentech nižší než u průměrně vydělávajících.',
       ],
     },
     {
       h: 'Důchodový věk roste',
-      p: 'Podle ročníku narození se zvyšuje až na strop 67 let (ročník 1989 a mladší). Plánovaná novela má strop od 2028 vrátit na 65 let.',
+      p: 'Podle ročníku narození se zvyšuje až na strop 67 let (ročník 1989 a mladší). Plánovaná novela má strop od roku 2028 vrátit na 65 let.',
       more: [
         'Důchodový věk, tedy kdy můžete odejít do řádného starobního důchodu, není pro všechny stejný — postupně se zvyšuje podle ročníku narození. Důvodem je hlavně to, že lidé se dožívají vyššího věku, a kdyby věk odchodu zůstal stejný, vyplácel by se důchod stále delší dobu a systém by to dlouhodobě neunesl.',
-        'Podle aktuálně platných pravidel hranice roste až na strop 67 let, který dopadá na ročník 1989 a mladší. Mladší generace tak dnes počítají s odchodem později než jejich rodiče. Existuje ovšem plánovaná novela, podle níž by se strop měl od roku 2028 vrátit na 65 let — finální podobu ale určí teprve schválená legislativa.',
+        'Podle aktuálně platných pravidel hranice roste až na strop 67 let, který dopadá na ročník 1989 a mladší. Mladší generace tak dnes počítají s odchodem později než jejich rodiče. Existuje ovšem plánovaná novela, podle níž by se strop měl od roku 2028 vrátit na 65 let — konečnou podobu ale určí teprve schválená legislativa.',
         'Příklad logiky systému: čím později jste se narodili, tím vyšší (do daného stropu) máte zákonný důchodový věk. Přesné datum si každý může ověřit v důchodové kalkulačce ČSSZ podle svého data narození.',
         'Časté nedorozumění je plánovat odchod „v 65“ jako jistotu. Pro mladší ročníky to dnes neplatí a konkrétní hranice se navíc může legislativně měnit. Při plánování proto raději počítejte s vyšším věkem a berte případné snížení jako příjemné překvapení.',
       ],
@@ -158,7 +158,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       h: 'Když daníte',
       p: 'Zdaníte zisk (prodej − nákup − poplatky) sazbou 15 %, případně 23 % z části základu nad 1 762 812 Kč.',
       more: [
-        'Pokud nesplníte ani časový, ani hodnotový test, zdaňuje se zisk, ne celá utržená částka. Zisk spočítáte jako prodejní cenu mínus nákupní cenu mínus související poplatky (například poplatky brokerovi). Daní se tedy jen to, co jste skutečně vydělali.',
+        'Pokud nesplníte ani časový, ani hodnotový test, zdaňuje se zisk, ne celá utržená částka. Zisk spočítáte jako prodejní cenu mínus nákupní cenu mínus související poplatky (například poplatky brokerovi). Daní se tedy jen váš skutečný zisk, ne celá utržená částka.',
         'Základní sazba daně z příjmů fyzických osob je 15 %. U vysokých příjmů se uplatní progrese: z části ročního základu daně nad 1 762 812 Kč se daní vyšší sazbou 23 %. Do tohoto základu se přitom sčítají i další zdanitelné příjmy, nejen zisky z investic.',
         'Příklad: koupíte akcie za 50 000 Kč, po roce je prodáte za 80 000 Kč a na poplatcích zaplatíte 200 Kč. Zdanitelný zisk je 80 000 − 50 000 − 200 = 29 800 Kč; daň 15 % z této částky je 4 470 Kč.',
         'Dvě věci se snadno přehlédnou. Zdanitelný zisk si můžete snížit i o prokazatelné ztráty z jiných prodejů cenných papírů ve stejném roce. A pokud daníte, je obvykle potřeba příjem uvést v daňovém přiznání — broker za vás daň automaticky neodvede. Při nejistotě se vyplatí ověřit pravidla u Finanční správy nebo s daňovým poradcem.',
@@ -170,7 +170,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       more: [
         'DIP (dlouhodobý investiční produkt) je od roku 2024 státem daňově podporovaný způsob, jak si spořit a investovat na stáří. Není to konkrétní fond, ale „obal“, uvnitř kterého můžete držet například akcie, ETF nebo dluhopisy u banky či brokera, který DIP nabízí.',
         'Hlavní výhoda je daňová: vklady, které do DIP za rok pošlete, si můžete odečíst od základu daně, a to až do 48 000 Kč ročně. Při sazbě 15 % to znamená úsporu na dani až 7 200 Kč za rok. Tento limit je ale společný (sdílený) s doplňkovým penzijním spořením a životním pojištěním — 48 000 Kč platí na všechny tyto produkty dohromady, ne na každý zvlášť.',
-        'Výhoda něco stojí: prostředky jsou vázané. Aby vám daňová úleva zůstala, musíte splnit dvě podmínky zároveň — vydržet alespoň 10 let a peníze vybrat nejdříve v roce, kdy vám bude 60 let. Při předčasném výběru se uplatněné odpočty obvykle zpětně dodaňují (až 10 let zpět).',
+        'Výhoda něco stojí: prostředky jsou vázané. Aby vám daňová úleva zůstala, musíte splnit dvě podmínky zároveň — vydržet alespoň 10 let a peníze vybrat nejdříve v roce, kdy vám bude 60 let. Při předčasném výběru (před splněním obou podmínek) obvykle musíte uplatněné daňové odpočty zpětně vrátit — dodaňují se až 10 let zpět.',
         'Příklad: pošlete do DIP za rok 48 000 Kč, o tuto částku si snížíte základ daně a ušetříte 7 200 Kč. Počítejte ale s tím, že k penězům se „bez postihu“ dostanete až po splnění obou podmínek. Časté nedorozumění je brát DIP jako běžný spořicí účet — jde o dlouhodobý nástroj na důchod, ne na peníze, které můžete kdykoli potřebovat.',
       ],
     },
@@ -193,7 +193,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
         'Diverzifikace znamená nesázet všechno na jednu kartu. Když peníze rozložíte mezi mnoho různých investic — více firem, oborů, regionů i typů aktiv — neúspěch jedné z nich vás zasáhne jen okrajově, protože ji mohou vyvážit ostatní. Lidově: nedávejte všechna vejce do jednoho košíku.',
         'Smysl je v tom, že různá aktiva nereagují na události stejně. Když klesá jeden sektor, jiný může zrovna růst. Tím se celkové kolísání portfolia zmírní, aniž byste se museli vzdát rozumného dlouhodobého výnosu. Diverzifikace tak snižuje riziko jednotlivých investic, nikoli riziko poklesu celého trhu.',
         'Velkou část práce za běžného investora zařídí široká ETF. Jediným nákupem získáte podíl ve stovkách až tisících firem napříč zeměmi a obory — tedy okamžitou diverzifikaci bez nutnosti ručně skládat desítky akcií.',
-        'Pozor na zdánlivou diverzifikaci. Koupit pět akcií z jednoho oboru nebo jedné země není skutečné rozložení — když dolehne problém na celé odvětví, padají společně. Opačný extrém je „překvalitnit“: příliš mnoho překrývajících se fondů přidá poplatky a zmatek, ale riziko už dál nesnižuje.',
+        'Pozor na zdánlivou diverzifikaci. Koupit pět akcií z jednoho oboru nebo jedné země není skutečné rozložení — když dolehne problém na celé odvětví, padají společně. Opačný extrém je „přediverzifikovat“: příliš mnoho překrývajících se fondů přidá poplatky a zmatek, ale riziko už dál nesnižuje.',
       ],
     },
     {
@@ -213,8 +213,8 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
 export const TOPIC_TOOL_LABEL: Record<string, { icon: string; label: string }> = {
   'slozene-uroceni': { icon: 'bar-chart-3', label: 'Vyzkoušejte si to' },
   'akcie-etf': { icon: 'bar-chart-3', label: 'Porovnání nástrojů' },
-  'inflace': { icon: 'bar-chart-3', label: 'Jak inflace ukrajuje' },
+  'inflace': { icon: 'bar-chart-3', label: 'Jak inflace ukrajuje úspory' },
   'duchod': { icon: 'hourglass', label: 'Spočítejte si důchod' },
   'dane-dip': { icon: 'scale', label: 'Daň z prodeje investic' },
-  'riziko': { icon: 'shield-check', label: 'Najděte svůj profil' },
+  'riziko': { icon: 'shield-check', label: 'Zjistěte svůj rizikový profil' },
 };
