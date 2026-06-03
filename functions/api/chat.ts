@@ -197,18 +197,31 @@ async function fetchChart(symbol: string, range = '5d', interval = '1d') {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(
     symbol,
   )}?interval=${interval}&range=${range}`;
-  const resp = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-  if (!resp.ok) return null;
-  const data = (await resp.json()) as {
-    chart?: {
-      result?: Array<{
-        meta?: YahooMeta;
-        indicators?: { quote?: Array<{ close?: (number | null)[] }> };
-        timestamp?: number[];
-      }>;
+  // Timeout, ať zaseknutý Yahoo request nezablokuje celý tool-call ani market summary
+  // (12 paralelních fetchů) až do platformního wall-clock limitu. (M3)
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    const resp = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: controller.signal,
+    });
+    if (!resp.ok) return null;
+    const data = (await resp.json()) as {
+      chart?: {
+        result?: Array<{
+          meta?: YahooMeta;
+          indicators?: { quote?: Array<{ close?: (number | null)[] }> };
+          timestamp?: number[];
+        }>;
+      };
     };
-  };
-  return data.chart?.result?.[0] ?? null;
+    return data.chart?.result?.[0] ?? null;
+  } catch {
+    return null; // timeout / abort / síťová chyba → null (volající to ošetří)
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function pctChange(meta: YahooMeta): number | undefined {
@@ -255,7 +268,9 @@ async function getCryptoPrice(symbol: string): Promise<Record<string, unknown>> 
     symbol: only,
     name: m.shortName ?? only,
     price_usd: m.regularMarketPrice,
-    change_percent_24h: pctChange(m),
+    // pozor: pctChange je změna vůči PŘEDCHOZÍ DENNÍ ZAVÍRAČCE (z 1d svíčky), ne
+    // skutečná trailing-24h změna → pole jmenujeme jako u akcií, ne „24h" (M2)
+    change_percent: pctChange(m),
     day_high: m.regularMarketDayHigh,
     day_low: m.regularMarketDayLow,
     volume_24h: m.regularMarketVolume,
@@ -363,19 +378,30 @@ async function callGeminiStream(
   contents: GeminiContent[],
   systemInstruction: string,
 ): Promise<Response> {
-  return fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents,
-        systemInstruction: { parts: [{ text: systemInstruction }] },
-        tools: TOOLS,
-        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-      }),
-    },
-  );
+  // Timeout jen na NAVÁZÁNÍ spojení (zaseknutý connect). Po příchodu hlaviček časovač
+  // zrušíme → tělo se streamuje bez limitu (ať nesekneme legitimně dlouhou odpověď). (M3)
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30000);
+  try {
+    return await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents,
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          tools: TOOLS,
+          // 2048 bylo málo pro odpověď s ECharts/Mermaid blokem + prózou → uřízlo se to.
+          // 8192 dá komfort; finishReason MAX_TOKENS navíc hlídáme níže. (M1)
+          generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+        }),
+        signal: controller.signal,
+      },
+    );
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // hlavní smyčka pro streaming: streamuje finální text klientovi přes `write`,
@@ -403,6 +429,7 @@ async function streamConversation(
     let buffer = '';
     const modelParts: GeminiPart[] = [];
     const functionCalls: NonNullable<GeminiPart['functionCall']>[] = [];
+    let finishReason: string | undefined; // MAX_TOKENS apod. → odpověď byla zkrácena (M1)
 
     // SSE: řádky ve tvaru "data: {...}"
     for (;;) {
@@ -416,12 +443,13 @@ async function streamConversation(
         if (!trimmed.startsWith('data:')) continue;
         const payload = trimmed.slice(5).trim();
         if (!payload || payload === '[DONE]') continue;
-        let json: { candidates?: Array<{ content?: { parts?: GeminiPart[] } }> };
+        let json: { candidates?: Array<{ content?: { parts?: GeminiPart[] }; finishReason?: string }> };
         try {
           json = JSON.parse(payload);
         } catch {
           continue;
         }
+        if (json.candidates?.[0]?.finishReason) finishReason = json.candidates[0].finishReason;
         const parts = json.candidates?.[0]?.content?.parts ?? [];
         for (const p of parts) {
           if (p.text) {
@@ -438,6 +466,11 @@ async function streamConversation(
 
     // žádné volání funkcí → finální text je odstreamovaný, končíme
     if (functionCalls.length === 0) {
+      // Gemini narazil na limit délky → odpověď je uříznutá (možná i uprostřed
+      // echarts/mermaid bloku). Dej to najevo místo tichého konce. (M1)
+      if (finishReason === 'MAX_TOKENS' && streamed) {
+        await write('\n\n_(Odpověď byla zkrácena — došel limit délky. Zkuste dotaz rozdělit na menší části.)_');
+      }
       return { ok: true, status: 200, streamed };
     }
 
