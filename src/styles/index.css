@@ -1020,6 +1020,86 @@ body::after {
   font-size: 0.85em;
 }
 
+/* ── Akce nad odpovědí mentora (kopírovat / jednodušeji / znovu) ── */
+.chat-message__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.55rem;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+/* na dotykových zařízeních (bez hoveru) ať jsou akce vidět vždy */
+.chat-message:hover .chat-message__actions,
+.chat-message:focus-within .chat-message__actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (hover: none) {
+  .chat-message__actions { opacity: 1; transform: none; }
+}
+
+.msg-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-0);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: color var(--transition-normal), border-color var(--transition-normal),
+              background var(--transition-normal);
+}
+.msg-action:hover {
+  color: var(--lg-cyan-400);
+  border-color: var(--border-accent);
+  background: var(--surface-1);
+}
+.msg-action:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--border-accent);
+}
+
+/* ── Navazující chipy pod dokončenou odpovědí mentora ── */
+.chat-followups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.1rem 0 0.5rem;
+  padding-left: calc(34px + 2 * var(--space-sm)); /* zarovnat pod text (za avatarem) */
+  animation: fadeInUp 300ms ease forwards;
+}
+.chat-followup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color var(--transition-normal), border-color var(--transition-normal),
+              background var(--transition-normal), transform var(--transition-normal);
+}
+.chat-followup:hover {
+  color: var(--lg-cyan-400);
+  border-color: var(--border-accent);
+  background: var(--surface-2);
+  transform: translateY(-1px);
+}
+.chat-followup:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--border-accent);
+}
+
 /* ── Composer ve stylu moderního AI inputu (à la Claude Code) ──
    Jedna zaoblená kapsle s decentním NEUTRÁLNÍM okrajem; uvnitř plave
    textarea + akce vpravo. Sdílené inline i fullscreen. */

@@ -23,6 +23,13 @@ const QUICK_PROMPTS: ChatSuggestion[] = [
   { label: 'Otestujte moji gramotnost', icon: 'graduation-cap', desc: 'Krátký kvíz finanční gramotnosti', prompt: 'Otestujte mě z finanční gramotnosti.' },
 ];
 
+// Navazující chipy pod dokončenou odpovědí mentora — posunou konverzaci dál (à la Claude/ChatGPT).
+const FOLLOW_UPS: ChatSuggestion[] = [
+  { label: 'Ukázat na grafu', icon: 'bar-chart-3', prompt: 'Můžete mi to prosím ukázat i na grafu?' },
+  { label: 'A co inflace?', icon: 'trending-up', prompt: 'Jak do toho vstupuje inflace?' },
+  { label: 'Otestovat kvízem', icon: 'graduation-cap', prompt: 'Otestujte mě krátkým kvízem na tohle téma.' },
+];
+
 // Okruhy, se kterými mentor pomůže — naplní pravý boční sloupec do výšky chatu
 // a zároveň navádí uživatele, na co se může ptát.
 const INFO_TOPICS: { icon: string; title: string; desc: string }[] = [
@@ -134,6 +141,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     [isLoading, messages, onMessageSent, focusActiveInput],
   );
 
+  // „Zkusit znovu" — přepošli poslední dotaz uživatele (regenerace odpovědi)
+  const handleRetry = useCallback(() => {
+    const lastUser = [...messages].reverse().find(m => m.role === 'user');
+    if (lastUser) handleSend(lastUser.content);
+  }, [messages, handleSend]);
+
+  // „Vysvětli jednodušeji" — doplňující dotaz na zjednodušení poslední odpovědi
+  const handleSimplify = useCallback(() => {
+    handleSend('Vysvětlete to prosím jednodušeji a stručněji, jako pro úplného začátečníka.');
+  }, [handleSend]);
+
   // předvyplnění dotazu z detailu tématu (kontextový chat) — uživatel zkontroluje a odešle
   useEffect(() => {
     if (initialPrompt) {
@@ -244,6 +262,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           isFullscreen={false}
           onToggleFullscreen={trigger => openFullscreen(trigger)}
           suggestions={QUICK_PROMPTS}
+          onRetry={handleRetry}
+          onSimplify={handleSimplify}
+          followUps={FOLLOW_UPS}
         />
       </div>
 
@@ -342,6 +363,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
               isFullscreen
               onToggleFullscreen={closeFullscreen}
               suggestions={QUICK_PROMPTS}
+              onRetry={handleRetry}
+              onSimplify={handleSimplify}
+              followUps={FOLLOW_UPS}
             />
           </div>
         )}

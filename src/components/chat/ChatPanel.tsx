@@ -26,6 +26,11 @@ interface ChatPanelProps {
   onToggleFullscreen: (trigger: HTMLButtonElement) => void;
   /** návrhové dotazy do uvítací obrazovky (empty state) */
   suggestions: ChatSuggestion[];
+  /** akce na POSLEDNÍ odpovědi mentora */
+  onRetry?: () => void;
+  onSimplify?: () => void;
+  /** navazující chipy pod dokončenou odpovědí mentora */
+  followUps?: ChatSuggestion[];
 }
 
 /**
@@ -45,6 +50,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   isFullscreen,
   onToggleFullscreen,
   suggestions,
+  onRetry,
+  onSimplify,
+  followUps,
 }) => {
   // Dokud uživatel nenapsal první zprávu (v poli je jen uvítací zpráva), ukaž
   // bohatý empty state místo holé bubliny v prázdné ploše.
@@ -53,6 +61,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   // čekáme na první kus streamované odpovědi (poslední zpráva je prázdný assistant)
   const last = messages[messages.length - 1];
   const waitingFirstChunk = isLoading && last?.role === 'assistant' && last.content === '';
+
+  // navazující chipy ukaž jen pod DOKONČENOU poslední odpovědí mentora
+  const showFollowUps =
+    !showEmptyState && !isLoading && !!followUps?.length &&
+    last?.role === 'assistant' && last.content !== '';
 
   // Auto-grow textarey podle obsahu — spolehlivé i tam, kde CSS field-sizing není
   // podporované (uživatel pak nemusí scrollovat uvnitř malého pole).
@@ -79,8 +92,34 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               // poslední, zatím prázdnou odpověď nevykresluj jako bublinu —
               // místo ní je níže typing indikátor (dokud nepřijde první text)
               if (i === messages.length - 1 && waitingFirstChunk) return null;
-              return <ChatMessage key={i} role={msg.role} content={msg.content} />;
+              const isLastAnswer =
+                i === messages.length - 1 && msg.role === 'assistant' && msg.content !== '' && !isLoading;
+              return (
+                <ChatMessage
+                  key={i}
+                  role={msg.role}
+                  content={msg.content}
+                  onRetry={isLastAnswer ? onRetry : undefined}
+                  onSimplify={isLastAnswer ? onSimplify : undefined}
+                />
+              );
             })
+          )}
+          {showFollowUps && (
+            <div className="chat-followups">
+              {followUps!.map((f, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="chat-followup"
+                  onClick={() => onSend(f.prompt)}
+                  disabled={isLoading}
+                >
+                  <Icon name={f.icon} size={14} />
+                  {f.label}
+                </button>
+              ))}
+            </div>
           )}
           {waitingFirstChunk && <TypingIndicator />}
           <div ref={messagesEndRef} />
