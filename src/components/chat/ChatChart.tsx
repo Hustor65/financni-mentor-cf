@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { ChartSkeleton } from '../ChartSkeleton';
 
 // Lazy jako v TopicTools — ECharts se nestáhne, dokud mentor nepošle první graf.
 const ReactECharts = lazy(() => import('echarts-for-react'));
@@ -90,17 +91,6 @@ const WRAP: React.CSSProperties = {
   border: '1px solid rgba(58,181,224,0.18)',
 };
 
-const PENDING: React.CSSProperties = {
-  margin: '0.85rem 0',
-  padding: '1.25rem',
-  borderRadius: '14px',
-  background: 'rgba(11,22,41,0.22)',
-  border: '1px dashed rgba(148,163,184,0.25)',
-  color: '#64748b',
-  fontSize: '0.85rem',
-  textAlign: 'center',
-};
-
 // Když se graf nepodaří načíst, ukážeme radši zdroj než věčný placeholder.
 const FALLBACK: React.CSSProperties = {
   margin: '0.85rem 0',
@@ -140,7 +130,7 @@ export const ChatChart: React.FC<{ code: string }> = ({ code }) => {
   if (state.option) {
     return (
       <div style={WRAP}>
-        <Suspense fallback={<div style={PENDING}>Načítám graf…</div>}>
+        <Suspense fallback={<ChartSkeleton height={280} bare />}>
           <ReactECharts option={state.option} style={{ height: 280, width: '100%' }} opts={{ renderer: 'canvas' }} />
         </Suspense>
       </div>
@@ -149,5 +139,5 @@ export const ChatChart: React.FC<{ code: string }> = ({ code }) => {
   if (state.failed) {
     return <pre style={FALLBACK}>{code.trim()}</pre>;
   }
-  return <div style={PENDING}>📊 Připravuji graf…</div>;
+  return <ChartSkeleton height={280} label="Připravuji graf" style={{ margin: '0.85rem 0' }} />;
 };

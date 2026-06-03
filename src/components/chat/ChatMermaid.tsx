@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ChartSkeleton } from '../ChartSkeleton';
 
 /* ════════════════════════════════════════════════════════════
    ChatMermaid — renderer pro ```mermaid bloky: procesní diagramy,
@@ -23,17 +24,6 @@ const WRAP: React.CSSProperties = {
   border: '1px solid rgba(58,181,224,0.18)',
   textAlign: 'center',
   overflowX: 'auto',
-};
-
-const PENDING: React.CSSProperties = {
-  margin: '0.85rem 0',
-  padding: '1.25rem',
-  borderRadius: '14px',
-  background: 'rgba(11,22,41,0.22)',
-  border: '1px dashed rgba(148,163,184,0.25)',
-  color: '#64748b',
-  fontSize: '0.85rem',
-  textAlign: 'center',
 };
 
 // Když se diagram nepodaří vykreslit, ukážeme radši jeho zdroj než věčný spinner.
@@ -99,5 +89,5 @@ export const ChatMermaid: React.FC<{ code: string }> = ({ code }) => {
 
   if (state.svg) return <div style={WRAP} dangerouslySetInnerHTML={{ __html: state.svg }} />;
   if (state.failed) return <pre style={FALLBACK}>{code.trim()}</pre>;
-  return <div style={PENDING}>🔄 Připravuji diagram…</div>;
+  return <ChartSkeleton height={200} label="Připravuji diagram" style={{ margin: '0.85rem 0' }} />;
 };

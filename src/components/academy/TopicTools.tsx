@@ -1,5 +1,6 @@
 import { useState, useMemo, lazy, Suspense } from 'react';
 const ReactECharts = lazy(() => import('echarts-for-react'));
+import { ChartSkeleton } from '../ChartSkeleton';
 import { czNum } from '../../utils/calculators';
 import { NumberField } from '../NumberField';
 
@@ -120,7 +121,7 @@ export const InflationTool: React.FC = () => {
         <NumberField label="Roky" suffix="let" value={years} onChange={setYears}
           min={1} max={80} sliderMin={5} sliderMax={40} step={1} />
       </div>
-      <Suspense fallback={<div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Načítám graf…</div>}>
+      <Suspense fallback={<ChartSkeleton height={300} />}>
         <ReactECharts option={option} style={{ height: 300 }} opts={{ renderer: 'canvas' }} />
       </Suspense>
       <div style={{ borderLeft: '3px solid #EF4444', padding: '0.6rem 0.75rem', marginTop: '0.4rem', background: 'rgba(239,68,68,0.05)', borderRadius: '0 8px 8px 0' }}>

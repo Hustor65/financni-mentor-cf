@@ -1,5 +1,6 @@
 import { useState, useMemo, lazy, Suspense } from 'react';
 const ReactECharts = lazy(() => import('echarts-for-react'));
+import { ChartSkeleton } from '../ChartSkeleton';
 import { compoundInterest, czNum } from '../../utils/calculators';
 import { NumberField } from '../NumberField';
 
@@ -143,7 +144,7 @@ export const CompoundInterestCalc = () => {
           min={0} max={100} sliderMin={0} sliderMax={10} step={0.5} decimals={1} />
       </div>
       <div style={{ marginTop: '1rem' }}>
-        <Suspense fallback={<div style={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Načítám graf…</div>}>
+        <Suspense fallback={<ChartSkeleton height={320} />}>
           <ReactECharts option={option} style={{ height: 320 }} opts={{ renderer: 'canvas' }} />
         </Suspense>
       </div>

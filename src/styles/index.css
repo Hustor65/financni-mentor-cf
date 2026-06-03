@@ -282,6 +282,62 @@ body::after {
 }
 
 /* ═══════════════════════════════════════════
+   CHART SKELETON  (loading placeholder)
+   Sloupce pulzují mezi --surface-1 a --surface-2; kontejner je --surface-0
+   (tmavší), aby sloupce byly vidět i na kartách postavených na --surface-1.
+   ═══════════════════════════════════════════ */
+@keyframes skeletonPulse {
+  0%, 100% { background-color: var(--surface-1); }
+  50%      { background-color: var(--surface-2); }
+}
+.chart-skeleton {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-0);
+  box-shadow: var(--glass-inset);
+}
+.chart-skeleton--bare {
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+.chart-skeleton__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+  width: 100%;
+  height: 100%;
+}
+.chart-skeleton__bar {
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 2px 2px;
+  background-color: var(--surface-1);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-skeleton__bar { animation: none; background-color: var(--surface-2); }
+}
+
+/* Vizuálně skryté, ale čitelné pro čtečky obrazovky (přístupný popis stavu). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ═══════════════════════════════════════════
    KPI METRIC CARDS
    ═══════════════════════════════════════════ */
 

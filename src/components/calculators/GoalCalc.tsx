@@ -1,5 +1,6 @@
 import { useState, useMemo, lazy, Suspense } from 'react';
 const ReactECharts = lazy(() => import('echarts-for-react'));
+import { ChartSkeleton } from '../ChartSkeleton';
 import { compoundInterest, czNum } from '../../utils/calculators';
 import { NumberField } from '../NumberField';
 
@@ -108,7 +109,7 @@ export const GoalCalc = () => {
       </div>
 
       <div style={{ marginTop: '1rem' }}>
-        <Suspense fallback={<div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Načítám graf…</div>}>
+        <Suspense fallback={<ChartSkeleton height={260} />}>
           <ReactECharts option={option} style={{ height: 260 }} opts={{ renderer: 'canvas' }} />
         </Suspense>
       </div>

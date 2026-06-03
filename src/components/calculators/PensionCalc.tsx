@@ -1,5 +1,6 @@
 import React, { useState, useMemo, lazy, Suspense } from 'react';
 const ReactECharts = lazy(() => import('echarts-for-react'));
+import { ChartSkeleton } from '../ChartSkeleton';
 import { czStatePension, czRetirementAgeMonths, czNum } from '../../utils/calculators';
 import { PENSION_AVG_WAGE_2026 } from '../../data/constants';
 import { NumberField } from '../NumberField';
@@ -107,7 +108,7 @@ export const PensionCalc: React.FC = () => {
         Zjednodušený odhad podle pravidel ČSSZ 2026 — jako osobní vyměřovací základ bereme vaši
         dnešní hrubou mzdu (bez indexace dřívějších výdělků). Skutečný důchod z ČSSZ se může lišit.
       </div>
-      <Suspense fallback={<div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Načítám graf…</div>}>
+      <Suspense fallback={<ChartSkeleton height={280} />}>
         <ReactECharts option={projOption} style={{ height: 280 }} opts={{ renderer: 'canvas' }} />
       </Suspense>
     </div>
