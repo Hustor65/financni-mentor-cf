@@ -123,6 +123,13 @@ export const CompoundInterestCalc = () => {
     };
   }, [data, inflation]);
 
+  // delta-strip: konečné hodnoty + výnos navíc / násobek
+  const lastRow = data[data.length - 1];
+  const finalValue = lastRow?.invested ?? 0;
+  const finalDeposits = lastRow?.noInvest ?? 0;
+  const gain = Math.max(0, finalValue - finalDeposits);
+  const multiple = finalDeposits > 0 ? (finalValue / finalDeposits).toFixed(1) : '—';
+
   return (
     <div>
       <div className="calc-form">
@@ -140,14 +147,19 @@ export const CompoundInterestCalc = () => {
           <ReactECharts option={option} style={{ height: 320 }} opts={{ renderer: 'canvas' }} />
         </Suspense>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
-        <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Hodnota portfolia</div>
-          <div className="grad-text--green" style={{ fontSize: '1.3rem', fontWeight: 700 }}>{czNum(data[data.length - 1]?.invested || 0)} Kč</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', marginTop: '1rem' }}>
+        <div className="glass-panel" style={{ padding: '0.9rem 0.75rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Hodnota portfolia</div>
+          <div className="grad-text--green" style={{ fontSize: '1.25rem', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{czNum(finalValue)} Kč</div>
         </div>
-        <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Bez investice (vloženo)</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{czNum(data[data.length - 1]?.noInvest || 0)} Kč</div>
+        <div className="glass-panel" style={{ padding: '0.9rem 0.75rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Vloženo celkem</div>
+          <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>{czNum(finalDeposits)} Kč</div>
+        </div>
+        <div className="glass-panel" style={{ padding: '0.9rem 0.75rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Z toho výnosy</div>
+          <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--lg-cyan-400)', fontVariantNumeric: 'tabular-nums' }}>+{czNum(gain)} Kč</div>
+          <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>{multiple}× vklad</div>
         </div>
       </div>
     </div>
