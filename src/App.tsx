@@ -14,9 +14,28 @@ const TrustCenter = lazy(() => import('./components/trust/TrustCenter').then(m =
 import { TOPICS } from './data/topics';
 import { CommandPalette } from './components/CommandPalette';
 
+/* ════════════════════════════════════════════════════════════
+   Hash routing — #temata · #temata/<topicId> · #presnost
+   (výchozí „mentor" = čistá URL bez hashe). Funkční Back/Forward
+   v prohlížeči + sdílitelné odkazy na konkrétní sekci/téma.
+   ════════════════════════════════════════════════════════════ */
+const VALID_TABS = new Set(['mentor', 'temata', 'presnost']);
+
+function parseHash(): { tab: string; topic: string | null } {
+  if (typeof window === 'undefined') return { tab: 'mentor', topic: null };
+  const raw = decodeURIComponent(window.location.hash.replace(/^#/, ''));
+  const [tab, ...rest] = raw.split('/');
+  if (!VALID_TABS.has(tab)) return { tab: 'mentor', topic: null };
+  if (tab === 'temata') {
+    const id = rest.join('/');
+    return { tab: 'temata', topic: id && TOPICS.some(t => t.id === id) ? id : null };
+  }
+  return { tab, topic: null };
+}
+
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('mentor');
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(() => parseHash().tab);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(() => parseHash().topic);
   const [conversationCount, setConversationCount] = useState(0);
   const [completedTopics, setCompletedTopics] = useState<Set<string>>(() => {
     try {
@@ -28,6 +47,7 @@ const App: React.FC = () => {
   const [chatPrompt, setChatPrompt] = useState<string | null>(null);
   const [cmdkOpen, setCmdkOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const hashInit = useRef(true);
 
   // Po navigaci z Command palette: když uživatel kouká na hero (je nahoře),
   // sjeď plynule dolů na obsah, ať vidí to, co vyhledal — ne pořád hero.
@@ -65,10 +85,46 @@ const App: React.FC = () => {
   // Scroll-reveal: prvky s .reveal se při vstupu do viewportu plynule "rozbalí".
   useScrollReveal([activeTab, selectedTopic]);
 
-  // Web se vždy otevře nahoře na hero (prohlížeč jinak občas obnoví starou scroll pozici)
+  // Start: deep-link (sdílený odkaz na sekci/téma) sjede rovnou na obsah,
+  // jinak začni nahoře na hero. (Prohlížeč jinak občas obnoví starou pozici.)
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
-    window.scrollTo(0, 0);
+    const { tab, topic } = parseHash();
+    if (tab === 'mentor' && !topic) {
+      window.scrollTo(0, 0);
+    } else {
+      requestAnimationFrame(() =>
+        contentRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' })
+      );
+    }
+  }, []);
+
+  // Stav → URL hash (Back funguje, odkaz jde sdílet). První zápis po načtení
+  // jen NAHRADÍ (nezakládá zbytečný záznam) — tím se i normalizují divné/neplatné hashe.
+  useEffect(() => {
+    let next = '';
+    if (activeTab === 'temata') next = selectedTopic ? `#temata/${selectedTopic}` : '#temata';
+    else if (activeTab === 'presnost') next = '#presnost';
+    if (window.location.hash === next) { hashInit.current = false; return; }
+    const url = next || window.location.pathname + window.location.search;
+    if (hashInit.current) window.history.replaceState(null, '', url);
+    else window.history.pushState(null, '', url);
+    hashInit.current = false;
+  }, [activeTab, selectedTopic]);
+
+  // URL hash → stav (Back/Forward přes popstate, ruční editace hashe přes hashchange)
+  useEffect(() => {
+    const sync = () => {
+      const { tab, topic } = parseHash();
+      setActiveTab(prev => (prev !== tab ? tab : prev));
+      setSelectedTopic(prev => (prev !== topic ? topic : prev));
+    };
+    window.addEventListener('popstate', sync);
+    window.addEventListener('hashchange', sync);
+    return () => {
+      window.removeEventListener('popstate', sync);
+      window.removeEventListener('hashchange', sync);
+    };
   }, []);
 
   // globální Cmd/Ctrl+K → přepni rychlé hledání (Command palette)

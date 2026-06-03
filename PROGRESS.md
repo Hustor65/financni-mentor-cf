@@ -25,15 +25,16 @@
 5. **Chat akce nad zprávou** (Kopírovat/Jednodušeji/Znovu na hover) + **navazující chipy** po odpovědi (commit **b07884b**). `ChatMessage.tsx` + `ChatPanel.tsx` + `ChatInterface.tsx`.
 6. **Graf jako výuka — všechny 4 kalkulačky** (commity **836db93**, **a7534f2**): CompoundInterestCalc = delta-strip (výnos navíc + násobek, tabular-nums); GoalCalc = nový růstový graf s markLine na cíli; PensionCalc = markPointy nominálně-vs-reálně (inflační mezera); TaxCalc = cap-meter DIP/sdílený strop 48k.
 7. **Command palette (Cmd/Ctrl+K)** (commit **1e207f0**): `src/components/CommandPalette.tsx` — fuzzy hledání (bez diakritiky) přes taby/témata/slovníček + akce, klávesová navigace, top-layer `<dialog>`. Badge „Hledat ⌘K" v `Navigation.tsx` (skrytý na mobilu). **Výběr z palety, když jsi nahoře na hero, navíc plynule sjede dolů na obsah** (`scrollToContentIfAtHero` v `App.tsx` → `scrollIntoView` na obal navigace, `scroll-margin-top: --space-xl`); když už jsi níž v obsahu, nechá tě být (strážka `scrollY < innerHeight*0.9`).
+8. **Hash routing** (`App.tsx`) — `#temata` / `#temata/<topicId>` / `#presnost`, výchozí „mentor" = čistá URL (a `#mentor`/divné/neplatné hashe se na startu normalizují přes `replaceState`). Funkční **Back/Forward** (stav→hash přes `pushState`, hash→stav přes `popstate`+`hashchange`, žádná smyčka ani anchor-jump). **Sdílitelné odkazy** na sekci/téma; deep-link na startu sjede rovnou na obsah (ne na hero). `parseHash()` validuje `topicId` proti `TOPICS`. Ověřeno v prohlížeči (klik taby, ruční hash, Back/Forward, deep-link load, paleta→téma).
 
 ---
 
 ## 📋 ZBÝVÁ (priorita shora)
 
-### P0 redesign (z reportu, 2 velké zbývají)
+### P0 redesign (z reportu, 1 velký zbývá)
 - [ ] **Dokončit migraci glass→solid + skeletony.** Summary tiles v kalkulačkách a pravý info-rail v chatu (`ChatInterface.tsx`) ještě jedou přes `.glass-panel` (backdrop-filter má zůstat JEN na hero CTA, `.chat-panel` a fullscreen dialogu). Nahradit textové „Načítám graf…" fallbacky **skeleton loadery** (obrys karty/grafu pulzující mezi `--surface-1` a `--surface-2`).
-- [ ] **Hash routing** (`#mentor` / `#temata/slozene-uroceni` / `#presnost`) v `App.tsx` — funkční Back v prohlížeči + sdílitelné odkazy.
-- [ ] (Volitelně projít zbytek `redesign.byPriority.P0` v reportu — celkem 55 P0; hotové: chat akce, graf-jako-výuka, Cmd+K.)
+- [x] ~~**Hash routing**~~ — HOTOVO (viz HOTOVO #8).
+- [ ] (Volitelně projít zbytek `redesign.byPriority.P0` v reportu — celkem 55 P0; hotové: chat akce, graf-jako-výuka, Cmd+K, hash routing.)
 
 ### Bugy (z reportu — `.claude/ui-overhaul-report.md`)
 - [ ] **39 medium** + **73 low** bugů. Každý PŘED opravou ověřit v kódu (agenti mohou mít false-positives). Matematiku kalkulaček měnit jen po pečlivém ověření.
