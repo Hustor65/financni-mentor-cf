@@ -33,10 +33,10 @@ const COLS: { key: keyof Product; label: string }[] = [
 export const ProductComparison: React.FC = () => (
   <div>
     <span className="eyebrow">Orientační srovnání</span>
-    <p className="section-header" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-      <Icon name="scale" size={24} color="#3ab5e0" />
+    <h2 className="section-header" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+      <Icon name="scale" size={24} color="#3ab5e0" aria-hidden />
       Srovnání produktů
-    </p>
+    </h2>
     <p className="section-desc">
       Rychlá orientace, kam peníze patří podle cíle a horizontu. Obecné informace, ne investiční doporučení.
     </p>

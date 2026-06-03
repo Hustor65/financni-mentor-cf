@@ -15,26 +15,22 @@ export const HallucinationDemo: React.FC = () => {
   const [rate, setRate] = useState(11.43);
   const [years, setYears] = useState(8);
 
-  const { exactValue, hallucinatedValue, diffValue, formattedExact, formattedHallucinated, formattedDiff } =
+  const { formattedExact, formattedHallucinated, formattedDiff } =
     useMemo(() => {
       const r = (rate / 100) / 12;
       const n = years * 12;
-      const exact = initDeposit * Math.pow(1 + r, n) + monthly * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+      // r === 0 → limita anuity je prostý součet vkladů (jinak dělení nulou → NaN) (L63)
+      const annuity = r === 0 ? monthly * n : monthly * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+      const exact = initDeposit * Math.pow(1 + r, n) + annuity;
       const hallucinated = exact * 0.9904;
       const hallucShown = Math.floor(hallucinated);  // přesně tak, jak halucinaci zobrazíme
-      const diff = exact - hallucShown;              // rozdíl ze ZOBRAZENÉ halucinace → tři čísla na stránce sedí
+      const diff = exact - hallucShown;              // rozdíl ze ZOBRAZENÉ halucinace → tři čísla sedí
       return {
-        exactValue: exact,
-        hallucinatedValue: hallucinated,
-        diffValue: diff,
         formattedExact: czFmt2(exact),
         formattedHallucinated: czFmt(hallucShown),
         formattedDiff: czFmt2(diff),
       };
     }, [initDeposit, monthly, rate, years]);
-
-  // Suppress unused-variable lint for exactValue/hallucinatedValue/diffValue
-  void exactValue; void hallucinatedValue; void diffValue;
 
   return (
     <>

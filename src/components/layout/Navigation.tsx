@@ -56,7 +56,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange, 
             onKeyDown={e => onTabKeyDown(e, i)}
             title={tab.title}
           >
-            <Icon name={tab.icon} size={18} />
+            <Icon name={tab.icon} size={18} aria-hidden />
             <span>{tab.label}</span>
           </button>
         );

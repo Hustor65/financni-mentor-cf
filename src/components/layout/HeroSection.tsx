@@ -134,9 +134,9 @@ export const HeroSection: React.FC = () => {
             <span aria-hidden="true">{typed}</span>
             {!done && titleDone && <span className="hero-fs-caret" aria-hidden="true" />}
           </p>
-          <button className="hero-fs-cta" onClick={scrollDown} aria-label="Začít prozkoumávat">
+          <button className="hero-fs-cta" onClick={scrollDown}>
             {CTA}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19" />
               <polyline points="19 12 12 19 5 12" />
             </svg>

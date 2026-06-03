@@ -9,7 +9,7 @@ interface KPIBarProps {
 }
 
 function formatElapsed(seconds: number): string {
-  if (seconds < 60) return '1 min';
+  if (seconds < 60) return '< 1 min'; // 0–59 s ukazovalo natvrdo „1 min" hned po startu (L35/L46)
   if (seconds < 3600) return `${Math.floor(seconds / 60)} min`;
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);

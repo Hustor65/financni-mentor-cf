@@ -12,6 +12,10 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
   const [answers, setAnswers] = useState<(number | null)[]>(() => questions.map(() => null));
   const [submitted, setSubmitted] = useState(false);
 
+  // prázdný kvíz by se po „Vyhodnotit" sám označil za 100% zvládnutý (0===0) a zavolal
+  // onComplete bez jediné odpovědi → defenzivně nic nevykresluj (L49)
+  if (!questions.length) return null;
+
   const handleSelect = (qi: number, optIdx: number) => {
     if (submitted) return;
     setAnswers(prev => {

@@ -175,7 +175,7 @@ const App: React.FC = () => {
           <Suspense fallback={<div style={{ minHeight: '40vh' }} aria-hidden="true" />}>
           {/* ── MENTOR TAB ── */}
           {activeTab === 'mentor' && (
-            <div role="tabpanel" id="panel-mentor" aria-labelledby="tab-mentor">
+            <div role="tabpanel" id="panel-mentor" aria-labelledby="tab-mentor" tabIndex={0}>
               <div className="spacer-md" />
               <div className="reveal">
                 <ChatInterface onMessageSent={handleMessageSent} initialPrompt={chatPrompt} onPromptConsumed={clearChatPrompt} />
@@ -185,7 +185,7 @@ const App: React.FC = () => {
 
           {/* ── TÉMATA TAB ── */}
           {activeTab === 'temata' && (
-            <div role="tabpanel" id="panel-temata" aria-labelledby="tab-temata">
+            <div role="tabpanel" id="panel-temata" aria-labelledby="tab-temata" tabIndex={0}>
               <div className="spacer-md" />
               {selectedTopic ? (
                 <TopicDetail
@@ -232,7 +232,7 @@ const App: React.FC = () => {
 
           {/* ── PŘESNOST & DŮVĚRA TAB ── */}
           {activeTab === 'presnost' && (
-            <div role="tabpanel" id="panel-presnost" aria-labelledby="tab-presnost">
+            <div role="tabpanel" id="panel-presnost" aria-labelledby="tab-presnost" tabIndex={0}>
               <div className="spacer-md" />
               <TrustCenter />
             </div>

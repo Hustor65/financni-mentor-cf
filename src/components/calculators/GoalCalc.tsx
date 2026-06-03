@@ -100,7 +100,7 @@ export const GoalCalc = () => {
           min={0} max={100} sliderMin={1} sliderMax={15} step={0.5} decimals={1} />
       </div>
 
-      <div className="glass-panel" style={{ padding: '1.25rem', textAlign: 'center', marginTop: '1rem' }}>
+      <div className="glass-panel" aria-live="polite" style={{ padding: '1.25rem', textAlign: 'center', marginTop: '1rem' }}>
         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.35rem' }}>
           Měsíčně odkládat
         </div>

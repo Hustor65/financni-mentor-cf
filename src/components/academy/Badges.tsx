@@ -13,6 +13,9 @@ const MILESTONES: Milestone[] = [
   { need: 6, icon: 'graduation-cap', label: 'Finanční gramotnost', desc: 'Všechna témata dokončena!' },
 ];
 
+// česká pluralizace témat: 1 = téma, 2–4 = témata, 5+ = témat (L70)
+const pluralTemata = (n: number) => (n === 1 ? 'téma' : n >= 2 && n <= 4 ? 'témata' : 'témat');
+
 /** Odznaky za pokrok ve studiu — vizuální milníky napojené na dokončená témata. */
 export const Badges: React.FC<{ completed: number }> = ({ completed }) => (
   <div className="badges-row">
@@ -25,7 +28,7 @@ export const Badges: React.FC<{ completed: number }> = ({ completed }) => (
           </span>
           <div>
             <div className="badge__label">{m.label}</div>
-            <div className="badge__desc">{earned ? m.desc : `Zbývá ${m.need - completed} ${m.need - completed === 1 ? 'téma' : 'témata'}`}</div>
+            <div className="badge__desc">{earned ? m.desc : `Zbývá ${m.need - completed} ${pluralTemata(m.need - completed)}`}</div>
           </div>
         </div>
       );
