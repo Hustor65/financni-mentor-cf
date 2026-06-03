@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
 // Lazy jako v TopicTools — ECharts se nestáhne, dokud mentor nepošle první graf.
 const ReactECharts = lazy(() => import('echarts-for-react'));
@@ -101,28 +101,53 @@ const PENDING: React.CSSProperties = {
   textAlign: 'center',
 };
 
+// Když se graf nepodaří načíst, ukážeme radši zdroj než věčný placeholder.
+const FALLBACK: React.CSSProperties = {
+  margin: '0.85rem 0',
+  padding: '0.85rem 1rem',
+  borderRadius: '14px',
+  background: 'rgba(11,22,41,0.35)',
+  border: '1px solid rgba(148,163,184,0.18)',
+  color: '#94a3b8',
+  fontSize: '0.78rem',
+  whiteSpace: 'pre-wrap',
+  overflowX: 'auto',
+  fontFamily: "'Space Grotesk', ui-monospace, monospace",
+};
+
 export const ChatChart: React.FC<{ code: string }> = ({ code }) => {
-  // Během streamu je JSON neúplný → JSON.parse spadne; ukazujeme jemný
-  // placeholder, dokud nedorazí uzavírací ``` a option se nedá načíst.
-  const option = useMemo(() => {
-    try {
-      const parsed = JSON.parse(code);
-      if (!parsed || typeof parsed !== 'object' || !parsed.series) return null;
-      return withTheme(parsed);
-    } catch {
-      return null;
-    }
+  // Debounce: během streamu se `code` mění po každém chunku. Renderujeme až
+  // když se ustálí — a když je finální JSON vadný, ukážeme zdroj místo
+  // věčného „Připravuji graf…" (stejný princip jako ChatMermaid).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [state, setState] = useState<{ option?: any; failed?: boolean }>({});
+  const reqRef = useRef(0);
+
+  useEffect(() => {
+    const myReq = ++reqRef.current;
+    const timer = setTimeout(() => {
+      try {
+        const parsed = JSON.parse(code);
+        if (!parsed || typeof parsed !== 'object' || !parsed.series) throw new Error('chybí series');
+        if (myReq === reqRef.current) setState({ option: withTheme(parsed) });
+      } catch {
+        if (myReq === reqRef.current) setState({ failed: true });
+      }
+    }, 350);
+    return () => clearTimeout(timer);
   }, [code]);
 
-  if (!option) {
-    return <div style={PENDING}>📊 Připravuji graf…</div>;
+  if (state.option) {
+    return (
+      <div style={WRAP}>
+        <Suspense fallback={<div style={PENDING}>Načítám graf…</div>}>
+          <ReactECharts option={state.option} style={{ height: 280, width: '100%' }} opts={{ renderer: 'canvas' }} />
+        </Suspense>
+      </div>
+    );
   }
-
-  return (
-    <div style={WRAP}>
-      <Suspense fallback={<div style={PENDING}>Načítám graf…</div>}>
-        <ReactECharts option={option} style={{ height: 280, width: '100%' }} opts={{ renderer: 'canvas' }} />
-      </Suspense>
-    </div>
-  );
+  if (state.failed) {
+    return <pre style={FALLBACK}>{code.trim()}</pre>;
+  }
+  return <div style={PENDING}>📊 Připravuji graf…</div>;
 };

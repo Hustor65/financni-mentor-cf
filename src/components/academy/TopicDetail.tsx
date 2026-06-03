@@ -105,7 +105,7 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
         <div style={{ marginBottom: '1.5rem' }}>
           <SectionLabel icon="circle-check" label="Ověřte si pochopení" />
           <div className="glass-panel--sunken reveal" style={{ padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--glass-border)' }}>
-            <Quiz questions={quizData} onComplete={() => onComplete?.(topicId)} />
+            <Quiz key={topicId} questions={quizData} onComplete={() => onComplete?.(topicId)} />
           </div>
         </div>
       )}

@@ -66,17 +66,20 @@ export interface DipResult {
   netCost: number;
 }
 
-/** DIP daňový odpočet (2026) */
+/** DIP daňový odpočet (2026).
+ *  Roční strop 48 000 Kč je SDÍLENÝ (DIP + penzijko + životko). „Other" ho
+ *  zaplňuje jako první, takže na DIP zbývá jen (limit − other) → vracíme
+ *  MARGINÁLNÍ přínos DIP (sekce „DIP — kolik ušetříte"), ne kombinovaný. */
 export function czDipDeduction(
   dipContrib: number, otherContrib = 0, rate = TAX_RATE_BASE,
 ): DipResult {
   dipContrib = Math.max(0, dipContrib);
   otherContrib = Math.max(0, otherContrib);
-  const eligible = dipContrib + otherContrib;
-  const deductible = Math.min(DIP_DEDUCT_LIMIT_2026, eligible);
+  // marginální odpočet připadající na DIP (po zaplnění stropu „other")
+  const deductible = Math.max(0, Math.min(DIP_DEDUCT_LIMIT_2026 - otherContrib, dipContrib));
   const taxSaving = deductible * rate;
-  const unused = Math.max(0, DIP_DEDUCT_LIMIT_2026 - eligible);
-  const netCost = dipContrib - Math.min(taxSaving, dipContrib * rate);
+  const unused = Math.max(0, DIP_DEDUCT_LIMIT_2026 - otherContrib - dipContrib);
+  const netCost = dipContrib - taxSaving;
   return { deductible, taxSaving, unused, netCost };
 }
 

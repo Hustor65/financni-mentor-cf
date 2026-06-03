@@ -22,10 +22,27 @@ export function useScrollReveal(deps: unknown[] = []) {
       { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
     );
     const observeAll = () => {
-      document.querySelectorAll<HTMLElement>('.reveal:not(.is-visible)').forEach(el => io.observe(el));
+      document.querySelectorAll<HTMLElement>('.reveal:not(.is-visible)').forEach(el => {
+        const r = el.getBoundingClientRect();
+        // už (částečně) ve viewportu → zobraz rovnou, nečekej na IO (robustnější po filtru)
+        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('is-visible');
+        else io.observe(el);
+      });
     };
     observeAll();
-    const mo = new MutationObserver(observeAll);
+    // MutationObserver na celém <body> firoval observeAll při KAŽDÉ změně DOM
+    // (streaming chatu, ECharts, lazy taby) → zbytečný CPU spike. Coalesce do
+    // jednoho běhu na snímek přes requestAnimationFrame.
+    let scheduled = false;
+    const schedule = () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        scheduled = false;
+        observeAll();
+      });
+    };
+    const mo = new MutationObserver(schedule);
     mo.observe(document.body, { childList: true, subtree: true });
     return () => {
       io.disconnect();

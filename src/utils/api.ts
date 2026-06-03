@@ -6,6 +6,7 @@ export async function streamChatMessage(
   message: string,
   history: Array<{ role: string; content: string }>,
   onChunk: (fullText: string) => void,
+  signal?: AbortSignal,
 ): Promise<string> {
   // GROUNDING — stejná logika jako core.py send_message
   const docs = retrieve(message);
@@ -20,6 +21,7 @@ export async function streamChatMessage(
     headers: { 'Content-Type': 'application/json' },
     // history obsahuje PŮVODNÍ (neaugmentované) zprávy; augmentujeme jen aktuální message
     body: JSON.stringify({ message: augmentedMessage, history }),
+    signal,
   });
   if (!response.ok || !response.body) throw new Error(`Chat error: ${response.status}`);
 

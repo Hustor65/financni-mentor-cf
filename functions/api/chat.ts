@@ -499,18 +499,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       try {
         let result = await streamConversation(PRIMARY_MODEL, apiKey, contents, systemInstruction, write);
 
-        // fallback při 429 (quota) — jen dokud se ještě nic neodeslalo
-        if (!result.ok && result.status === 429 && !result.streamed) {
+        // Fallback model, pokud primární NIC neodeslal — ať už kvůli 429, chybě,
+        // nebo prázdné/blokované odpovědi (SAFETY apod.) s HTTP 200.
+        if (!result.streamed) {
           result = await streamConversation(FALLBACK_MODEL, apiKey, contents, systemInstruction, write);
         }
 
-        // chyba bez jediného odeslaného znaku → pošli srozumitelnou hlášku
-        if (!result.ok && !result.streamed) {
+        if (!result.streamed) {
+          // ani jeden model nic neodeslal → srozumitelná hláška místo prázdna
           write(
             result.status === 429
               ? '⏳ Momentálně je velká zátěž. Zkuste to prosím za minutu.'
-              : '⚠️ Chyba při komunikaci s modelem. Zkuste to prosím později.',
+              : '⚠️ Odpověď se teď nepodařilo vygenerovat. Zkuste dotaz přeformulovat nebo to zkuste znovu.',
           );
+        } else if (!result.ok) {
+          // něco se odeslalo, ale stream skončil chybou (např. selhání po tool-callu)
+          // → neukončuj tiše, dej najevo, že odpověď není kompletní
+          write('\n\n⚠️ _Odpověď se nepodařilo dokončit. Zkuste dotaz prosím zopakovat._');
         }
       } catch (error) {
         console.error('Chat API error:', error);

@@ -239,6 +239,8 @@ const KB_DOCS = buildDocs();
 export function retrieve(query: string, k = 4, minScore = 2): KBDoc[] {
   const qTokens = contentTokens(query);
   if (!qTokens.length) return [];
+  // jednoslovný dotaz: stačí trefa do těla dokumentu (jinak by score 1 < 2 → prázdný kontext)
+  const threshold = qTokens.length <= 1 ? 1 : minScore;
   const scored: [number, KBDoc][] = [];
   for (const d of KB_DOCS) {
     let score = 0;
@@ -247,7 +249,7 @@ export function retrieve(query: string, k = 4, minScore = 2): KBDoc[] {
       if (d._titleNorm.includes(s)) score += 3;
       else if (d._textNorm.includes(s)) score += 1;
     }
-    if (score >= minScore) scored.push([score, d]);
+    if (score >= threshold) scored.push([score, d]);
   }
   scored.sort((a, b) => b[0] - a[0]);
   return scored.slice(0, k).map(([, d]) => d);

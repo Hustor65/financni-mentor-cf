@@ -68,9 +68,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       {/* ── Scrollující zprávy ── */}
       <div
         className="chat-messages"
-        role="log"
+        role="region"
         aria-label="Konverzace"
-        aria-live="polite"
       >
         <div className="chat-messages__inner">
           {showEmptyState ? (

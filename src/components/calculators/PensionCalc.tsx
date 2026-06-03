@@ -91,6 +91,10 @@ export const PensionCalc: React.FC = () => {
       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
         Základní výměra: {czNum(result.baseAmount)} Kč • Procentní výměra: {czNum(result.percentAmount)} Kč
       </div>
+      <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: '0.75rem' }}>
+        Zjednodušený odhad podle pravidel ČSSZ 2026 — jako osobní vyměřovací základ bereme vaši
+        dnešní hrubou mzdu (bez indexace dřívějších výdělků). Skutečný důchod z ČSSZ se může lišit.
+      </div>
       <Suspense fallback={<div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Načítám graf…</div>}>
         <ReactECharts option={projOption} style={{ height: 280 }} opts={{ renderer: 'canvas' }} />
       </Suspense>

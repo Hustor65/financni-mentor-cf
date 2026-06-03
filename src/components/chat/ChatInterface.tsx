@@ -48,6 +48,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  // AbortController právě běžícího streamu — přeruší se při unmountu / novém dotazu
+  const abortRef = useRef<AbortController | null>(null);
 
   // focus na <textarea> právě aktivního panelu
   const focusActiveInput = useCallback(() => {
@@ -72,6 +74,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     scrollToBottom();
   }, [messages, isLoading, scrollToBottom]);
 
+  // při odmontování přeruš případný běžící stream (jinak fetch + setState dál běží)
+  useEffect(() => () => abortRef.current?.abort(), []);
+
   const handleSend = useCallback(
     async (text: string) => {
       if (!text.trim() || isLoading) return;
@@ -83,19 +88,32 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
       setIsLoading(true);
       onMessageSent?.();
 
+      // přeruš případný předchozí stream a založ nový AbortController
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       try {
-        const history = [...messages, userMsg]
+        // history = jen PŘEDCHOZÍ zprávy; aktuální dotaz připojí backend → žádná duplicita
+        const history = messages
           .filter(m => m !== WELCOME)
           .map(m => ({ role: m.role, content: m.content }));
-        await streamChatMessage(text.trim(), history, full => {
-          // průběžně aktualizuj poslední (právě streamovanou) zprávu
-          setMessages(prev => {
-            const next = [...prev];
-            next[next.length - 1] = { role: 'assistant', content: full };
-            return next;
-          });
-        });
-      } catch {
+        await streamChatMessage(
+          text.trim(),
+          history,
+          full => {
+            // průběžně aktualizuj poslední (právě streamovanou) zprávu
+            setMessages(prev => {
+              const next = [...prev];
+              next[next.length - 1] = { role: 'assistant', content: full };
+              return next;
+            });
+          },
+          controller.signal,
+        );
+      } catch (err) {
+        // přerušení (unmount / nový dotaz) není chyba — nic nehlásíme
+        if ((err as Error)?.name === 'AbortError') return;
         setMessages(prev => {
           const next = [...prev];
           next[next.length - 1] = {
@@ -105,8 +123,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           return next;
         });
       } finally {
-        setIsLoading(false);
-        focusActiveInput();
+        // resetuj stav jen pokud běží pořád TENTO stream (ne přepsaný novějším)
+        if (abortRef.current === controller) {
+          setIsLoading(false);
+          focusActiveInput();
+          abortRef.current = null;
+        }
       }
     },
     [isLoading, messages, onMessageSent, focusActiveInput],
@@ -156,7 +178,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
       dialog.close();
     };
     let done = false;
-    const onEnd = () => {
+    const onEnd = (e?: Event) => {
+      // ignoruj animationend probublané z potomků — čekáme na VLASTNÍ animaci dialogu
+      if (e && e.target !== dialog) return;
       if (done) return;
       done = true;
       dialog.removeEventListener('animationend', onEnd);
