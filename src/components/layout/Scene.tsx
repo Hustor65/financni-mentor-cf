@@ -66,6 +66,12 @@ interface SceneProps {
 const CYAN = '#3ab5e0'; // atmosféra + tečky + oblouky
 const GLOBE_RADIUS = 100; // three-globe default radius (jednotky scény)
 
+/* Hrubá detekce slabšího HW podle počtu logických jader (proxy pro výkon GPU).
+ * <=4 jader = typicky notebook bez dedikované grafiky → ještě tvrdší dpr cap (1×),
+ * ať se hero glóbus neseká. Spočítá se jednou; guard pro jistotu (SSR/staré API). */
+const LOW_PERF =
+  typeof navigator !== 'undefined' && (navigator.hardwareConcurrency ?? 8) <= 4;
+
 /* ── Finanční burzy (huby) ───────────────────────────────────────────────── */
 interface Hub {
   name: string;
@@ -130,6 +136,7 @@ const HUB_NAMES = [
 ] as const;
 
 interface ArcDatum {
+  id: number;      // stabilní index → dávkování aktivních pulzů (perf)
   startLat: number; startLng: number; endLat: number; endLng: number;
   initGap: number; // 0..1 — de-syncs pulse POSITION
   animMs: number;  // 2600..4400 — de-syncs pulse SPEED (slower travel)
@@ -169,6 +176,7 @@ function buildArcs(): ArcDatum[] {
     if (seen.has(k)) return;
     seen.add(k);
     out.push({
+      id: out.length,
       startLat: from.lat, startLng: from.lng, endLat: to.lat, endLng: to.lng,
       initGap: arcRng(),
       animMs: 2600 + arcRng() * 1800,
@@ -196,6 +204,27 @@ function buildArcs(): ArcDatum[] {
 }
 const ARCS: ArcDatum[] = buildArcs(); // ≈ 50 arcs after dedup/skip
 
+/* ── Dávkové „vysílání signálů" (perf na slabších strojích) ──────────────────
+ * Všech ~50 oblouků zůstává v grafu (geometrie postavená JEDNOU — měnit arcsData
+ * = drahý rebuild tube). Pulz ale „vysílá" jen ACTIVE_ARCS z nich naráz; okno se
+ * po ARC_BATCH_MS posune o ARC_BATCH_STEP přes zamíchané pořadí → signály se
+ * postupně střídají po celé síti místo 50 najednou. Spící oblouk = arcDashLength 0
+ * (fragment shader pixely zahodí) + animace zmrazená → minimální fill/CPU. */
+const ACTIVE_ARCS = 10;     // kolik pulzů „vysílá" zároveň
+const ARC_BATCH_MS = 1100;  // jak často se okno posune (ne každý frame!)
+const ARC_BATCH_STEP = 3;   // o kolik se okno posune (menší = plynulejší střídání)
+/* Deterministicky zamíchané pořadí indexů (mulberry32, žádný Math.random v renderu
+ * → react-hooks v7 purita) — rozptýlí aktivní oblouky po celé síti, ne „v řadě". */
+const ARC_ORDER: number[] = (() => {
+  const idx = ARCS.map((_, i) => i);
+  const rng = mulberry32(0x5a7c91);
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  return idx;
+})();
+
 /* Markery = vertikální válečky („pillars“) na všech hubech. Výška/barva per tier
  * (mega = nejvyšší/nejjasnější). pointsMerge → všech 47 v jednom draw callu. */
 interface PointDatum { lat: number; lng: number; tier: Hub['tier']; }
@@ -204,8 +233,29 @@ const PILLAR_HI = '#9fe6ff';   // mega — bright icy-cyan caps
 const PILLAR_MID = '#2596be';  // major — accent (note: this equals accentColor)
 const PILLAR_LO = '#2f8fb8';   // regional — dimmer cyan (depth)
 
+/* Stabilní accessory válečků (module-scope → reference se nemění při re-renderu
+ * kvůli dávkování oblouků → points vrstva se zbytečně nere-digestuje).
+ * Válečky ZMENŠENÉ (uživatel: ať jsou malé) — drobné tečky-pilíře, ne sloupy. */
+const POINT_ALT = (d: object): number => {
+  const t = (d as PointDatum).tier;
+  return t === 'mega' ? 0.03 : t === 'major' ? 0.02 : 0.013;
+};
+const POINT_RADIUS = (d: object): number => {
+  const t = (d as PointDatum).tier;
+  return t === 'mega' ? 0.16 : t === 'major' ? 0.14 : 0.12;
+};
+const POINT_COLOR = (d: object): string => {
+  const t = (d as PointDatum).tier;
+  return t === 'mega' ? PILLAR_HI : t === 'major' ? PILLAR_MID : PILLAR_LO;
+};
+
 /* Azurový gradient pro oblouky (průhledný → azur → průhledný = putující pulz). */
 const ARC_COLOR: string[] = ['rgba(58,181,224,0)', CYAN, 'rgba(58,181,224,0)'];
+/* Stabilní arc accessory nezávislé na dávce (module-scope → nespouští re-digest
+ * při každém posunu okna; měnit se musí JEN dash-length/animate-time, viz JSX). */
+const ARC_COLOR_FN = (): string[] => ARC_COLOR;
+const ARC_ALT_FN = (d: object): number => (d as ArcDatum).alt;
+const ARC_INITGAP_FN = (d: object): number => (d as ArcDatum).initGap;
 
 /* GeoJSON Feature (jen co potřebujeme z `.features`). */
 interface GeoFeature {
@@ -303,11 +353,11 @@ const NEBULA_FRAG = /* glsl */ `
     float d = hash(i + vec2(1.0, 1.0));
     return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
   }
-  // fBm (4 oktávy)
+  // fBm (2 oktávy — sníženo ze 4 kvůli výkonu; při 5% opacitě vizuálně k nerozeznání)
   float fbm(vec2 p) {
     float v = 0.0;
     float amp = 0.5;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 2; i++) {
       v += amp * vnoise(p);
       p = p * 2.02 + 11.7;
       amp *= 0.5;
@@ -529,18 +579,17 @@ function SpaceBackground({ frozen }: { frozen: boolean }) {
 
   return (
     <group ref={groupRef}>
-      {/* daleká hustá vrstva — bez drei twinkle (speed=0), vlastní jemný drift děláme my */}
+      {/* jedna hvězdná vrstva (sníženo z 3500+500 kvůli výkonu na slabších strojích) —
+          bez drei twinkle (speed=0), vlastní jemný drift dělá TwinkleStars */}
       <Stars
         radius={300}
         depth={60}
-        count={3500}
-        factor={2.5}
-        saturation={0.15}
+        count={2000}
+        factor={2.6}
+        saturation={0.12}
         fade
         speed={0}
       />
-      {/* bližší řidší vrstva pro hloubku */}
-      <Stars radius={320} depth={40} count={500} factor={4} saturation={0} fade speed={0} />
       {/* drobná custom vrstva s jemným blikáním */}
       <TwinkleStars frozen={frozen} color="#bfe6f5" />
       {/* velmi slabá mlhovina daleko vzadu */}
@@ -633,6 +682,26 @@ function GlobeBody({
     return () => clearTimeout(t);
   }, [still]);
   const arcsData = still || arcsReady ? ARCS : [];
+
+  // Dávkové vysílání signálů: okno ACTIVE_ARCS aktivních pulzů se posouvá po síti
+  // (perf — ať se nehýbe všech ~50 najednou). Interval běží JEN když scéna žije
+  // (ne paused/still) → na pozadí/při reduced-motion netiká. Reduced-motion (still)
+  // = všechny oblouky statické plné (řeší JSX accessory), dávka se neuplatní.
+  const [arcBatch, setArcBatch] = useState(0);
+  useEffect(() => {
+    if (still || paused) return;
+    const id = setInterval(
+      () => setArcBatch((b) => (b + ARC_BATCH_STEP) % ARC_ORDER.length),
+      ARC_BATCH_MS,
+    );
+    return () => clearInterval(id);
+  }, [still, paused]);
+  const activeArcs = useMemo(() => {
+    const s = new Set<number>();
+    const n = ARC_ORDER.length;
+    for (let i = 0; i < ACTIVE_ARCS && i < n; i++) s.add(ARC_ORDER[(arcBatch + i) % n]);
+    return s;
+  }, [arcBatch]);
 
   // OKLUDÉR: koule nic nemaluje (colorWrite:false), ale PÍŠE hloubku (depthWrite:true,
   // depthTest:true) → v opaque passu zakryje VŠE s depthTest:true za diskem planety:
@@ -828,7 +897,8 @@ function GlobeBody({
               // tečkované kontinenty (knihovna čte `geometry` atribut Featur z GeoJSONu)
               hexPolygonsData={features}
               hexPolygonUseDots
-              hexPolygonResolution={4}
+              hexPolygonResolution={3}
+              hexPolygonDotResolution={6}
               hexPolygonMargin={0.4}
               hexPolygonAltitude={0.005}
               hexPolygonColor={() => 'rgba(58,181,224,0.6)'}
@@ -836,30 +906,33 @@ function GlobeBody({
               // oblouky burz (azurový pulz) — „nakreslí se“ při příchodu;
               // výška/rychlost/fáze pulzu per-arc (předpočítané pole na datu)
               arcsData={arcsData}
-              arcColor={() => ARC_COLOR}
-              arcAltitude={(d: object) => (d as ArcDatum).alt}
+              arcColor={ARC_COLOR_FN}
+              arcAltitude={ARC_ALT_FN}
               arcAltitudeAutoScale={0.5}
               arcStroke={0.3}
-              arcCurveResolution={48}
+              arcCurveResolution={32}
               arcCircularResolution={4}
-              arcDashLength={still ? 1 : 0.34}
+              // DÁVKOVÁNÍ: pulz „vysílá" jen aktivní oblouky (activeArcs), zbytek má
+              // dashLength 0 (shader pixely zahodí) + zmrazenou animaci → menší fill/CPU.
+              // still (reduced-motion) → všechny plné statické (dashLength 1, gap 0).
+              // arcColor/arcAltitude/arcDashInitialGap/arcDashGap jsou STABILNÍ reference,
+              // mění se jen dashLength/animateTime → re-digest přepíše levné uniformy,
+              // NE tube geometrii (ta zůstává postavená jednou).
+              arcDashLength={(d: object) =>
+                still ? 1 : activeArcs.has((d as ArcDatum).id) ? 0.34 : 0}
               arcDashGap={still ? 0 : 2.2}
-              arcDashInitialGap={(d: object) => (still ? 0 : (d as ArcDatum).initGap)}
-              arcDashAnimateTime={(d: object) => (still ? 0 : (d as ArcDatum).animMs)}
+              arcDashInitialGap={ARC_INITGAP_FN}
+              arcDashAnimateTime={(d: object) =>
+                still || !activeArcs.has((d as ArcDatum).id) ? 0 : (d as ArcDatum).animMs}
               arcsTransitionDuration={still ? 0 : 1500}
-              // markery = vertikální válečky („pillars“) — výška/poloměr/barva per tier
+              // markery = malé válečky („pillars“) — výška/poloměr/barva per tier
+              // (stabilní module-scope accessory → dávkování oblouků je nere-digestuje)
               pointsData={POINTS}
               pointsMerge
-              pointResolution={6}
-              pointAltitude={(d: object) =>
-                (d as PointDatum).tier === 'mega' ? 0.05
-                  : (d as PointDatum).tier === 'major' ? 0.034 : 0.022}
-              pointRadius={(d: object) =>
-                (d as PointDatum).tier === 'mega' ? 0.25
-                  : (d as PointDatum).tier === 'major' ? 0.21 : 0.18}
-              pointColor={(d: object) =>
-                (d as PointDatum).tier === 'mega' ? PILLAR_HI
-                  : (d as PointDatum).tier === 'major' ? PILLAR_MID : PILLAR_LO}
+              pointResolution={4}
+              pointAltitude={POINT_ALT}
+              pointRadius={POINT_RADIUS}
+              pointColor={POINT_COLOR}
             />
             </group>
           </group>
@@ -890,9 +963,12 @@ export function HeroScene({
       // kamera ve škále glóbu (R ~100): odsazená tak, aby horní polokoule
       // vystupovala ZA vystředěný titulek (titulek zůstává čitelný).
       camera={{ position: [0, 40, 260], fov: 50, near: 0.1, far: 2000 }}
-      dpr={[1, 1.5]}
+      // dpr cap snížen (z 1.5) + na slabším HW tvrdě 1× → méně fragmentů na retině.
+      // antialias vypnuté (MSAA je na integrované GPU drahé; tečky/válečky mají měkké
+      // okraje, siluetu drží fresnel lem → vizuálně skoro beze změny, znatelná úspora).
+      dpr={LOW_PERF ? 1 : [1, 1.25]}
       frameloop={paused ? 'never' : 'always'}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
       style={{ background: 'transparent', position: 'absolute', inset: 0 }}
       onCreated={({ camera }) => camera.lookAt(0, -28, 0)}
     >
