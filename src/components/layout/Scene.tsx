@@ -237,6 +237,19 @@ const ARC_COLOR_FN = (): string[] => ARC_COLOR;
 const ARC_ALT_FN = (d: object): number => (d as ArcDatum).alt;
 const ARC_INITGAP_FN = (d: object): number => (d as ArcDatum).initGap;
 
+/* ── Radar pulz na hlavních burzách ───────────────────────────────────────────
+ * Z páteřních hubů (HUB_NAMES = 5 globálních center) se periodicky šíří jemný
+ * azurový prstenec („ping") — burza jako živý zdroj signálu, navazuje na oblouky.
+ * Jen 5 hubů + ringResolution 32 + perioda > život ringu → ~4 živé prstence naráz
+ * (každý = 1 THREE.Line; pauseAnimation() je zmrazí — viz efekt v GlobeBody).
+ * Všechny accessory STABILNÍ module-scope → re-render kvůli dávkování oblouků
+ * NEpřestaví ring vrstvu (jinak by pulzy blikaly/resetovaly se). */
+const RING_HUBS: Hub[] = HUBS.filter((h) => (HUB_NAMES as readonly string[]).includes(h.name));
+const RING_COLOR: string[] = ['rgba(200,244,255,0.85)', 'rgba(75,196,230,0.35)', 'rgba(58,181,224,0)'];
+const RING_COLOR_FN = (): string[] => RING_COLOR;
+const RING_LAT_FN = (d: object): number => (d as Hub).lat;
+const RING_LNG_FN = (d: object): number => (d as Hub).lng;
+
 /* GeoJSON Feature (jen co potřebujeme z `.features`). */
 interface GeoFeature {
   type: string;
@@ -1009,6 +1022,17 @@ function GlobeBody({
               arcDashAnimateTime={(d: object) =>
                 still || !activeArcs.has((d as ArcDatum).id) ? 0 : (d as ArcDatum).animMs}
               arcsTransitionDuration={still ? 0 : 1500}
+              // RADAR PULZ na hlavních burzách: rozšiřující se prstenec („ping").
+              // still (reduced-motion) → žádné ringy; paused/still zmrazí pauseAnimation().
+              ringsData={still ? [] : RING_HUBS}
+              ringColor={RING_COLOR_FN}
+              ringLat={RING_LAT_FN}
+              ringLng={RING_LNG_FN}
+              ringAltitude={0.008}
+              ringMaxRadius={18}
+              ringPropagationSpeed={3.6}
+              ringRepeatPeriod={3600}
+              ringResolution={48}
             />
             {/* markery burz = zářící „světla měst" (CityLights, custom Points na povrchu) */}
             <CityLights frozen={paused || still} />
