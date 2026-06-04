@@ -210,7 +210,7 @@ const ARCS: ArcDatum[] = buildArcs(); // ≈ 50 arcs after dedup/skip
  * po ARC_BATCH_MS posune o ARC_BATCH_STEP přes zamíchané pořadí → signály se
  * postupně střídají po celé síti místo 50 najednou. Spící oblouk = arcDashLength 0
  * (fragment shader pixely zahodí) + animace zmrazená → minimální fill/CPU. */
-const ACTIVE_ARCS = 10;     // kolik pulzů „vysílá" zároveň
+const ACTIVE_ARCS = 18;     // kolik pulzů „vysílá" zároveň (víc signálů, pořád plynulé)
 const ARC_BATCH_MS = 1100;  // jak často se okno posune (ne každý frame!)
 const ARC_BATCH_STEP = 3;   // o kolik se okno posune (menší = plynulejší střídání)
 /* Deterministicky zamíchané pořadí indexů (mulberry32, žádný Math.random v renderu
@@ -225,29 +225,9 @@ const ARC_ORDER: number[] = (() => {
   return idx;
 })();
 
-/* Markery = vertikální válečky („pillars“) na všech hubech. Výška/barva per tier
- * (mega = nejvyšší/nejjasnější). pointsMerge → všech 47 v jednom draw callu. */
-interface PointDatum { lat: number; lng: number; tier: Hub['tier']; }
-const POINTS: PointDatum[] = HUBS.map((h) => ({ lat: h.lat, lng: h.lng, tier: h.tier }));
-const PILLAR_HI = '#9fe6ff';   // mega — bright icy-cyan caps
-const PILLAR_MID = '#2596be';  // major — accent (note: this equals accentColor)
-const PILLAR_LO = '#2f8fb8';   // regional — dimmer cyan (depth)
-
-/* Stabilní accessory válečků (module-scope → reference se nemění při re-renderu
- * kvůli dávkování oblouků → points vrstva se zbytečně nere-digestuje).
- * Válečky ZMENŠENÉ (uživatel: ať jsou malé) — drobné tečky-pilíře, ne sloupy. */
-const POINT_ALT = (d: object): number => {
-  const t = (d as PointDatum).tier;
-  return t === 'mega' ? 0.03 : t === 'major' ? 0.02 : 0.013;
-};
-const POINT_RADIUS = (d: object): number => {
-  const t = (d as PointDatum).tier;
-  return t === 'mega' ? 0.16 : t === 'major' ? 0.14 : 0.12;
-};
-const POINT_COLOR = (d: object): string => {
-  const t = (d as PointDatum).tier;
-  return t === 'mega' ? PILLAR_HI : t === 'major' ? PILLAR_MID : PILLAR_LO;
-};
+/* Markery burz = zářící „světla měst" (komponenta CityLights níže) — sedí na
+ * povrchu jako měkká světla, ne trčící válečky. Staví se přímo z HUBS (tier řídí
+ * velikost/jas), takže žádné samostatné POINTS pole ani accessory nejsou potřeba. */
 
 /* Azurový gradient pro oblouky (průhledný → azur → průhledný = putující pulz). */
 const ARC_COLOR: string[] = ['rgba(58,181,224,0)', CYAN, 'rgba(58,181,224,0)'];
@@ -648,6 +628,127 @@ function FresnelRim({ color }: { color: string }) {
   );
 }
 
+/* ── Zářící „světla měst" = markery burz ──────────────────────────────────────
+   Markery NEtrčí ze sféry jako válečky (to vypadalo nepřirozeně — na limbu jako
+   rozházené hranaté čárky). Místo toho SEDÍ na povrchu jako měkká kulatá světla
+   (noční metropole z oběžné dráhy): custom THREE.Points (vzor jako TwinkleStars),
+   1 draw call, aditivní glow s radiálním gradientem (jádro→halo), per-tier
+   velikost/jas, ZADNÍ polokoule ztlumená (facing) → na limbu nic netrčí, jen
+   měkké světýlko, a markery splývají s azurovým tečkovaným povrchem = zakomponováno.
+   Jemný „dech" (1 uniform, jako TwinkleStars) → živé, ale neseká. */
+const CITY_VERT = /* glsl */ `
+  precision highp float;
+  attribute float aSize;
+  attribute float aBright;
+  attribute float aSeed;
+  uniform float uTime;
+  uniform float uPulse;       // 1 živé, 0 zmrazené (paused / reduced-motion)
+  uniform float uPixelRatio;
+  varying float vBright;
+  void main() {
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);
+    vec3 worldNormal = normalize(mat3(modelMatrix) * normalize(position));
+    vec3 viewDir = normalize(cameraPosition - worldPos.xyz);
+    float facing = dot(worldNormal, viewDir);          // >0 přední, <0 zadní
+    float side = smoothstep(-0.2, 0.35, facing);        // zadní ~0, přední 1
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+    // velikost klesá se vzdáleností (size-attenuation); škáluje s dpr
+    gl_PointSize = aSize * uPixelRatio * (260.0 / max(-mvPosition.z, 1.0));
+    // pomalý „dech" (každé světlo jinak fázované), zadní strana ztlumená ~6×
+    float breath = 0.82 + 0.18 * sin(uTime * 0.9 + aSeed * 6.2831);
+    vBright = aBright * mix(0.16, 1.0, side) * mix(1.0, breath, uPulse);
+  }
+`;
+const CITY_FRAG = /* glsl */ `
+  precision highp float;
+  uniform vec3 uCore;
+  uniform vec3 uHalo;
+  uniform float uOpacity;
+  varying float vBright;
+  void main() {
+    vec2 d = gl_PointCoord - 0.5;
+    float r = length(d) * 2.0;        // 0 ve středu, 1 na okraji spritu
+    if (r > 1.0) discard;             // kruh (žádný hranatý sprite)
+    float core = smoothstep(0.5, 0.0, r);   // jasné bělavé jádro (vynikne nad tečkami)
+    float halo = smoothstep(1.0, 0.0, r);
+    halo = halo * halo;               // ^2 → bloom-křivka, ne plný disk
+    vec3 col = mix(uHalo, uCore, core * core);
+    float a = (halo * 0.45 + core) * vBright * uOpacity;
+    if (a <= 0.002) discard;
+    gl_FragColor = vec4(col, a);
+  }
+`;
+
+/* polar→kartézský přesně jako three-globe (radius 100) → světla sednou na burzy. */
+function CityLights({ frozen }: { frozen: boolean }) {
+  const matRef = useRef<THREE.ShaderMaterial>(null);
+  const { gl } = useThree();
+
+  const geometry = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    const n = HUBS.length;
+    const pos = new Float32Array(n * 3);
+    const size = new Float32Array(n);
+    const bright = new Float32Array(n);
+    const seed = new Float32Array(n);
+    const rng = mulberry32(0x9e1f73);
+    const rad = GLOBE_RADIUS * 1.006; // těsně nad povrchem (≈ rovina hex-teček)
+    for (let i = 0; i < n; i++) {
+      const h = HUBS[i];
+      const phi = ((90 - h.lat) * Math.PI) / 180;
+      const theta = ((90 - h.lng) * Math.PI) / 180;
+      pos[i * 3 + 0] = rad * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = rad * Math.cos(phi);
+      pos[i * 3 + 2] = rad * Math.sin(phi) * Math.sin(theta);
+      size[i] = h.tier === 'mega' ? 22 : h.tier === 'major' ? 15 : 10;
+      bright[i] = h.tier === 'mega' ? 1.0 : h.tier === 'major' ? 0.68 : 0.46;
+      seed[i] = rng();
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setAttribute('aSize', new THREE.BufferAttribute(size, 1));
+    g.setAttribute('aBright', new THREE.BufferAttribute(bright, 1));
+    g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
+    return g;
+  }, []);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uPulse: { value: 1 },
+      uPixelRatio: { value: Math.min(gl.getPixelRatio?.() ?? 1, 1.5) },
+      uCore: { value: new THREE.Color('#dff4ff') }, // žhavé ledově-bílé jádro
+      uHalo: { value: new THREE.Color(CYAN) },       // azurové halo (splývá s tečkami)
+      uOpacity: { value: 1.0 },
+    }),
+    [gl],
+  );
+
+  useFrame((_, delta) => {
+    const m = matRef.current;
+    if (!m) return;
+    m.uniforms.uPulse.value = frozen ? 0 : 1;
+    if (!frozen) m.uniforms.uTime.value += Math.min(delta, 0.05);
+  });
+
+  return (
+    <points geometry={geometry} frustumCulled={false} renderOrder={2}>
+      <shaderMaterial
+        ref={matRef}
+        vertexShader={CITY_VERT}
+        fragmentShader={CITY_FRAG}
+        uniforms={uniforms}
+        transparent
+        depthTest={false}
+        depthWrite={false}
+        toneMapped={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
 /* ── Glóbus (R3fGlobe) + rotující skupina + parallax ─────────────────────── */
 
 function GlobeBody({
@@ -754,7 +855,6 @@ function GlobeBody({
     const apply = () => {
       let hexFound = 0;
       let gratFound = false;
-      let pointsFound = false;
       wrap.traverse((obj) => {
         // hex-tečky pevnin
         if ((obj as { __globeObjType?: string }).__globeObjType === 'hexPolygon') {
@@ -788,29 +888,10 @@ function GlobeBody({
           line.renderOrder = 1;
           gratFound = true;
         }
-        // válečky (pillars) = merged points mesh → emissivní žhnutí + depth flagy
-        // jako tečky (čitelné na OBOU polokoulích, konzistentní s průsvitnou planetou)
-        if ((obj as { __globeObjType?: string }).__globeObjType === 'points') {
-          const mesh = obj as THREE.Mesh;
-          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-          for (const m of mats) {
-            if (!m) continue;
-            const sm = m as THREE.MeshLambertMaterial;
-            sm.emissive = new THREE.Color('#3ab5e0');
-            sm.emissiveIntensity = 0.85;
-            sm.toneMapped = false;
-            sm.depthTest = false;
-            sm.depthWrite = false;
-            sm.transparent = true;
-            sm.needsUpdate = true;
-          }
-          mesh.renderOrder = 1;
-          pointsFound = true;
-        }
       });
       // hex meshe se tvoří async; když ještě nejsou (nebo graticule), zkus znovu (max ~2 s).
       const featuresExpected = features.length > 0;
-      const done = (!featuresExpected || hexFound > 0) && gratFound && pointsFound;
+      const done = (!featuresExpected || hexFound > 0) && gratFound;
       if (!done && tries < 40) {
         tries++;
         timer = setTimeout(apply, 50);
@@ -928,15 +1009,9 @@ function GlobeBody({
               arcDashAnimateTime={(d: object) =>
                 still || !activeArcs.has((d as ArcDatum).id) ? 0 : (d as ArcDatum).animMs}
               arcsTransitionDuration={still ? 0 : 1500}
-              // markery = malé válečky („pillars“) — výška/poloměr/barva per tier
-              // (stabilní module-scope accessory → dávkování oblouků je nere-digestuje)
-              pointsData={POINTS}
-              pointsMerge
-              pointResolution={4}
-              pointAltitude={POINT_ALT}
-              pointRadius={POINT_RADIUS}
-              pointColor={POINT_COLOR}
             />
+            {/* markery burz = zářící „světla měst" (CityLights, custom Points na povrchu) */}
+            <CityLights frozen={paused || still} />
             </group>
           </group>
         </group>
