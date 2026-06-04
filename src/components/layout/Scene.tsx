@@ -897,8 +897,11 @@ function GlobeBody({
               // tečkované kontinenty (knihovna čte `geometry` atribut Featur z GeoJSONu)
               hexPolygonsData={features}
               hexPolygonUseDots
-              hexPolygonResolution={3}
-              hexPolygonDotResolution={6}
+              // tečky kontinentů: JEMNÉ jako původně (res 4 = hustý raster, kulaté tečky)
+              // na běžném HW; jen na slabším HW (LOW_PERF) hrubší res 3 + 6úhelníkové tečky,
+              // ať glóbus zůstane plynulý. (Uživatel: na běžném stroji chce jemné tečky.)
+              hexPolygonResolution={LOW_PERF ? 3 : 4}
+              hexPolygonDotResolution={LOW_PERF ? 6 : 12}
               hexPolygonMargin={0.4}
               hexPolygonAltitude={0.005}
               hexPolygonColor={() => 'rgba(58,181,224,0.6)'}
