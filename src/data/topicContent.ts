@@ -47,6 +47,38 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       ],
     },
   ],
+  'scamy': [
+    {
+      h: 'Zaručený výnos = největší červená vlajka',
+      p: 'Nejčastější finta zní „zaručený vysoký výnos bez rizika". Jenže to neexistuje — čím vyšší výnos někdo slibuje, tím vyšší je riziko. Když ti někdo garantuje, že rozmnoží peníze, je to skoro vždy podvod.',
+      more: [
+        'Funguje to na chamtivosti a strachu, že o příležitost přijdeš (FOMO = strach z promeškání). Typické hlášky: „30 % měsíčně, 100% jisté", „tajná metoda, co banky tají", „přidej se, než se to zavře". Žádná reálná investice takhle nefunguje — i nejlepší investoři světa mají roky, kdy prodělají.',
+        'Pyramidy a Ponziho schémata vyplácejí „výnosy" prvním lidem z peněz nově příchozích, ne ze skutečného zisku. Vypadá to nějakou dobu skvěle, pak se to zhroutí a poslední (často kamarádi, co tě přizvali) přijdou o všechno.',
+        'Pozor i na „investiční guru" z Instagramu a TikToku, co se chlubí auty a hodinkami a prodávají „kurzy" nebo signály. Většinou vydělávají na tobě (poplatek za kurz), ne na investování. Reálná čísla nikdy neukážou.',
+        'Zlaté pravidlo: když je něco příliš dobré, aby to byla pravda, je to past. Než kamkoli pošleš peníze, ověř si, jestli má firma licenci ČNB (Česká národní banka vede seznam povolených subjektů), a hledej nezávislé recenze — ne jen ty na jejich vlastním webu.',
+      ],
+    },
+    {
+      h: 'Phishing — falešné zprávy a weby',
+      p: 'Phishing je podvodná zpráva nebo web, který se vydává za tvoji banku, e‑shop nebo úřad, aby z tebe vylákal hesla, kód z SMS nebo peníze. Banka tě NIKDY nežádá o heslo přes odkaz v e‑mailu nebo SMS.',
+      more: [
+        'Typicky přijde SMS nebo e‑mail: „Vaše zásilka čeká, doplaťte 30 Kč", „Podezřelá platba, potvrďte identitu", „Účet bude zablokován". Vždy je tam odkaz a tlak, ať jednáš rychle. Odkaz vede na falešný web, který vypadá jako pravý — a co tam zadáš, mají podvodníci.',
+        'Jak se bránit: nikdy neklikej na odkazy v takových zprávách. Když chceš něco ověřit, jdi přímo do oficiální appky banky nebo napiš adresu webu ručně. Zkontroluj adresu (URL) — podvodné weby mají často překlepy nebo divnou doménu (např. „cssz‑info.com" místo oficiální).',
+        'Nikdy nikomu nediktuj kód z SMS, heslo ani PIN — ani „pracovníkovi banky", co ti volá. Banka tyhle údaje nikdy nepotřebuje. Když ti někdo volá a tlačí tě, zavěs a zavolej bance sám na číslo z jejich oficiálního webu.',
+        'Pozor i na falešné e‑shopy s extra nízkými cenami a fake profily na bazaru, kde chtějí platbu předem „přes odkaz". Plať raději způsoby s ochranou kupujícího a u neznámého prodejce buď opatrný.',
+      ],
+    },
+    {
+      h: 'Poznej tlak a manipulaci',
+      p: 'Podvody mají společné znaky: tlačí tě k rychlému rozhodnutí, hrají na emoce (strach, chamtivost, soucit) a brání ti to s někým probrat. Když cítíš spěch, zpomal — to je přesně ten moment, kdy se dělají chyby.',
+      more: [
+        'Časté triky: „nabídka platí jen dnes", „nikomu to neříkej, je to jen pro tebe", „musíš zaplatit hned, jinak…". Cílem je vypnout ti zdravý rozum a zabránit, aby sis to ověřil nebo se někoho zeptal.',
+        'Romantické a „kamarádské" podvody: někdo si tě získá online, vybuduje důvěru a pak začne chtít peníze (na letenku, nouzi, skvělou investici). Nikdy neposílej peníze někomu, koho jsi osobně nepotkal.',
+        'Money muling: nabídka „lehkého výdělku" za to, že necháš posílat cizí peníze na svůj účet a pošleš je dál. Je to praní špinavých peněz a je to trestné — i když „jen přeposíláš". Svůj účet ani doklady nikdy nikomu nepůjčuj.',
+        'Když naletíš, není to ostuda — stane se to i chytrým lidem. Důležité je rychle jednat: zavolej bance (zablokuj kartu/účet), změň hesla a nahlas to policii. Čím dřív, tím větší šance peníze zachránit.',
+      ],
+    },
+  ],
   'slozene-uroceni': [
     {
       h: 'Co je složené úročení',
@@ -243,10 +275,11 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
 
 // Sekční label (ikona + text) pro každé téma — 1:1 s originálem
 export const TOPIC_TOOL_LABEL: Record<string, { icon: string; label: string }> = {
-  'slozene-uroceni': { icon: 'bar-chart-3', label: 'Vyzkoušejte si to' },
+  'slozene-uroceni': { icon: 'bar-chart-3', label: 'Vyzkoušej si to' },
+  'scamy': { icon: 'shield-check', label: 'Trénink: poznáš podvod?' },
   'akcie-etf': { icon: 'bar-chart-3', label: 'Porovnání nástrojů' },
   'inflace': { icon: 'bar-chart-3', label: 'Jak inflace ukrajuje úspory' },
-  'duchod': { icon: 'hourglass', label: 'Spočítejte si důchod' },
+  'duchod': { icon: 'hourglass', label: 'Spočítej si důchod' },
   'dane-dip': { icon: 'scale', label: 'Daň z prodeje investic' },
-  'riziko': { icon: 'shield-check', label: 'Zjistěte svůj rizikový profil' },
+  'riziko': { icon: 'shield-check', label: 'Zjisti svůj rizikový profil' },
 };

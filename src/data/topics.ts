@@ -15,6 +15,7 @@ export interface Topic {
 
 export const TOPICS: Topic[] = [
   { id: 'rozpocet', title: 'Rozpočet a první peníze', icon: 'coins', summary: 'Kam s penězi z brigády a jak mít přehled o výdajích. Nejlepší start.', status: 'live' },
+  { id: 'scamy', title: 'Podvody a scamy', icon: 'alert-triangle', summary: 'Jak poznat finanční podvod a nenaletět „zaručeným výnosům" ani phishingu.', status: 'live' },
   { id: 'slozene-uroceni', title: 'Složené úročení', icon: 'trending-up', summary: 'Jak peníze rostou exponenciálně a proč začít brzy.', status: 'live' },
   { id: 'akcie-etf', title: 'Akcie, ETF a dluhopisy', icon: 'bar-chart-3', summary: 'Stavební kameny portfolia a jak se liší.', status: 'live' },
   { id: 'inflace', title: 'Inflace', icon: 'trending-down', summary: 'Proč hotovost „pod polštářem“ reálně ztrácí.', status: 'live' },
@@ -28,6 +29,13 @@ export const ROZPOCET_QUIZ: QuizQuestion[] = [
   { q: 'Co říká jednoduché pravidlo 50/30/20?', options: ['50 % spoření, 30 % potřeby, 20 % zábava', '50 % potřeby, 30 % chtění, 20 % spoření', '50 % daně, 30 % nájem, 20 % jídlo'], correct: 1, explain: 'Příjem si rozdělíš na 50 % nutné výdaje, 30 % zábavu a chtění a 20 % dáš stranou na spoření.' },
   { q: 'K čemu je nouzová rezerva?', options: ['Na dovolenou', 'Na nečekané výdaje, ideálně na 3–6 měsíců', 'Na nákup akcií'], correct: 1, explain: 'Rezerva tě podrží, když přijde nečekaný výdaj nebo výpadek příjmu. Měj ji dřív, než začneš investovat.' },
   { q: 'Jaký je rozumný první krok s penězi z brigády?', options: ['Hned všechno vrazit do krypta', 'Rychle to utratit, ať z toho něco mám', 'Zjistit, kolik mi zbývá, a část pravidelně odkládat'], correct: 2, explain: 'Než peníze někam pošleš, vyplatí se vědět, kolik ti měsíčně přijde a odejde — a část pravidelně dávat stranou.' },
+];
+
+// Téma „Podvody a scamy" — rozpoznání finančních podvodů (vlajkové téma „Nachytej AI").
+export const SCAMY_QUIZ: QuizQuestion[] = [
+  { q: 'Někdo ti slibuje „zaručený" výnos 30 % měsíčně bez rizika. Co to znamená?', options: ['Skvělou příležitost, hned do toho', 'Skoro jistě podvod — vysoký výnos bez rizika neexistuje', 'Úplně běžný výnos u akcií'], correct: 1, explain: 'Čím vyšší slíbený výnos, tím vyšší riziko. „Zaručený" vysoký výnos bez rizika je klasický znak podvodu.' },
+  { q: 'Přijde ti SMS „od banky": „Podezřelá platba, potvrď identitu na tomto odkazu." Co uděláš?', options: ['Kliknu a vyplním údaje, ať mi účet nezablokují', 'Neklikám — ověřím to přímo v appce banky nebo na oficiálním webu', 'Přepošlu to kamarádům'], correct: 1, explain: 'To je phishing. Banka tě nikdy nežádá o hesla přes odkaz v SMS nebo e‑mailu. Nikdy neklikej — jdi rovnou do oficiální appky či na web banky.' },
+  { q: 'Nabídka „brigády": necháš si posílat cizí peníze na svůj účet a pošleš je dál za 10 % odměny. Co to je?', options: ['Snadný přivýdělek', 'Money muling — praní špinavých peněz, je to trestné', 'Normální práce z domova'], correct: 1, explain: 'Tohle je money muling — pomáháš prát špinavé peníze a je to trestné, i když „jen přeposíláš". Svůj účet nikdy nepůjčuj cizím lidem.' },
 ];
 
 export const INFLATION_QUIZ: QuizQuestion[] = [
