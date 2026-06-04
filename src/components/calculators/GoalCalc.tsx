@@ -9,8 +9,8 @@ import { NumberField } from '../NumberField';
  * PMT = FV / ( ((1+r)^n − 1)/r × (1+r) )  [anuita-due, vklad na začátku měsíce]
  */
 export const GoalCalc = () => {
-  const [goal, setGoal] = useState(1_000_000);
-  const [years, setYears] = useState(20);
+  const [goal, setGoal] = useState(60_000);
+  const [years, setYears] = useState(2);
   const [rate, setRate] = useState(7);
 
   const { monthly, invested, gain } = useMemo(() => {

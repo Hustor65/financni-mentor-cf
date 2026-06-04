@@ -13,6 +13,7 @@ import { ProductComparison } from './components/academy/ProductComparison';
 const TrustCenter = lazy(() => import('./components/trust/TrustCenter').then(m => ({ default: m.TrustCenter })));
 import { TOPICS } from './data/topics';
 import { CommandPalette } from './components/CommandPalette';
+import { HowItWorks } from './components/HowItWorks';
 
 /* ════════════════════════════════════════════════════════════
    Hash routing — #temata · #temata/<topicId> · #presnost
@@ -158,18 +159,19 @@ const App: React.FC = () => {
         <div className="container">
         <div className="spacer-lg" />
 
+        {/* Navigace JAKO PRVNÍ pod hero → nováček hned vidí, kam jít (ne nuly statistik) */}
+        <div className="reveal" ref={contentRef} style={{ scrollMarginTop: 'var(--space-xl)' }}>
+          <Navigation activeTab={activeTab} onTabChange={setActiveTab} onOpenCommand={() => setCmdkOpen(true)} />
+        </div>
+
+        <div className="spacer-md" />
+
         <KPIBar
           conversationCount={conversationCount}
           sessionStart={sessionStart}
           knowledgeScore={knowledgeScore}
           modelName="Online"
         />
-
-        <div className="spacer-xl" />
-
-        <div className="reveal" ref={contentRef} style={{ scrollMarginTop: 'var(--space-xl)' }}>
-          <Navigation activeTab={activeTab} onTabChange={setActiveTab} onOpenCommand={() => setCmdkOpen(true)} />
-        </div>
 
         <main style={{ padding: 'var(--space-lg) 0 var(--space-2xl)', minHeight: '60vh' }}>
           <Suspense fallback={<div style={{ minHeight: '40vh' }} aria-hidden="true" />}>
@@ -200,10 +202,13 @@ const App: React.FC = () => {
                     <span className="eyebrow">Akademie</span>
                     <p className="section-header">Témata</p>
                     <p className="section-desc">
-                      Vyberte si téma. U každého najdete srozumitelnou teorii, názornou ukázku
-                      na grafu a vlastní kalkulačku — vše přehledně na jednom místě. Na konci si
-                      krátkým kvízem ověříte, že jste vše pochopili.
+                      Vyber si téma. U každého najdeš srozumitelnou teorii, názornou ukázku
+                      na grafu a vlastní kalkulačku — vše na jednom místě. Na konci si krátkým
+                      kvízem ověříš, že ti to dává smysl.
                     </p>
+                  </div>
+                  <div className="reveal" style={{ marginBottom: 'var(--space-lg)' }}>
+                    <HowItWorks onAskMentor={() => setActiveTab('mentor')} />
                   </div>
                   <div className="reveal"><Badges completed={completedTopics.size} /></div>
                   <div className="topics-grid">
@@ -213,6 +218,7 @@ const App: React.FC = () => {
                           topic={topic}
                           onClick={setSelectedTopic}
                           completed={completedTopics.has(topic.id)}
+                          start={i === 0}
                         />
                       </div>
                     ))}

@@ -11,10 +11,10 @@ const HeroScene = lazy(() => import('./Scene').then(m => ({ default: m.HeroScene
  *    re-renderů a bez zasekávání. Pozadí hera ladí s pozadím stránky = bezešvý přechod.
  */
 
-const TITLE_HEAD = 'Váš osobní AI';
+const TITLE_HEAD = 'Tvůj osobní AI';
 const TITLE_ACCENT = 'finanční mentor';
 const SUBTITLE =
-  'Provedeme vás světem dlouhodobého investování bez rizikových zkratek. Vzdělání místo spekulací.';
+  'Nauč se penězům a investování od nuly — srozumitelně, vlastním tempem a bez žargonu.';
 const CTA = 'Pojďme začít';
 
 function useTypewriter(text: string, speed = 32, startDelay = 520) {

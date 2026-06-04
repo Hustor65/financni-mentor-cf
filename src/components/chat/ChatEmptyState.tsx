@@ -30,10 +30,10 @@ export const ChatEmptyState: React.FC<ChatEmptyStateProps> = ({
     <div className="chat-empty__halo">
       <Icon name="avatar-assistant" size={52} />
     </div>
-    <h3 className="chat-empty__title">Váš osobní finanční mentor</h3>
+    <h3 className="chat-empty__title">Tvůj osobní finanční mentor</h3>
     <p className="chat-empty__lead">
-      Zeptejte se na cokoli ohledně investování, spoření, daní nebo důchodu. Srozumitelně
-      vysvětlím teorii a ukážu živá tržní data — žádné konkrétní investiční rady, jen pochopení souvislostí.
+      Zeptej se na cokoli kolem investování, spoření, daní nebo důchodu. Srozumitelně ti
+      vysvětlím teorii a ukážu živá tržní data — žádné konkrétní rady na tvoje peníze, jen pochopení souvislostí.
     </p>
 
     <div className="chat-empty__suggestions">

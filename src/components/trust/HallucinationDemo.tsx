@@ -97,10 +97,10 @@ export const HallucinationDemo: React.FC = () => {
           }}
         >
           <Icon name="sparkles" size={18} color="#3ab5e0" />
-          Vyzkoušejte si to sami — změňte parametry a sledujte rozdíl naživo
+          Vyzkoušej si to sám — změň parametry a sleduj rozdíl naživo
         </p>
         <p style={{ color: '#64748B', fontSize: '0.82rem', margin: 0 }}>
-          Zadejte libovolné hodnoty a sledujte, jak se přesný výpočet liší od odpovědi, kterou by dal běžný jazykový model.
+          Zadej libovolné hodnoty a sleduj, jak se přesný výpočet liší od odpovědi, kterou by dal běžný jazykový model.
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ACADEMY_LESSONS } from '../../data/knowledge';
-import { TOPICS, INFLATION_QUIZ, PENSION_QUIZ } from '../../data/topics';
+import { TOPICS, ROZPOCET_QUIZ, INFLATION_QUIZ, PENSION_QUIZ } from '../../data/topics';
 import type { QuizQuestion } from '../../data/topics';
 import { TOPIC_THEORY, TOPIC_TOOL_LABEL } from '../../data/topicContent';
 import { Quiz } from './Quiz';
@@ -21,6 +21,7 @@ interface TopicDetailProps {
 
 // Mapování témat na kvíz (1:1 s app.py _render_topic_module dispatch)
 const TOPIC_QUIZ: Record<string, QuizQuestion[]> = {
+  'rozpocet': ROZPOCET_QUIZ,
   'slozene-uroceni': ACADEMY_LESSONS.find(l => l.id === 'proc-investovat')?.quiz ?? [],
   'akcie-etf': ACADEMY_LESSONS.find(l => l.id === 'akcie-dluhopisy-etf')?.quiz ?? [],
   'inflace': INFLATION_QUIZ,
@@ -103,7 +104,7 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
       {/* ── KVÍZ ── */}
       {quizData.length > 0 && (
         <div style={{ marginBottom: '1.5rem' }}>
-          <SectionLabel icon="circle-check" label="Ověřte si pochopení" />
+          <SectionLabel icon="circle-check" label="Ověř si pochopení" />
           <div className="glass-panel--sunken reveal" style={{ padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--glass-border)' }}>
             <Quiz key={topicId} questions={quizData} onComplete={() => onComplete?.(topicId)} />
           </div>
@@ -117,8 +118,8 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
       >
         <Icon name="message-circle" size={22} color="#3ab5e0" />
         <span style={{ color: '#94A3B8', fontSize: '0.88rem', lineHeight: 1.6, flex: 1, minWidth: '220px' }}>
-          <strong style={{ color: '#E2E8F0' }}>Nerozumíte?</strong> Zeptejte se AI Mentora — vysvětlí
-          vám téma vlastními slovy a zodpoví doplňující otázky.
+          <strong style={{ color: '#E2E8F0' }}>Nerozumíš?</strong> Zeptej se AI Mentora — vysvětlí
+          ti téma vlastními slovy a zodpoví doplňující otázky.
         </span>
         {onAskMentor && (
           <button className="btn btn--primary" onClick={() => onAskMentor(topic.title)}>

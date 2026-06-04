@@ -14,7 +14,7 @@ export const TrustCenter: React.FC = () => (
     <p className="section-header">Důvěra a metodika — bereme ji vážně</p>
     <p className="section-desc">
       Ve financích jsou přesnost a transparentnost základ.
-      Tady jasně vidíte, odkud bereme čísla a proč jsme nezávislí.
+      Tady jasně uvidíš, odkud bereme čísla a proč jsme nezávislí.
     </p>
 
     {/* Právní upozornění a rizika jsou v zápatí stránky — zde je už neopakujeme. */}
@@ -30,10 +30,10 @@ export const TrustCenter: React.FC = () => (
         Nezávislost — vzděláváme, neprodáváme
       </p>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.7, margin: 0 }}>
-        Nejsme napojení na žádného brokera ani fond a obsah nepíšeme proto, abychom vám prodali konkrétní produkt.
-        (Broker = firma, přes kterou nakupujete a prodáváte cenné papíry.)
+        Nejsme napojení na žádného brokera ani fond a obsah nepíšeme proto, abychom ti prodali konkrétní produkt.
+        (Broker = firma, přes kterou nakupuješ a prodáváš cenné papíry.)
         Cílem je <strong style={{ color: '#FFFFFF' }}>nezávislé vzdělávání</strong> — žádné skryté provize za to,
-        kam vás nasměrujeme. Když zmíníme konkrétní produkt, je to jen pro ilustraci, ne jako reklama.
+        kam tě nasměrujeme. Když zmíníme konkrétní produkt, je to jen pro ilustraci, ne jako reklama.
       </p>
     </div>
 
@@ -75,7 +75,7 @@ export const TrustCenter: React.FC = () => (
       </p>
 
       <p className="data-note" style={{ margin: 0 }}>
-        Našli jste nepřesnost? Napište nám na{' '}
+        Našel jsi nepřesnost? Napiš nám na{' '}
         <a href="mailto:jakub.simon65@gmail.com" style={{ color: 'var(--lg-cyan-400)', textDecoration: 'none' }}>
           jakub.simon65@gmail.com
         </a>{' '}

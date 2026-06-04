@@ -103,13 +103,13 @@ export const Footer: React.FC = () => (
           <p className="footer-disclaimer__lead">
             <strong>Není investiční doporučení.</strong>{' '}
             Obsah slouží výhradně ke vzdělávání a nepředstavuje investiční doporučení ani
-            poradenství ve smyslu zákona č. 256/2004 Sb. Nezohledňuje vaši osobní situaci.
+            poradenství ve smyslu zákona č. 256/2004 Sb. Nezohledňuje tvoji osobní situaci.
           </p>
           <p>
             Investování s sebou nese riziko. Hodnota investice v čase kolísá a může klesnout
             i pod vloženou částku; minulé výnosy nezaručují budoucí. Vyšší očekávaný výnos
-            znamená vyšší riziko. Před rozhodnutím zvažte konzultaci s poradcem
-            s licencí ČNB. Metodiku a zdroje najdete v sekci „Jak hlídáme přesnost“.
+            znamená vyšší riziko. Před rozhodnutím zvaž konzultaci s poradcem
+            s licencí ČNB. Metodiku a zdroje najdeš v sekci „Jak hlídáme přesnost“.
           </p>
         </div>
       </aside>

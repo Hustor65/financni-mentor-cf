@@ -44,7 +44,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, o
     const tabs: CmdItem[] = [
       { id: 'tab-mentor', label: 'AI Mentor', hint: 'Chat', icon: 'message-circle', group: 'Navigace', run: () => { onSelectTab('mentor'); onClose(); } },
       { id: 'tab-temata', label: 'Témata', hint: 'Vzdělávací moduly', icon: 'book-open', group: 'Navigace', run: () => { onSelectTab('temata'); onClose(); } },
-      { id: 'tab-presnost', label: 'Přesnost a důvěra', hint: 'Odkud bereme čísla', icon: 'shield-check', group: 'Navigace', run: () => { onSelectTab('presnost'); onClose(); } },
+      { id: 'tab-presnost', label: 'Můžeš tomu věřit?', hint: 'Odkud bereme čísla', icon: 'shield-check', group: 'Navigace', run: () => { onSelectTab('presnost'); onClose(); } },
     ];
     const topics: CmdItem[] = TOPICS.map(t => ({
       id: 'topic-' + t.id, label: t.title, hint: t.summary, icon: t.icon || 'book-open', group: 'Témata',
@@ -52,7 +52,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, o
     }));
     const terms: CmdItem[] = GLOSSARY.map(g => ({
       id: 'term-' + g.term, label: g.term, hint: 'Zeptat se mentora', icon: 'sparkles', group: 'Slovníček',
-      run: () => { onAskMentor(`Vysvětlete mi prosím pojem „${g.term}“.`); onClose(); },
+      run: () => { onAskMentor(`Vysvětli mi prosím pojem „${g.term}“.`); onClose(); },
     }));
     return [...actions, ...tabs, ...topics, ...terms];
   }, [onSelectTab, onOpenTopic, onAskMentor, onClose]);

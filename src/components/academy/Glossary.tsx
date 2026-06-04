@@ -37,7 +37,7 @@ export const Glossary: React.FC = () => {
         Finanční slovníček
       </p>
       <p className="section-desc">
-        Rychlé a srozumitelné definice nejdůležitějších finančních pojmů. Hledat můžete podle názvu i podle obsahu definice.
+        Rychlé a srozumitelné definice nejdůležitějších finančních pojmů. Hledat můžeš podle názvu i podle obsahu definice.
       </p>
 
       {/* Search s ikonou lupy + počítadlo (vyplní řádek do plné šířky) */}
@@ -81,7 +81,7 @@ export const Glossary: React.FC = () => {
 
       {filtered.length === 0 && (
         <div role="status" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem', fontSize: '0.88rem' }}>
-          Tomuto hledání neodpovídá žádný pojem. Zkuste jiné nebo kratší slovo — anebo se rovnou zeptejte AI Mentora.
+          Tomuto hledání neodpovídá žádný pojem. Zkus jiné nebo kratší slovo — anebo se rovnou zeptej AI Mentora.
         </div>
       )}
     </div>

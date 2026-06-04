@@ -6,9 +6,11 @@ interface TopicCardProps {
   topic: Topic;
   onClick: (id: string) => void;
   completed?: boolean;
+  /** „Začni tady" — doporučené první téma pro nováčka (student). */
+  start?: boolean;
 }
 
-export const TopicCard: React.FC<TopicCardProps> = ({ topic, onClick, completed }) => {
+export const TopicCard: React.FC<TopicCardProps> = ({ topic, onClick, completed, start }) => {
   const live = topic.status === 'live';
   return (
     <div
@@ -28,7 +30,11 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, onClick, completed 
             <Icon name="check-circle" size={14} color="var(--lg-green-500)" /> Hotovo
           </span>
         ) : live ? (
-          <span className="topic-pill topic-pill--open">Otevřít →</span>
+          start ? (
+            <span className="topic-pill topic-pill--open" style={{ background: 'var(--lg-cyan-2, #4cc4e6)', color: '#06141c', fontWeight: 700 }}>✨ Začni tady</span>
+          ) : (
+            <span className="topic-pill topic-pill--open">Otevřít →</span>
+          )
         ) : (
           <span className="topic-pill topic-pill--soon">
             <Icon name="lock" size={12} color="var(--accent-trust)" /> Brzy

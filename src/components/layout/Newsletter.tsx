@@ -15,11 +15,11 @@ export const Newsletter: React.FC = () => {
     setError(null);
 
     if (!EMAIL_RE.test(email.trim())) {
-      setError('Zadejte prosím platný e-mail.');
+      setError('Zadej prosím platný e-mail.');
       return;
     }
     if (!consent) {
-      setError('Pro přihlášení potřebujeme váš souhlas se zpracováním e-mailu.');
+      setError('Pro přihlášení potřebujeme tvůj souhlas se zpracováním e-mailu.');
       return;
     }
 
@@ -60,7 +60,7 @@ export const Newsletter: React.FC = () => {
         }}
       >
         Srozumitelně, nezávisle a bez spamu. Žádné „zaručené tipy“ — jen vzdělávání.
-        Odhlásíte se kdykoli jedním kliknutím.
+        Odhlásíš se kdykoli jedním kliknutím.
       </p>
 
       {done ? (
@@ -98,7 +98,7 @@ export const Newsletter: React.FC = () => {
               placeholder="vas@email.cz"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              aria-label="Váš e-mail"
+              aria-label="Tvůj e-mail"
               autoComplete="email"
             />
             <button
@@ -157,7 +157,7 @@ export const Newsletter: React.FC = () => {
           display: done ? 'none' : 'block',
         }}
       >
-        Nebo napište přímo na{' '}
+        Nebo napiš přímo na{' '}
         <a
           href={`mailto:${NEWSLETTER_FALLBACK_EMAIL}?subject=Newsletter%20%E2%80%94%20p%C5%99ihl%C3%A1%C5%A1en%C3%AD`}
           style={{ color: 'var(--lg-cyan-400)', textDecoration: 'none' }}

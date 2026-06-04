@@ -27,9 +27,10 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
 
   const handleSubmit = () => {
     setSubmitted(true);
-    // Modul se počítá jako zvládnutý (→ Znalostní Skóre) jen při 100 % — jako originál
+    // Téma se počítá jako zvládnuté (→ Znalostní Skóre), když trefíš většinu (~60 %).
+    // Nechceme trestat za jednu chybu — klidně to jde zkoušet víckrát.
     const correctCount = questions.filter((q, i) => answers[i] === q.correct).length;
-    if (correctCount === questions.length) onComplete?.();
+    if (correctCount >= Math.ceil(questions.length * 0.6)) onComplete?.();
   };
 
   const correct = submitted
@@ -38,22 +39,27 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
   const total = questions.length;
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
 
-  // feedback: ikona + text (SVG místo emoji)
+  // feedback: ikona + text (SVG místo emoji). Práh „zvládnuto“ je ~60 %, takže
+  // od 60 % už chválíme; pod prahem jen povzbudíme, ať to zkusí znovu.
   const feedback = submitted
     ? pct === 100
       ? { icon: 'circle-check', text: `Výborně! ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-green-500)' }
       : pct >= 60
-        ? { icon: 'target', text: `Dobrá práce! ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-cyan-400)' }
-        : { icon: 'book-open', text: `Skoro to máte — zkuste to znovu. ${correct}/${total} správně (${pct} %)`, color: 'var(--text-secondary)' }
+        ? { icon: 'target', text: `Hezky! Téma máš zvládnuté. ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-green-500)' }
+        : { icon: 'book-open', text: `Skoro! Zkus to ještě jednou. ${correct}/${total} správně (${pct} %)`, color: 'var(--text-secondary)' }
     : null;
 
   return (
     <div>
       {/* Section label — eyebrow style */}
-      <div className="eyebrow eyebrow--cyan" style={{ marginBottom: '1.25rem' }}>
+      <div className="eyebrow eyebrow--cyan" style={{ marginBottom: '0.75rem' }}>
         <Icon name="circle-check" size={15} color="var(--lg-cyan-400)" />
-        <span>Ověřte si pochopení</span>
+        <span>Ověř si pochopení</span>
       </div>
+
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem', lineHeight: 1.6 }}>
+        Stačí, když odpovíš správně na většinu — klidně to zkoušej víckrát.
+      </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {questions.map((q, qi) => {

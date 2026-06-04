@@ -8,9 +8,9 @@ interface Milestone {
 }
 
 const MILESTONES: Milestone[] = [
-  { need: 1, icon: 'sparkles', label: 'První krok', desc: 'Máte za sebou první téma' },
-  { need: 3, icon: 'target', label: 'Základy zvládnuté', desc: 'Máte hotová 3 témata' },
-  { need: 6, icon: 'graduation-cap', label: 'Finanční gramotnost', desc: 'Hotovo — prošli jste všechna témata!' },
+  { need: 1, icon: 'sparkles', label: 'První krok', desc: 'Máš za sebou první téma' },
+  { need: 3, icon: 'target', label: 'Základy zvládnuté', desc: 'Máš hotová 3 témata' },
+  { need: 6, icon: 'graduation-cap', label: 'Finanční gramotnost', desc: 'Hotovo — prošel jsi všechna témata!' },
 ];
 
 // česká pluralizace témat: 1 = téma, 2–4 = témata, 5+ = témat (L70)

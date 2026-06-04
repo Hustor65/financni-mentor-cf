@@ -13,24 +13,21 @@ interface ChatInterfaceProps {
 
 const WELCOME: Message = {
   role: 'assistant',
-  content:
-    'Dobrý den, jsem váš finanční mentor z projektu **Nachytej AI**. ' +
-    'Pomohu vám zorientovat se ve financích a investování — srozumitelně a od základů. ' +
-    'Co byste se rád(a) dozvěděl(a)? Můžete se zeptat vlastními slovy, nebo využít některý z tipů níže.',
+  content: 'Ahoj! Jsem tvůj AI mentor na finance. Na co se chceš zeptat? Klidně začni úplně od základů.',
 };
 
 const QUICK_PROMPTS: ChatSuggestion[] = [
-  { label: 'Co je to ETF?', icon: 'book-open', desc: 'Burzovně obchodovaný fond — vysvětlení od základů', prompt: 'Vysvětlete mi srozumitelně a od základů, co je to ETF.' },
-  { label: 'Investuji 3 000 Kč měsíčně', icon: 'coins', desc: 'Praktický příklad pravidelného investování', prompt: 'Ukažte mi na praktickém příkladu, jak může vypadat pravidelné investování 3 000 Kč měsíčně.' },
-  { label: 'Jak inflace ovlivňuje úspory?', icon: 'trending-down', desc: 'Proč peníze v čase ztrácejí hodnotu', prompt: 'Vysvětlete mi srozumitelně, jak inflace ovlivňuje hodnotu mých úspor.' },
-  { label: 'Otestujte mé znalosti', icon: 'graduation-cap', desc: 'Krátký kvíz finanční gramotnosti', prompt: 'Otestujte mé znalosti krátkým kvízem finanční gramotnosti.' },
+  { label: 'Co je to ETF?', icon: 'book-open', desc: 'Burzovně obchodovaný fond — vysvětlení od základů', prompt: 'Vysvětli mi srozumitelně a od základů, co je to ETF.' },
+  { label: 'Investuju 3 000 Kč měsíčně', icon: 'coins', desc: 'Praktický příklad pravidelného investování', prompt: 'Ukaž mi na praktickém příkladu, jak může vypadat pravidelné investování 3 000 Kč měsíčně.' },
+  { label: 'Jak inflace ovlivňuje úspory?', icon: 'trending-down', desc: 'Proč peníze v čase ztrácejí hodnotu', prompt: 'Vysvětli mi srozumitelně, jak inflace ovlivňuje hodnotu mých úspor.' },
+  { label: 'Otestuj mé znalosti', icon: 'graduation-cap', desc: 'Krátký kvíz finanční gramotnosti', prompt: 'Otestuj mé znalosti krátkým kvízem finanční gramotnosti.' },
 ];
 
 // Navazující chipy pod dokončenou odpovědí mentora — posunou konverzaci dál (à la Claude/ChatGPT).
 const FOLLOW_UPS: ChatSuggestion[] = [
-  { label: 'Ukázat na grafu', icon: 'bar-chart-3', prompt: 'Můžete mi to prosím ukázat i na grafu?' },
+  { label: 'Ukázat na grafu', icon: 'bar-chart-3', prompt: 'Můžeš mi to prosím ukázat i na grafu?' },
   { label: 'A co inflace?', icon: 'trending-up', prompt: 'Jak do toho vstupuje inflace?' },
-  { label: 'Otestovat kvízem', icon: 'graduation-cap', prompt: 'Otestujte mě krátkým kvízem na tohle téma.' },
+  { label: 'Otestovat kvízem', icon: 'graduation-cap', prompt: 'Otestuj mě krátkým kvízem na tohle téma.' },
 ];
 
 // Okruhy, se kterými mentor pomůže — naplní pravý boční sloupec do výšky chatu
@@ -128,7 +125,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
             const next = [...prev];
             next[next.length - 1] = {
               role: 'assistant',
-              content: '⚠️ Mentor neposlal žádnou odpověď. Zkuste dotaz prosím přeformulovat.',
+              content: '⚠️ Mentor neposlal žádnou odpověď. Zkus dotaz prosím přeformulovat.',
             };
             return next;
           });
@@ -140,7 +137,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           const next = [...prev];
           next[next.length - 1] = {
             role: 'assistant',
-            content: '⚠️ Omlouvám se, spojení se serverem se nezdařilo. Zkuste prosím odeslat dotaz znovu za okamžik. Pokud potíže přetrvávají, zkontrolujte připojení k internetu.',
+            content: '⚠️ Promiň, spojení se serverem se nezdařilo. Zkus prosím odeslat dotaz znovu za okamžik. Pokud potíže přetrvávají, zkontroluj připojení k internetu.',
           };
           return next;
         });
@@ -164,7 +161,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
 
   // „Vysvětli jednodušeji“ — doplňující dotaz na zjednodušení poslední odpovědi
   const handleSimplify = useCallback(() => {
-    handleSend('Vysvětlete to prosím jednodušeji a stručněji, jako pro úplného začátečníka.');
+    handleSend('Vysvětli to prosím jednodušeji a stručněji, jako pro úplného začátečníka.');
   }, [handleSend]);
 
   // předvyplnění dotazu z detailu tématu (kontextový chat) — uživatel zkontroluje a odešle
@@ -192,7 +189,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     // tlačítko je sice disabled při isLoading, ale guard navíc → běžící stream nikdy
     // nezapíše osiřelý chunk do nového [WELCOME] (M24)
     if (isLoading) return;
-    if (messages.length > 1 && !window.confirm('Opravdu chcete smazat celou konverzaci? Tuto akci nelze vrátit zpět.')) return;
+    if (messages.length > 1 && !window.confirm('Opravdu chceš smazat celou konverzaci? Tuto akci nelze vrátit zpět.')) return;
     setMessages([WELCOME]);
     setInput('');
   };
@@ -297,24 +294,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
             className="section-header"
             style={{ fontSize: '1.1rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
-            <Icon name="shield-check" size={18} color="#3ab5e0" /> Co od mentora očekávat
+            <Icon name="shield-check" size={18} color="#3ab5e0" /> Co od mentora čekat
           </p>
           <p style={{ color: '#94A3B8', fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>
             <strong style={{ color: '#EF4444' }}>AI není finanční poradce.</strong>
             <br />
             <br />
-            Nástroj disponuje obrovským teoretickým spektrem informací, ale neodpovídá vaší rodinné
-            ani reálné byznysové situaci.
+            Vysvětlí ti, jak věci fungují, a ukáže souvislosti — ale neřeší tvoje konkrétní peníze
+            ani situaci u tebe doma.
             <br />
             <br />
             <strong style={{ color: '#E2E8F0' }}>
-              Slouží primárně k seznámení se základními principy ekonomiky
+              Je tu hlavně na to, abys pochopil základní principy
             </strong>{' '}
-            a jako mentor pro pochopení učiva.
+            a měl se v penězích kde zorientovat.
             <br />
             <br />
-            Bavíme-li se o kapitálu, vaše prostředky a rozhodnutí byste měli případně řešit jen s
-            člověkem s certifikací od ČNB.
+            U větších rozhodnutí o vlastních penězích se radši poraď s někým, kdo na to má licenci
+            od ČNB.
           </p>
         </div>
 
@@ -326,7 +323,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
             className="section-header"
             style={{ fontSize: '1.1rem', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
-            <Icon name="sparkles" size={18} color="#3ab5e0" /> S čím vám pomůžu
+            <Icon name="sparkles" size={18} color="#3ab5e0" /> S čím ti pomůžu
           </p>
           <ul className="info-topics">
             {INFO_TOPICS.map((t, i) => (

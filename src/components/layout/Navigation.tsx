@@ -15,9 +15,9 @@ interface NavigationProps {
 }
 
 const TABS: { id: string; label: string; icon: string; title: string }[] = [
-  { id: 'mentor', label: 'Mentor', icon: 'message-circle', title: 'Ptejte se finančního mentora' },
-  { id: 'temata', label: 'Témata', icon: 'book-open', title: 'Učte se srozumitelně — teorie, grafy i kalkulačky' },
-  { id: 'presnost', label: 'Přesnost a důvěra', icon: 'shield-check', title: 'Odkud bereme čísla a proč nám můžete věřit' },
+  { id: 'mentor', label: 'Mentor', icon: 'message-circle', title: 'Ptej se finančního mentora' },
+  { id: 'temata', label: 'Témata', icon: 'book-open', title: 'Uč se srozumitelně — teorie, grafy i kalkulačky' },
+  { id: 'presnost', label: 'Můžeš tomu věřit?', icon: 'shield-check', title: 'Odkud bereme čísla a proč nám můžeš věřit' },
 ];
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange, onOpenCommand }) => {

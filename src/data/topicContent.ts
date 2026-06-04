@@ -15,6 +15,38 @@ export interface TheoryCard {
 }
 
 export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
+  'rozpocet': [
+    {
+      h: 'Měj přehled o svých penězích',
+      p: 'Rozpočet není nuda ani „pro dospělé" — je to prostě přehled, kolik ti za měsíc přijde (brigáda, kapesné) a kolik a kam ti odejde. Když to víš, peníze řídíš ty, ne ony tebe.',
+      more: [
+        'Většina lidí neví, kam jim peníze mizí — utratí je „nějak" a na konci měsíce se diví. Stačí přitom pár týdnů zapisovat si příjmy a výdaje (klidně v poznámkách v telefonu nebo v bankovní appce, která to umí sama) a hned uvidíš, kde ti peníze utíkají.',
+        'Pomáhá rozdělit výdaje na pravidelné (předplatné Spotify, kredit, doprava) a jednorázové (lístek na koncert, nové boty). Pravidelné drobné platby vypadají neškodně, ale za rok z nich je překvapivě velká částka — třeba 199 Kč měsíčně je skoro 2 400 Kč za rok.',
+        'Cíl není si nic nedovolit. Cíl je utrácet vědomě za věci, které ti opravdu za to stojí, a nevyhazovat peníze za ty, na které pak ani nevzpomeneš.',
+        'Častý omyl je „začnu si hlídat peníze, až jich budu mít víc". Opak je pravdou: zvyk pohlídat si rozpočet se nejlíp buduje teď, s malými částkami. Až přijdou větší příjmy, budeš to mít v ruce.',
+      ],
+    },
+    {
+      h: 'Pravidlo 50/30/20',
+      p: 'Jednoduchý návod, jak rozdělit, co ti přijde: zhruba 50 % na nutné výdaje, 30 % na zábavu a chtění, 20 % stranou na spoření. Není to dogma — je to záchytný bod.',
+      more: [
+        'Padesát procent jsou potřeby — věci, bez kterých se reálně neobejdeš: doprava do školy, část nájmu nebo jídlo, telefon. Třicet procent je chtění: kino, oblečení nad rámec nutného, hry, kafe s kamarády. Dvacet procent je to nejdůležitější pro budoucnost — odkládáš stranou na rezervu a později na investice.',
+        'Příklad: z brigády ti přijde 8 000 Kč. Podle pravidla je to zhruba 4 000 Kč na potřeby, 2 400 Kč na zábavu a 1 600 Kč stranou. Když bydlíš u rodičů a „potřeby" máš nízké, klidně posuň víc do spoření — pravidlo se přizpůsobí tobě.',
+        'Trik, který funguje: „zaplať nejdřív sobě". Hned jak ti přijdou peníze, pošli těch 20 % na spořicí účet stranou, ještě než začneš utrácet. Co nevidíš na běžném účtu, to neutratíš.',
+        'Nejčastější chyba je nechat spoření „na konec měsíce" — to pak většinou nezbyde nic. Proto se odkládá hned na začátku, ne z toho, co náhodou přebyde.',
+      ],
+    },
+    {
+      h: 'Nejdřív rezerva, až potom investice',
+      p: 'Než začneš investovat, vytvoř si nouzovou rezervu — peníze stranou na 3–6 měsíců běžných výdajů. Je to polštář pro případ, že se něco pokazí.',
+      more: [
+        'Nouzová rezerva je hotovost (nebo peníze na spořicím účtu), ke které se rychle dostaneš, když přijde nečekaný výdaj — rozbitý notebook, výpadek brigády, cesta k doktorovi. Díky ní se nemusíš kvůli každému průšvihu zadlužit nebo na nevhodnou chvíli prodat investice.',
+        'Pro studenta nemusí jít o velkou částku — i 10 000–20 000 Kč stranou je obrovský rozdíl oproti nule. Důležitější než přesné číslo je, že ji vůbec máš a nesaháš na ni na běžné útraty.',
+        'Pořadí dává smysl: 1) malá rezerva, 2) splatit drahé dluhy (třeba kreditku), 3) teprve potom investovat na dlouho. Investovat, když nemáš rezervu, je riskantní — první nečekaný výdaj tě donutí prodat ve špatnou chvíli.',
+        'Rezervu drž odděleně od peněz na běžné utrácení — ideálně na samostatném spořicím účtu, ať tě neláká. A neinvestuj ji do akcií ani krypta: u rezervy je důležité, že je vždycky po ruce a nekolísá, ne že vydělává.',
+      ],
+    },
+  ],
   'slozene-uroceni': [
     {
       h: 'Co je složené úročení',

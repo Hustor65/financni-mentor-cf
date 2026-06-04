@@ -5,13 +5,13 @@ import { Icon } from '../Icon';
 
 export const TaxCalc: React.FC = () => {
   // ── Prodej cenných papírů ──
-  const [buy, setBuy] = useState(100000);
-  const [sell, setSell] = useState(150000);
-  const [proceeds, setProceeds] = useState(150000);
+  const [buy, setBuy] = useState(20000);
+  const [sell, setSell] = useState(26000);
+  const [proceeds, setProceeds] = useState(26000);
   const [heldOver3y, setHeld] = useState(false);
 
   // ── DIP ──
-  const [dipContrib, setDipContrib] = useState(30000);
+  const [dipContrib, setDipContrib] = useState(0);
   const [otherContrib, setOtherContrib] = useState(0);
 
   const taxResult = useMemo(
@@ -131,13 +131,13 @@ export const TaxCalc: React.FC = () => {
             <>
               <strong style={{ color: 'var(--lg-green-500)' }}>Osvobozeno</strong> —{' '}
               {taxResult.passedTimeTest
-                ? 'držíte je déle než 3 roky, takže zisk nedaníte.'
-                : 'souhrn vašich prodejů je do 100 000 Kč za rok, takže zisk nedaníte.'}
+                ? 'držíš je déle než 3 roky, takže zisk nedaníš.'
+                : 'souhrn tvých prodejů je do 100 000 Kč za rok, takže zisk nedaníš.'}
             </>
           ) : (
             <>
-              Neplatí žádné osvobození, proto zisk daníte 15 %.{' '}
-              <strong style={{ color: 'var(--lg-green-500)' }}>Tip: když cenné papíry držíte déle než 3 roky, je zisk od daně osvobozený.</strong>
+              Neplatí žádné osvobození, proto zisk daníš 15 %.{' '}
+              <strong style={{ color: 'var(--lg-green-500)' }}>Tip: když cenné papíry držíš déle než 3 roky, je zisk od daně osvobozený.</strong>
             </>
           )}
         </span>
@@ -161,7 +161,7 @@ export const TaxCalc: React.FC = () => {
           gap: '0.5rem',
         }}
       >
-        <Icon name="coins" size={16} color="var(--lg-cyan-400)" /> DIP — kolik ušetříte na daních
+        <Icon name="coins" size={16} color="var(--lg-cyan-400)" /> DIP — kolik ušetříš na daních
       </div>
 
       <div className="calc-form">

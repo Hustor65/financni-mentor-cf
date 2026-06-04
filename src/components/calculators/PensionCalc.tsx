@@ -96,7 +96,7 @@ export const PensionCalc: React.FC = () => {
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Odhad důchodu</div>
           <div className="grad-text--green" style={{ fontSize: '1.3rem', fontWeight: 700 }}>{czNum(result.total)} Kč</div>
         </div>
-        <div className="glass-panel" title="Jaká část vaší dnešní mzdy vám zůstane v podobě státního důchodu." style={{ padding: '1rem', textAlign: 'center' }}>
+        <div className="glass-panel" title="Jaká část tvojí dnešní mzdy ti zůstane v podobě státního důchodu." style={{ padding: '1rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Náhradový poměr</div>
           <div style={{ fontSize: '1.3rem', fontWeight: 700, color: replacementRatio !== null && replacementRatio >= 50 ? 'var(--lg-green-500)' : 'var(--lg-cyan-400)' }}>{replacementRatio !== null ? `${replacementRatio} %` : '—'}</div>
         </div>
@@ -109,7 +109,7 @@ export const PensionCalc: React.FC = () => {
         Základní výměra: {czNum(result.baseAmount)} Kč • Procentní výměra: {czNum(result.percentAmount)} Kč
       </div>
       <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: '0.75rem' }}>
-        Zjednodušený odhad podle pravidel ČSSZ 2026 — jako osobní vyměřovací základ bereme vaši
+        Zjednodušený odhad podle pravidel ČSSZ 2026 — jako osobní vyměřovací základ bereme tvoji
         dnešní hrubou mzdu (bez indexace dřívějších výdělků). Skutečný důchod z ČSSZ se může lišit.
       </div>
       <Suspense fallback={<ChartSkeleton height={280} />}>

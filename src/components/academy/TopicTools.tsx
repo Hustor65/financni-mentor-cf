@@ -22,7 +22,7 @@ export const StocksComparison: React.FC = () => {
         Tři základní stavební kameny
       </p>
       <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', lineHeight: 1.6, margin: '0 0 0.9rem' }}>
-        Srovnání tří nejčastějších nástrojů podle toho, jaký výnos můžete čekat a jak velké kolísání hodnoty snesete.
+        Srovnání tří nejčastějších nástrojů podle toho, jaký výnos můžeš čekat a jak velké kolísání hodnoty sneseš.
         Tržní výnos = kopíruje vývoj celého trhu. Rozložené riziko = peníze jsou rozprostřené do desítek firem, takže pád jedné z nich bolí méně.
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
@@ -127,7 +127,7 @@ export const InflationTool: React.FC = () => {
         Jak inflace ukrajuje z úspor
       </p>
       <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', lineHeight: 1.6, margin: '0 0 0.9rem' }}>
-        Posuňte částku, odhad inflace a počet let a uvidíte, o kolik reálně přijdete, když peníze leží ladem — a jak na tom může být investice. (Inflace v ČR bývá dlouhodobě kolem 2–3 %.)
+        Posuň částku, odhad inflace a počet let a uvidíš, o kolik reálně přijdeš, když peníze leží ladem — a jak na tom může být investice. (Inflace v ČR bývá dlouhodobě kolem 2–3 %.)
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
         <NumberField label="Částka" suffix="Kč" value={amount} onChange={setAmount}
@@ -172,14 +172,14 @@ export const RiskProfile: React.FC = () => {
   return (
     <div>
       <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#E2E8F0', fontSize: '0.95rem', margin: '0 0 0.3rem' }}>
-        Najděte svůj investiční profil
+        Najdi svůj investiční profil
       </p>
       <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', lineHeight: 1.6, margin: '0 0 0.9rem' }}>
-        Vyberte možnost, která vám je nejbližší. Podle ní vám ukážeme příklad rozložení peněz.
+        Vyber možnost, která ti je nejbližší. Podle ní ti ukážeme příklad rozložení peněz.
       </p>
       {/* radio horizontal */}
       <div style={{ marginBottom: '0.5rem', color: '#E2E8F0', fontSize: '0.9rem', fontWeight: 500 }}>
-        Jak snášíte výkyvy hodnoty?
+        Jak snášíš výkyvy hodnoty?
       </div>
       <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         {(['Konzervativní', 'Vyvážený', 'Dynamický'] as const).map(p => (
@@ -204,7 +204,7 @@ export const RiskProfile: React.FC = () => {
         ))}
       </div>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.83rem', lineHeight: 1.6, margin: '0.75rem 0 0' }}>
-        {summary[profile]} Jde o příklad, ne o doporučení — vaše situace může být jiná.
+        {summary[profile]} Jde o příklad, ne o doporučení — tvoje situace může být jiná.
       </p>
     </div>
   );

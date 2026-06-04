@@ -5,7 +5,7 @@ import { compoundInterest, czNum } from '../../utils/calculators';
 import { NumberField } from '../NumberField';
 
 export const CompoundInterestCalc = () => {
-  const [monthly, setMonthly] = useState(3000);
+  const [monthly, setMonthly] = useState(1000);
   const [rate, setRate] = useState(7);
   const [years, setYears] = useState(30);
   const [inflation, setInflation] = useState(3);
@@ -145,8 +145,8 @@ export const CompoundInterestCalc = () => {
           min={0} max={100} sliderMin={0} sliderMax={10} step={0.5} decimals={1} />
       </div>
       <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 0.25rem', lineHeight: 1.6 }}>
-        Graf ukazuje, jak by vaše pravidelné vklady mohly růst, kdybyste je investovali — a o kolik
-        byste se připravili, kdyby peníze jen ležely stranou. Jde o orientační odhad, ne o příslib výnosu.
+        Graf ukazuje, jak by tvoje pravidelné vklady mohly růst, kdybys je investoval — a o kolik
+        bys přišel, kdyby peníze jen ležely stranou. Jde o orientační odhad, ne o příslib výnosu.
       </p>
       <div style={{ marginTop: '1rem' }}>
         <Suspense fallback={<ChartSkeleton height={320} />}>
