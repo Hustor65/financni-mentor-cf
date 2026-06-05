@@ -13,7 +13,7 @@ import { ProductComparison } from './components/academy/ProductComparison';
 const TrustCenter = lazy(() => import('./components/trust/TrustCenter').then(m => ({ default: m.TrustCenter })));
 import { TOPICS } from './data/topics';
 import { CommandPalette } from './components/CommandPalette';
-import { HowItWorks } from './components/HowItWorks';
+import { StartPath } from './components/StartPath';
 
 /* ════════════════════════════════════════════════════════════
    Hash routing — #temata · #temata/<topicId> · #presnost
@@ -208,7 +208,7 @@ const App: React.FC = () => {
                     </p>
                   </div>
                   <div className="reveal" style={{ marginBottom: 'var(--space-lg)' }}>
-                    <HowItWorks onAskMentor={() => setActiveTab('mentor')} />
+                    <StartPath onOpenTopic={setSelectedTopic} completed={completedTopics} />
                   </div>
                   <div className="reveal"><Badges completed={completedTopics.size} /></div>
                   <div className="topics-grid">
