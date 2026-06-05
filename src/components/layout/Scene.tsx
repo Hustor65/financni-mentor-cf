@@ -3,7 +3,6 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import R3fGlobe, { type GlobeMethods } from 'r3f-globe';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
 /**
  * HeroScene — „Region: Earth“ rotující glóbus (Cloudflare-style), postavený na
@@ -736,10 +735,8 @@ function CityLights({ frozen }: { frozen: boolean }) {
       uTime: { value: 0 },
       uPulse: { value: 1 },
       uPixelRatio: { value: Math.min(gl.getPixelRatio?.() ?? 1, 1.5) },
-      // jas >1.0 (a toneMapped:false níže) → tyhle body „přetečou" a SELEKTIVNÍ bloom
-      // je zachytí (ostatní vrstvy jsou pod 1.0, takže nežhnou — zář jen na burzách).
-      uCore: { value: new THREE.Color('#dff4ff').multiplyScalar(1.9) },
-      uHalo: { value: new THREE.Color(CYAN).multiplyScalar(1.5) },
+      uCore: { value: new THREE.Color('#dff4ff') }, // žhavé ledově-bílé jádro
+      uHalo: { value: new THREE.Color(CYAN) },       // azurové halo (splývá s tečkami)
       uOpacity: { value: 1.0 },
     }),
     [gl],
@@ -1098,16 +1095,6 @@ export function HeroScene({
 
       {/* vignette overlay — jemně ztmaví rohy, zaostří oko na glóbus */}
       <VignetteOverlay />
-
-      {/* SELEKTIVNÍ BLOOM jen na světlech burz: CityLights mají jas >1.0 + toneMapped:false,
-          ostatní vrstvy (tečky, fresnel, atmosféra, hvězdy) jsou pod 1.0 → bloom je nezachytí,
-          takže žhnou JEN burzy, ne celá planeta. Jen na výkonnějším HW (LOW_PERF → bez bloomu,
-          zůstává levný aditivní glow z shaderu). mipmapBlur = levný; bez MSAA/normal passu. */}
-      {!LOW_PERF && (
-        <EffectComposer multisampling={0}>
-          <Bloom mipmapBlur luminanceThreshold={1.0} luminanceSmoothing={0.25} intensity={0.8} radius={0.6} />
-        </EffectComposer>
-      )}
     </Canvas>
   );
 }
