@@ -17,6 +17,7 @@ export const TOPICS: Topic[] = [
   { id: 'rozpocet', title: 'Rozpočet a první peníze', icon: 'coins', summary: 'Kam s penězi z brigády a jak mít přehled o výdajích. Nejlepší start.', status: 'live' },
   { id: 'scamy', title: 'Podvody a scamy', icon: 'alert-triangle', summary: 'Jak poznat finanční podvod a nenaletět „zaručeným výnosům" ani phishingu.', status: 'live' },
   { id: 'dane-brigada', title: 'Daně z brigády', icon: 'file-text', summary: 'Hrubá vs. čistá mzda a jak si po brigádě říct o vrácení daně.', status: 'live' },
+  { id: 'dluhy', title: 'Dluhy, kreditky a splátky', icon: 'dollar-sign', summary: 'Proč je drahý úvěr past — RPSN, kreditka vs. debetka a „kup teď, zaplať později".', status: 'live' },
   { id: 'slozene-uroceni', title: 'Složené úročení', icon: 'trending-up', summary: 'Jak peníze rostou exponenciálně a proč začít brzy.', status: 'live' },
   { id: 'akcie-etf', title: 'Akcie, ETF a dluhopisy', icon: 'bar-chart-3', summary: 'Stavební kameny portfolia a jak se liší.', status: 'live' },
   { id: 'inflace', title: 'Inflace', icon: 'trending-down', summary: 'Proč hotovost „pod polštářem“ reálně ztrácí.', status: 'live' },
@@ -44,6 +45,13 @@ export const BRIGADA_QUIZ: QuizQuestion[] = [
   { q: 'Jaký je rozdíl mezi hrubou a čistou mzdou?', options: ['Žádný, je to totéž', 'Hrubá je před odečtením daní a odvodů, čistá je to, co ti reálně přijde', 'Čistá je víc než hrubá'], correct: 1, explain: 'Hrubá mzda je částka před odečtením daně a odvodů. Čistá mzda je to, co ti po srážkách opravdu dorazí na účet.' },
   { q: 'Podepíšeš u zaměstnavatele „prohlášení poplatníka". K čemu to je?', options: ['Zvýší ti to daň', 'Umožní uplatnit slevu na poplatníka, takže platíš nižší (často nulovou) daň', 'Nic to nedělá'], correct: 1, explain: 'Díky prohlášení můžeš uplatnit slevu na poplatníka (2026 je 30 840 Kč ročně). U běžné studentské brigády ti tak daň často vyjde na nulu.' },
   { q: 'Z brigády ti strhli zálohovou/srážkovou daň. Můžeš ji dostat zpět?', options: ['Ne, daň je nenávratná', 'Často ano — když po roce podáš daňové přiznání a uplatníš slevu na poplatníka', 'Jen když si o to řekneš zaměstnavateli hned'], correct: 1, explain: 'Když máš nižší roční příjem, část nebo celá sražená daň se ti přes daňové přiznání vrátí. Spousta studentů o tyhle peníze zbytečně přijde.' },
+];
+
+// Téma „Dluhy, kreditky a splátky" — cost of credit (z deep-researche nejsilnější nález).
+export const DLUHY_QUIZ: QuizQuestion[] = [
+  { q: 'Co ti říká číslo RPSN u půjčky?', options: ['Jen roční úrok', 'Kolik tě půjčka reálně stojí za rok včetně VŠECH poplatků', 'Kolik si můžeš půjčit'], correct: 1, explain: 'RPSN (roční procentní sazba nákladů) zahrnuje úrok i všechny poplatky — je to nejpoctivější číslo pro porovnání půjček. Čím vyšší, tím dražší.' },
+  { q: 'Telefon stojí 6 000 Kč hotově, nebo 24 splátek po 350 Kč. Co je dražší?', options: ['Hotově', 'Splátky — celkem 8 400 Kč, tedy o 2 400 Kč víc', 'Vyjde to nastejno'], correct: 1, explain: '24 × 350 = 8 400 Kč. Splátky tě stojí o 2 400 Kč navíc. Když máš na hotovost, skoro vždy se vyplatí zaplatit rovnou.' },
+  { q: 'Jaký je rozdíl mezi kreditkou a debetkou?', options: ['Žádný', 'Debetka utrácí tvoje peníze, kreditka ti je půjčuje (a může se prodražit)', 'Kreditka je vždycky výhodnější'], correct: 1, explain: 'Debetkou platíš ze svého. Kreditkou si půjčuješ od banky — pokud nesplatíš celou částku v bezúročném období, naskakuje vysoký úrok.' },
 ];
 
 export const INFLATION_QUIZ: QuizQuestion[] = [

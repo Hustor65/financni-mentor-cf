@@ -111,6 +111,38 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       ],
     },
   ],
+  'dluhy': [
+    {
+      h: 'Úvěr není zadarmo — sleduj RPSN',
+      p: 'Půjčit si znamená vrátit víc, než sis vzal. Kolik přesně? To ti řekne RPSN (roční procentní sazba nákladů) — jediné číslo, které zahrnuje úrok i všechny poplatky. Čím vyšší RPSN, tím dražší půjčka. Vždy porovnávej RPSN, ne jen „úrok".',
+      more: [
+        'Prodejci rádi ukazují nízký „úrok" nebo lákavou měsíční splátku, ale schovají poplatky za sjednání, vedení nebo pojištění. RPSN tohle všechno sčítá do jednoho čísla za rok, takže dva nabídky srovnáš férově. U seriózní půjčky musí být RPSN vždy uvedené.',
+        'Příklad síly úroku: telefon za 6 000 Kč na 24 splátek po 350 Kč zaplatíš celkem 8 400 Kč — o 2 400 Kč víc. To je cena za to, že nemusíš platit hned. U malých věcí se to nezdá, ale poskládá se z toho dost peněz.',
+        'Pozor na „rychlé půjčky" a nebankovní společnosti s RPSN klidně přes 50–100 %. To je past, ze které se těžko leze. Než si půjčíš, vždy se ptej: kolik reálně vrátím a co se stane, když nezaplatím včas?',
+        'Stejná matematika složeného úročení, co u investic hraje pro tebe, u dluhů hraje PROTI tobě — nesplacený dluh se nabaluje. Proto je drahý dluh tak nebezpečný.',
+      ],
+    },
+    {
+      h: 'Kreditka, debetka a „kup teď, zaplať později"',
+      p: 'Debetka platí z tvých peněz. Kreditka ti je půjčuje. „Kup teď, zaplať později" (BNPL) odkládá platbu na splátky. Všechny vypadají stejně u pokladny, ale fungují úplně jinak — a snadno tě dostanou do mínusu.',
+      more: [
+        'Debetní karta čerpá z tvého účtu — utratíš jen to, co máš. Kreditní karta je krátkodobá půjčka od banky. Má „bezúročné období" (často ~45 dní): když do té doby vrátíš celou utracenou částku, nic navíc neplatíš. Když ne, naskočí vysoký úrok na všechno.',
+        'BNPL („Twisto", „Klarna" apod.) láká heslem „teď nic neplatíš". Problém je, že je hrozně snadné takhle nakoupit víc věcí, ztratit přehled a pak nestíhat splátky — a při zpoždění přijdou poplatky. Funguje to na tom, že „odložená bolest" placení míň bolí.',
+        'Zlaté pravidlo pro kreditku a BNPL: používej je jen na to, co bys koupil i tak, a vždy plať celou částku včas. Jakmile začneš „platit jen minimum" nebo odkládat, prodražuje se to.',
+        'Kreditka má i výhody (odklad platby zdarma, někdy cashback nebo pojištění), ale jen pokud ji splácíš celou a včas. Pro člověka, co snadno utrácí, je bezpečnější zůstat u debetky.',
+      ],
+    },
+    {
+      h: 'Dobrý vs. špatný dluh a jak z dluhů ven',
+      p: 'Ne každý dluh je špatný. „Dobrý" dluh ti pomáhá vydělat víc nebo získat hodnotu (rozumná hypotéka, levná půjčka na studium, co zvedne příjem). „Špatný" dluh je drahý úvěr na zbytnou spotřebu, která rychle ztrácí hodnotu.',
+      more: [
+        'Otázka, kterou si polož před každým dluhem: vydělá mi tahle věc peníze nebo dovednost (dobrý dluh), nebo je to jen spotřeba, co za chvíli nebude mít cenu (špatný dluh)? Půjčka na kurz, co ti zvedne plat, dává jiný smysl než půjčka na nejnovější mobil.',
+        'Když už dluhy máš, splácej je ve správném pořadí: nejdřív ty NEJDRAŽŠÍ (nejvyšší RPSN — typicky kreditka a rychlé půjčky), pak levnější. Každá koruna navíc poslaná na nejdražší dluh ti ušetří nejvíc na úrocích.',
+        'Nikdy „neřeš" dluh dalším dražším dluhem (nová půjčka na splacení staré) — tím se obvykle jen zamotáš hloubějc. Když nestíháš, ozvi se věřiteli dřív, než přestaneš platit; dá se domluvit splátkový kalendář.',
+        'Když je toho moc, existuje bezplatná dluhová poradna (např. přes neziskovky). Říct si o pomoc včas není ostuda — čím dřív, tím líp. A do budoucna: nouzová rezerva (viz téma Rozpočet) je nejlepší ochrana proti tomu, aby ses kvůli každému průšvihu musel zadlužit.',
+      ],
+    },
+  ],
   'slozene-uroceni': [
     {
       h: 'Co je složené úročení',
@@ -309,6 +341,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
 export const TOPIC_TOOL_LABEL: Record<string, { icon: string; label: string }> = {
   'slozene-uroceni': { icon: 'bar-chart-3', label: 'Vyzkoušej si to' },
   'scamy': { icon: 'shield-check', label: 'Trénink: poznáš podvod?' },
+  'dluhy': { icon: 'dollar-sign', label: 'Vyplatí se ten dluh?' },
   'akcie-etf': { icon: 'bar-chart-3', label: 'Porovnání nástrojů' },
   'inflace': { icon: 'bar-chart-3', label: 'Jak inflace ukrajuje úspory' },
   'duchod': { icon: 'hourglass', label: 'Spočítej si důchod' },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ACADEMY_LESSONS } from '../../data/knowledge';
-import { TOPICS, ROZPOCET_QUIZ, SCAMY_QUIZ, BRIGADA_QUIZ, INFLATION_QUIZ, PENSION_QUIZ } from '../../data/topics';
+import { TOPICS, ROZPOCET_QUIZ, SCAMY_QUIZ, BRIGADA_QUIZ, DLUHY_QUIZ, INFLATION_QUIZ, PENSION_QUIZ } from '../../data/topics';
 import type { QuizQuestion } from '../../data/topics';
 import { TOPIC_THEORY, TOPIC_TOOL_LABEL } from '../../data/topicContent';
 import { Quiz } from './Quiz';
@@ -12,6 +12,7 @@ import { PensionCalc } from '../calculators/PensionCalc';
 import { TaxCalc } from '../calculators/TaxCalc';
 import { StocksComparison, InflationTool, RiskProfile } from './TopicTools';
 import { ScamCheck } from './ScamCheck';
+import { DebtCheck } from './DebtCheck';
 
 interface TopicDetailProps {
   topicId: string;
@@ -25,6 +26,7 @@ const TOPIC_QUIZ: Record<string, QuizQuestion[]> = {
   'rozpocet': ROZPOCET_QUIZ,
   'scamy': SCAMY_QUIZ,
   'dane-brigada': BRIGADA_QUIZ,
+  'dluhy': DLUHY_QUIZ,
   'slozene-uroceni': ACADEMY_LESSONS.find(l => l.id === 'proc-investovat')?.quiz ?? [],
   'akcie-etf': ACADEMY_LESSONS.find(l => l.id === 'akcie-dluhopisy-etf')?.quiz ?? [],
   'inflace': INFLATION_QUIZ,
@@ -55,6 +57,7 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
   const renderTool = () => {
     switch (topicId) {
       case 'scamy': return <ScamCheck />;
+      case 'dluhy': return <DebtCheck />;
       case 'slozene-uroceni': return (<><CompoundInterestCalc /><div className="spacer-lg" /><GoalCalc /></>);
       case 'akcie-etf': return <StocksComparison />;
       case 'inflace': return <InflationTool />;
