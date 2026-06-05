@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import R3fGlobe, { type GlobeMethods } from 'r3f-globe';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
 /**
  * HeroScene — „Region: Earth“ rotující glóbus (Cloudflare-style), postavený na
@@ -624,13 +625,13 @@ function FresnelRim({ color }: { color: string }) {
   const uniforms = useMemo(
     () => ({
       uColor: { value: new THREE.Color(color) },
-      uOpacity: { value: 0.22 }, // měkká svatozář — větší a měkčí → čte jako atmosféra planety
-      uPower: { value: 2.6 },
+      uOpacity: { value: 0.12 }, // jen jemný tenký lem na siluetě — žádná velká zář kolem planety
+      uPower: { value: 3.6 },
     }),
     [color],
   );
   return (
-    <mesh scale={1.1} renderOrder={2}>
+    <mesh scale={1.025} renderOrder={2}>
       <sphereGeometry args={[GLOBE_RADIUS, 48, 48]} />
       <shaderMaterial
         vertexShader={FRESNEL_VERT}
@@ -735,8 +736,10 @@ function CityLights({ frozen }: { frozen: boolean }) {
       uTime: { value: 0 },
       uPulse: { value: 1 },
       uPixelRatio: { value: Math.min(gl.getPixelRatio?.() ?? 1, 1.5) },
-      uCore: { value: new THREE.Color('#dff4ff') }, // žhavé ledově-bílé jádro
-      uHalo: { value: new THREE.Color(CYAN) },       // azurové halo (splývá s tečkami)
+      // jas >1.0 (a toneMapped:false níže) → tyhle body „přetečou" a SELEKTIVNÍ bloom
+      // je zachytí (ostatní vrstvy jsou pod 1.0, takže nežhnou — zář jen na burzách).
+      uCore: { value: new THREE.Color('#dff4ff').multiplyScalar(1.9) },
+      uHalo: { value: new THREE.Color(CYAN).multiplyScalar(1.5) },
       uOpacity: { value: 1.0 },
     }),
     [gl],
@@ -988,7 +991,7 @@ function GlobeBody({
               // atmosféra — tlumená (jen měkký objem), siluetu řeší fresnel lem
               showAtmosphere
               atmosphereColor={accentColor}
-              atmosphereAltitude={0.12}
+              atmosphereAltitude={0.08}
               // graticule (lat/lon mřížka, Cloudflare-style) — efekt jí dá depthTest:false
               // → prosvítá i na odvrácenou stranu; barvu/opacitu zjemní taktéž efekt
               showGraticules
@@ -1095,6 +1098,16 @@ export function HeroScene({
 
       {/* vignette overlay — jemně ztmaví rohy, zaostří oko na glóbus */}
       <VignetteOverlay />
+
+      {/* SELEKTIVNÍ BLOOM jen na světlech burz: CityLights mají jas >1.0 + toneMapped:false,
+          ostatní vrstvy (tečky, fresnel, atmosféra, hvězdy) jsou pod 1.0 → bloom je nezachytí,
+          takže žhnou JEN burzy, ne celá planeta. Jen na výkonnějším HW (LOW_PERF → bez bloomu,
+          zůstává levný aditivní glow z shaderu). mipmapBlur = levný; bez MSAA/normal passu. */}
+      {!LOW_PERF && (
+        <EffectComposer multisampling={0}>
+          <Bloom mipmapBlur luminanceThreshold={1.0} luminanceSmoothing={0.25} intensity={0.8} radius={0.6} />
+        </EffectComposer>
+      )}
     </Canvas>
   );
 }
