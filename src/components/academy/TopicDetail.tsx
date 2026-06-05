@@ -13,6 +13,7 @@ import { TaxCalc } from '../calculators/TaxCalc';
 import { StocksComparison, InflationTool, RiskProfile } from './TopicTools';
 import { ScamCheck } from './ScamCheck';
 import { DebtCheck } from './DebtCheck';
+import { BudgetSim } from './BudgetSim';
 
 interface TopicDetailProps {
   topicId: string;
@@ -56,6 +57,7 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
   // Interaktivní nástroj dle tématu (1:1 dispatch z app.py)
   const renderTool = () => {
     switch (topicId) {
+      case 'rozpocet': return <BudgetSim />;
       case 'scamy': return <ScamCheck />;
       case 'dluhy': return <DebtCheck />;
       case 'slozene-uroceni': return (<><CompoundInterestCalc /><div className="spacer-lg" /><GoalCalc /></>);

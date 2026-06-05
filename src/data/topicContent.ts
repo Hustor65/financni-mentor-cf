@@ -339,6 +339,7 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
 
 // Sekční label (ikona + text) pro každé téma — 1:1 s originálem
 export const TOPIC_TOOL_LABEL: Record<string, { icon: string; label: string }> = {
+  'rozpocet': { icon: 'coins', label: 'Zvládneš měsíc? (simulátor)' },
   'slozene-uroceni': { icon: 'bar-chart-3', label: 'Vyzkoušej si to' },
   'scamy': { icon: 'shield-check', label: 'Trénink: poznáš podvod?' },
   'dluhy': { icon: 'dollar-sign', label: 'Vyplatí se ten dluh?' },
