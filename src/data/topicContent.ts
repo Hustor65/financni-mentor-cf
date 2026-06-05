@@ -143,6 +143,48 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       ],
     },
   ],
+  'jak-na-to': [
+    {
+      h: 'Jak si založíš první bankovní účet',
+      p: 'Studentský účet bývá zdarma a zařídíš ho většinou online za pár minut. Co k tomu potřebuješ a na co si dát pozor.',
+      more: [
+        'Co budeš potřebovat: doklad totožnosti (občanka). Účet si můžeš většinou založit od 15 let (do 18 obvykle se souhlasem rodiče), spousta bank ho zvládne kompletně přes mobil — vyfotíš doklad a hotovo.',
+        'Na co koukat při výběru: hledej účet s vedením ZDARMA a bez poplatků za výběry z bankomatu a platby kartou. Většina bank má speciální studentský účet bez poplatků — ten je skoro vždy nejlepší volba. Nepřeplácej za nic, co nepotřebuješ.',
+        'Co k účtu dostaneš: debetní kartu (platíš ze svého) a mobilní aplikaci. V appce uvidíš všechny platby, nastavíš si limity a zapneš/vypneš platby na internetu — což je i ochrana proti zneužití karty.',
+        'Praktická rada: zapni si v appce notifikace o platbách. Hned uvidíš každou transakci, takže rychle odhalíš podezřelou platbu i zapomenuté předplatné. A nikdy nikomu nedávej přihlašovací údaje do bankovnictví (viz téma Podvody a scamy).',
+      ],
+    },
+    {
+      h: 'Jak přečteš výplatní pásku',
+      p: 'Výplatnice ukazuje, jak se z hrubé mzdy stane čistá — tedy kolik a kam ti z výdělku ubylo. Vyplatí se jí rozumět.',
+      more: [
+        'Nahoře je hrubá mzda — to, na čem ses domluvil (např. odpracované hodiny × sazba). Od ní se postupně odečítají srážky a dole zbyde čistá mzda, kterou reálně dostaneš na účet.',
+        'Hlavní srážky: zdravotní a sociální pojištění (odvody) a záloha na daň z příjmu. Pokud jsi podepsal „prohlášení poplatníka", uplatní se ti sleva na poplatníka, která daň sníží — u studentské brigády často na nulu (viz téma Daně z brigády).',
+        'Co zkontrolovat: že sedí počet odpracovaných hodin a sazba, a že čistá částka odpovídá tomu, co ti přišlo na účet. Když něco nesedí, zeptej se zaměstnavatele — chyby se stávají.',
+        'Důležité: výplatní pásky a „potvrzení o zdanitelných příjmech" si schovávej. Budeš je potřebovat, když si budeš po roce přes daňové přiznání žádat o vrácení sražené daně.',
+      ],
+    },
+    {
+      h: 'Jak pohlídáš (a zrušíš) předplatné',
+      p: 'Aplikace a „free zkušebky" umí tiše účtovat každý měsíc, i když je nepoužíváš. Pár desetikorun měsíčně se za rok sečte do stovek.',
+      more: [
+        'Past „free trial": zkušební verze zdarma se po týdnu nebo měsíci často automaticky změní na placené předplatné. Při jeho aktivaci si hned nastav v telefonu připomínku den dva před koncem zkušebky, ať stihneš zrušit, pokud to nechceš.',
+        'Jak najít, co všechno platíš: projeď si bankovní výpis (nebo appku) a hledej OPAKOVANÉ platby každý měsíc. Často se objeví předplatná, na která jsi dávno zapomněl.',
+        'Jak zrušit správně: předplatné se ruší ve správě předplatných — App Store (iPhone), Google Play (Android) nebo na webu/v účtu dané služby. POZOR: smazání aplikace z telefonu předplatné NEzruší, platba běží dál!',
+        'Návyk, co se vyplatí: jednou měsíčně mrkni na výpis. Zabere to minutu a často objevíš platbu, kterou už nechceš — zrušením ušetříš víc, než čekáš.',
+      ],
+    },
+    {
+      h: 'Jak na první podnájem a spolubydlení',
+      p: 'První vlastní bydlení znamená smlouvu, kauci a společné výdaje. Na co nezapomenout, ať se nespálíš.',
+      more: [
+        'Vždy PÍSEMNÁ nájemní smlouva — nikdy ne jen ústní dohoda. Ve smlouvě má být výše nájmu, co je v ceně (energie? internet?), výše kauce, výpovědní lhůta a doba nájmu. Přečti si ji celou, než podepíšeš.',
+        'Kauce (jistota) bývá 1–3 měsíční nájmy a je VRATNÁ — dostaneš ji zpět, když byt předáš nepoškozený a nedlužíš nájem. Při nastěhování si vyfoť stav bytu (i drobné škody), ať ti pak kauci nestrhnou za něco, cos neudělal.',
+        'Počítej s tím, že kromě nájmu platíš i energie, vodu a internet — zeptej se předem, kolik to zhruba dělá, ať tě nepřekvapí. U spolubydlení si rozdělení nákladů (nájem, energie, společné nákupy) raději domluvte písemně, ať není dusno.',
+        'Pozor na podvody: nikdy neplať kauci ani nájem předem za byt, který jsi neviděl naživo, a podezřele levné nabídky s tlakem „pošli zálohu hned" jsou často scam (viz téma Podvody a scamy). Plať až po podpisu smlouvy a prohlídce.',
+      ],
+    },
+  ],
   'slozene-uroceni': [
     {
       h: 'Co je složené úročení',

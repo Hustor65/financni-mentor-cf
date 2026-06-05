@@ -18,6 +18,7 @@ export const TOPICS: Topic[] = [
   { id: 'scamy', title: 'Podvody a scamy', icon: 'alert-triangle', summary: 'Jak poznat finanční podvod a nenaletět „zaručeným výnosům" ani phishingu.', status: 'live' },
   { id: 'dane-brigada', title: 'Daně z brigády', icon: 'file-text', summary: 'Hrubá vs. čistá mzda a jak si po brigádě říct o vrácení daně.', status: 'live' },
   { id: 'dluhy', title: 'Dluhy, kreditky a splátky', icon: 'dollar-sign', summary: 'Proč je drahý úvěr past — RPSN, kreditka vs. debetka a „kup teď, zaplať později".', status: 'live' },
+  { id: 'jak-na-to', title: 'Jak na to v praxi', icon: 'check-circle', summary: 'Praktické návody: první účet, výplatní páska, předplatné a první bydlení.', status: 'live' },
   { id: 'slozene-uroceni', title: 'Složené úročení', icon: 'trending-up', summary: 'Jak peníze rostou exponenciálně a proč začít brzy.', status: 'live' },
   { id: 'akcie-etf', title: 'Akcie, ETF a dluhopisy', icon: 'bar-chart-3', summary: 'Stavební kameny portfolia a jak se liší.', status: 'live' },
   { id: 'inflace', title: 'Inflace', icon: 'trending-down', summary: 'Proč hotovost „pod polštářem“ reálně ztrácí.', status: 'live' },
@@ -52,6 +53,13 @@ export const DLUHY_QUIZ: QuizQuestion[] = [
   { q: 'Co ti říká číslo RPSN u půjčky?', options: ['Jen roční úrok', 'Kolik tě půjčka reálně stojí za rok včetně VŠECH poplatků', 'Kolik si můžeš půjčit'], correct: 1, explain: 'RPSN (roční procentní sazba nákladů) zahrnuje úrok i všechny poplatky — je to nejpoctivější číslo pro porovnání půjček. Čím vyšší, tím dražší.' },
   { q: 'Telefon stojí 6 000 Kč hotově, nebo 24 splátek po 350 Kč. Co je dražší?', options: ['Hotově', 'Splátky — celkem 8 400 Kč, tedy o 2 400 Kč víc', 'Vyjde to nastejno'], correct: 1, explain: '24 × 350 = 8 400 Kč. Splátky tě stojí o 2 400 Kč navíc. Když máš na hotovost, skoro vždy se vyplatí zaplatit rovnou.' },
   { q: 'Jaký je rozdíl mezi kreditkou a debetkou?', options: ['Žádný', 'Debetka utrácí tvoje peníze, kreditka ti je půjčuje (a může se prodražit)', 'Kreditka je vždycky výhodnější'], correct: 1, explain: 'Debetkou platíš ze svého. Kreditkou si půjčuješ od banky — pokud nesplatíš celou částku v bezúročném období, naskakuje vysoký úrok.' },
+];
+
+// Téma „Jak na to v praxi" — praktické životní situace (první účet, výplatnice, předplatné, bydlení).
+export const JAKNATO_QUIZ: QuizQuestion[] = [
+  { q: 'Co je „čistá mzda" na výplatní pásce?', options: ['Hrubá mzda před srážkami', 'To, co ti reálně přijde na účet po odečtení daní a odvodů', 'Jen prémie navíc'], correct: 1, explain: 'Čistá mzda je částka, která ti po všech srážkách (daň, pojištění) opravdu dorazí na účet.' },
+  { q: 'Jak nejspolehlivěji zrušíš nechtěné placené předplatné?', options: ['Smažu aplikaci z telefonu', 'Zruším ho v nastavení účtu / App Store / Google Play', 'Počkám, až přestane samo'], correct: 1, explain: 'Smazání appky platbu NEzruší — předplatné musíš zrušit přímo ve správě předplatných (App Store, Google Play nebo na webu služby).' },
+  { q: 'Co je kauce u podnájmu?', options: ['Poplatek, který se nevrací', 'Vratná jistota (obvykle 1–3 nájmy) pro případ poškození bytu', 'Měsíční nájem navíc'], correct: 1, explain: 'Kauce je vratná jistota — dostaneš ji zpět, když byt při odchodu předáš nepoškozený a nemáš dluhy na nájmu.' },
 ];
 
 export const INFLATION_QUIZ: QuizQuestion[] = [
