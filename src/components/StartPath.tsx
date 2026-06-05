@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TOPICS } from '../data/topics';
+import { Icon } from './Icon';
 
 /**
  * StartPath — personalizovaný start „Kde mám začít?". Z deep-researche:
@@ -11,16 +12,16 @@ import { TOPICS } from '../data/topics';
 
 interface Profile {
   id: string;
-  emoji: string;
+  icon: string;
   label: string;
   path: string[]; // pořadí topicId
 }
 
 const PROFILES: Profile[] = [
-  { id: 'ss', emoji: '🎒', label: 'Jsem na střední', path: ['rozpocet', 'scamy', 'jak-na-to', 'dluhy', 'slozene-uroceni'] },
-  { id: 'vs', emoji: '🎓', label: 'Vysoká nebo mám brigádu', path: ['dane-brigada', 'rozpocet', 'dluhy', 'jak-na-to', 'slozene-uroceni', 'akcie-etf'] },
-  { id: 'penize', emoji: '💳', label: 'Chci zvládnout peníze a nedělat chyby', path: ['rozpocet', 'scamy', 'dluhy', 'jak-na-to'] },
-  { id: 'invest', emoji: '📈', label: 'Chci pochopit investování', path: ['slozene-uroceni', 'riziko', 'akcie-etf', 'inflace', 'dane-dip'] },
+  { id: 'ss', icon: 'book-open', label: 'Jsem na střední', path: ['rozpocet', 'scamy', 'jak-na-to', 'dluhy', 'slozene-uroceni'] },
+  { id: 'vs', icon: 'graduation-cap', label: 'Vysoká nebo mám brigádu', path: ['dane-brigada', 'rozpocet', 'dluhy', 'jak-na-to', 'slozene-uroceni', 'akcie-etf'] },
+  { id: 'penize', icon: 'coins', label: 'Chci zvládnout peníze a nedělat chyby', path: ['rozpocet', 'scamy', 'dluhy', 'jak-na-to'] },
+  { id: 'invest', icon: 'trending-up', label: 'Chci pochopit investování', path: ['slozene-uroceni', 'riziko', 'akcie-etf', 'inflace', 'dane-dip'] },
 ];
 
 const STORAGE_KEY = 'fm-start-profile';
@@ -71,7 +72,7 @@ export const StartPath: React.FC<Props> = ({ onOpenTopic, completed }) => {
                 fontWeight: 600, cursor: 'pointer',
               }}
             >
-              <span style={{ fontSize: '1.5rem', lineHeight: 1 }} aria-hidden="true">{p.emoji}</span>
+              <Icon name={p.icon} size={24} color="var(--lg-cyan-2, #4cc4e6)" aria-hidden />
               {p.label}
             </button>
           ))}
@@ -88,9 +89,11 @@ export const StartPath: React.FC<Props> = ({ onOpenTopic, completed }) => {
     <section className="glass-panel" aria-label="Tvoje doporučená cesta" style={{ padding: 'var(--space-lg)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
         <div>
-          <span className="eyebrow">Tvoje cesta {profile.emoji}</span>
+          <span className="eyebrow" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Icon name={profile.icon} size={15} color="var(--lg-cyan-2, #4cc4e6)" aria-hidden /> Tvoje cesta
+          </span>
           <p className="section-header" style={{ margin: 'var(--space-2xs) 0 0' }}>
-            {allDone ? 'Prošel jsi celou cestu 🎉' : 'Začni a pokračuj takhle'}
+            {allDone ? 'Prošel jsi celou cestu!' : 'Začni a pokračuj takhle'}
           </p>
         </div>
         <button
