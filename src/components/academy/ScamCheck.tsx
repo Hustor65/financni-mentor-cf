@@ -8,6 +8,7 @@ import { Icon } from '../Icon';
  */
 
 interface Scenario {
+  icon: string;
   text: string;
   isScam: boolean;
   explain: string;
@@ -15,32 +16,38 @@ interface Scenario {
 
 const SCENARIOS: Scenario[] = [
   {
-    text: '📩 „Gratulujeme! Vyhrál jsi nový iPhone. Pro doručení zaplať jen 49 Kč poplatek tady: bit.ly/vyhra-cz"',
+    icon: 'mail',
+    text: '„Gratulujeme! Vyhrál jsi nový iPhone. Pro doručení zaplať jen 49 Kč poplatek tady: bit.ly/vyhra-cz"',
     isScam: true,
     explain: 'Výhra v soutěži, které ses neúčastnil, plus malý „poplatek" předem = klasická past na tvoje platební údaje. Skutečné výhry se neplatí dopředu.',
   },
   {
-    text: '📈 „Investuj 1 000 Kč do našeho krypto fondu a garantujeme ti 500 Kč každý týden. Úplně bez rizika!"',
+    icon: 'trending-up',
+    text: '„Investuj 1 000 Kč do našeho krypto fondu a garantujeme ti 500 Kč každý týden. Úplně bez rizika!"',
     isScam: true,
     explain: 'Zaručený vysoký výnos bez rizika neexistuje. Tohle je typický investiční podvod (často Ponziho schéma, co vyplácí první z peněz dalších).',
   },
   {
-    text: '🏦 SMS „od banky": „Zaznamenali jsme podezřelou platbu. Potvrďte identitu zde, jinak účet zablokujeme: secure-bank-cz.net"',
+    icon: 'message-circle',
+    text: 'SMS „od banky": „Zaznamenali jsme podezřelou platbu. Potvrďte identitu zde, jinak účet zablokujeme: secure-bank-cz.net"',
     isScam: true,
     explain: 'Phishing. Banka tě nikdy nežádá o přihlášení přes odkaz v SMS a doména je podezřelá. Nikdy neklikej — jdi rovnou do oficiální appky banky.',
   },
   {
-    text: '💼 „Práce z domova: necháš si na svůj účet posílat platby od našich klientů a pošleš je dál. Necháš si 10 %."',
+    icon: 'users',
+    text: '„Práce z domova: necháš si na svůj účet posílat platby od našich klientů a pošleš je dál. Necháš si 10 %."',
     isScam: true,
     explain: 'Money muling — praní špinavých peněz přes tvůj účet. Je to trestné, i když „jen přeposíláš". Svůj účet nikdy nikomu nepůjčuj.',
   },
   {
-    text: '🎁 „Někdo ti poslal dárek! Pro odemčení potvrď číslo karty, datum platnosti, CVV a kód z SMS."',
+    icon: 'lock',
+    text: '„Někdo ti poslal dárek! Pro odemčení potvrď číslo karty, datum platnosti, CVV a kód z SMS."',
     isScam: true,
     explain: 'CVV a kód z SMS jsou klíče k tvým penězům — nikdy je nikam nezadávej kvůli „dárku". Žádná legitimní služba je takhle nechce.',
   },
   {
-    text: '🛒 Na e‑shopu, kde běžně nakupuješ, je sleva 20 %. Otevřeš si jejich oficiální stránku (adresu znáš) a koupíš.',
+    icon: 'dollar-sign',
+    text: 'Na e‑shopu, kde běžně nakupuješ, je sleva 20 %. Otevřeš si jejich oficiální stránku (adresu znáš) a koupíš.',
     isScam: false,
     explain: 'V pořádku — jdeš přes ověřený web, který znáš, ne přes odkaz z podezřelé zprávy. Slevy na známém e‑shopu jsou normální.',
   },
@@ -91,23 +98,26 @@ export const ScamCheck: React.FC = () => {
         <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Skóre {score}</span>
       </div>
 
-      <p style={{ fontSize: '1.05rem', lineHeight: 1.55, margin: '0 0 var(--space-md)' }}>{s.text}</p>
+      <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-start', margin: '0 0 var(--space-md)' }}>
+        <Icon name={s.icon} size={26} color="var(--lg-cyan-2, #4cc4e6)" aria-hidden />
+        <p style={{ fontSize: '1.05rem', lineHeight: 1.55, margin: 0 }}>{s.text}</p>
+      </div>
 
       {guess === null ? (
         <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={() => answer(true)}
-            style={{ flex: 1, minWidth: 130, padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(245,158,11,0.5)', background: 'rgba(245,158,11,0.12)', color: '#fbbf24', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: 130, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(245,158,11,0.5)', background: 'rgba(245,158,11,0.12)', color: '#fbbf24', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
           >
-            🚩 Podvod
+            <Icon name="flag" size={18} aria-hidden /> Podvod
           </button>
           <button
             type="button"
             onClick={() => answer(false)}
-            style={{ flex: 1, minWidth: 130, padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(16,185,129,0.5)', background: 'rgba(16,185,129,0.12)', color: '#34d399', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: 130, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(16,185,129,0.5)', background: 'rgba(16,185,129,0.12)', color: '#34d399', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
           >
-            ✅ V pořádku
+            <Icon name="check-circle" size={18} aria-hidden /> V pořádku
           </button>
         </div>
       ) : (

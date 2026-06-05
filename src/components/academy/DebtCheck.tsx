@@ -9,6 +9,7 @@ import { Icon } from '../Icon';
  */
 
 interface Scenario {
+  icon: string;
   text: string;
   worth: boolean; // true = dluh tu dává rozumný smysl
   explain: string;
@@ -16,32 +17,38 @@ interface Scenario {
 
 const SCENARIOS: Scenario[] = [
   {
-    text: '📱 Nový telefon za 6 000 Kč. Na hotovost máš. Prodejce nabízí 24 splátek po 350 Kč (celkem 8 400 Kč).',
+    icon: 'message-circle',
+    text: 'Nový telefon za 6 000 Kč. Na hotovost máš. Prodejce nabízí 24 splátek po 350 Kč (celkem 8 400 Kč).',
     worth: false,
     explain: 'Na splátky zaplatíš o 2 400 Kč víc za něco, na co máš. Když máš hotovost, skoro vždy se vyplatí zaplatit rovnou.',
   },
   {
-    text: '🎓 Rekvalifikační kurz za 15 000 Kč, který ti reálně zvedne plat, na půjčku s nízkým RPSN, kterou v pohodě splatíš.',
+    icon: 'graduation-cap',
+    text: 'Rekvalifikační kurz za 15 000 Kč, který ti reálně zvedne plat, na půjčku s nízkým RPSN, kterou v pohodě splatíš.',
     worth: true,
     explain: 'Tohle je „dobrý dluh" — investice do sebe, co ti vydělá víc, než stojí. Pokud splátky utáhneš, dává smysl.',
   },
   {
-    text: '👟 Boty za 2 000 Kč přes „kup teď, zaplať za 30 dní". Máš teď jiné výdaje a nejsi si jistý, že za měsíc peníze budeš mít.',
+    icon: 'sparkles',
+    text: 'Boty za 2 000 Kč přes „kup teď, zaplať za 30 dní". Máš teď jiné výdaje a nejsi si jistý, že za měsíc peníze budeš mít.',
     worth: false,
     explain: 'BNPL na zbytnou věc, k tomu nejistota, že zaplatíš včas = past. Při zpoždění přijdou poplatky. Co si nemůžeš dovolit teď, nekupuj na dluh.',
   },
   {
-    text: '💳 Na kreditce utratíš 4 000 Kč a celou částku splatíš do data splatnosti (v bezúročném období).',
+    icon: 'coins',
+    text: 'Na kreditce utratíš 4 000 Kč a celou částku splatíš do data splatnosti (v bezúročném období).',
     worth: true,
     explain: 'Když splatíš celou částku včas, je odklad zdarma — to je kreditka použitá správně. Past nastává, až když nesplatíš celé a naskočí úrok.',
   },
   {
-    text: '🛋️ Gauč za 15 000 Kč na splátky s RPSN 38 %, i když ten tvůj starý pořád funguje.',
+    icon: 'dollar-sign',
+    text: 'Gauč za 15 000 Kč na splátky s RPSN 38 %, i když ten tvůj starý pořád funguje.',
     worth: false,
     explain: 'Drahý úvěr (RPSN 38 %) na zbytnou věc, kterou nutně nepotřebuješ. Radši našetři — ušetříš tisíce na úrocích.',
   },
   {
-    text: '🏖️ Rychlá půjčka s RPSN 80 % na dovolenou, na kterou teď nemáš.',
+    icon: 'heart',
+    text: 'Rychlá půjčka s RPSN 80 % na dovolenou, na kterou teď nemáš.',
     worth: false,
     explain: 'Drahý dluh na spotřebu, co za chvíli „není". RPSN 80 % je extrémní past. Dovolená počká, až si na ni našetříš.',
   },
@@ -92,23 +99,26 @@ export const DebtCheck: React.FC = () => {
         <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Skóre {score}</span>
       </div>
 
-      <p style={{ fontSize: '1.05rem', lineHeight: 1.55, margin: '0 0 var(--space-md)' }}>{s.text}</p>
+      <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-start', margin: '0 0 var(--space-md)' }}>
+        <Icon name={s.icon} size={26} color="var(--lg-cyan-2, #4cc4e6)" aria-hidden />
+        <p style={{ fontSize: '1.05rem', lineHeight: 1.55, margin: 0 }}>{s.text}</p>
+      </div>
 
       {guess === null ? (
         <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={() => answer(true)}
-            style={{ flex: 1, minWidth: 130, padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(16,185,129,0.5)', background: 'rgba(16,185,129,0.12)', color: '#34d399', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: 130, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(16,185,129,0.5)', background: 'rgba(16,185,129,0.12)', color: '#34d399', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
           >
-            ✅ Dává smysl
+            <Icon name="check-circle" size={18} aria-hidden /> Dává smysl
           </button>
           <button
             type="button"
             onClick={() => answer(false)}
-            style={{ flex: 1, minWidth: 130, padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(245,158,11,0.5)', background: 'rgba(245,158,11,0.12)', color: '#fbbf24', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: 130, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(245,158,11,0.5)', background: 'rgba(245,158,11,0.12)', color: '#fbbf24', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
           >
-            🚩 Radši ne
+            <Icon name="flag" size={18} aria-hidden /> Radši ne
           </button>
         </div>
       ) : (

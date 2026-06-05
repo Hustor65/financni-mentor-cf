@@ -19,12 +19,14 @@ interface Choice {
   note: string;
 }
 interface Step {
+  icon: string;
   prompt: string;
   choices: Choice[];
 }
 
 const STEPS: Step[] = [
   {
+    icon: 'coins',
     prompt: 'Je první a přišla ti výplata z brigády: 10 000 Kč. První rada zní „zaplať nejdřív sobě". Kolik hned dáš stranou na spoření?',
     choices: [
       { label: 'Nic, uvidím na konci', money: 0, note: 'Spoření „z toho, co zbyde" většinou nedopadne — na konci nezbyde nic. Proto se odkládá hned.' },
@@ -33,19 +35,22 @@ const STEPS: Step[] = [
     ],
   },
   {
+    icon: 'file-text',
     prompt: 'Nutné výdaje: příspěvek domů, jídlo a doprava ti seberou 5 500 Kč. To prostě platí.',
     choices: [
       { label: 'Zaplatit (−5 500 Kč)', money: -5500, note: 'Nutné výdaje jdou vždy první — bez nich se neobejdeš. Co zbyde, je teprve na zábavu a spoření.' },
     ],
   },
   {
-    prompt: '📱 Smůla — rozbil se ti telefon. Nejlevnější oprava stojí 2 000 Kč.',
+    icon: 'message-circle',
+    prompt: 'Smůla — rozbil se ti telefon. Nejlevnější oprava stojí 2 000 Kč.',
     choices: [
       { label: 'Zaplatit (−2 000 Kč)', money: -2000, note: 'Přesně kvůli takovým nečekaným věcem je dobrá nouzová rezerva — kryje je, aniž bys spadl do mínusu.' },
     ],
   },
   {
-    prompt: '🎉 Kamarádi tě zvou na festival za 1 500 Kč. Jdeš?',
+    icon: 'sparkles',
+    prompt: 'Kamarádi tě zvou na festival za 1 500 Kč. Jdeš?',
     choices: [
       { label: 'Jdu naplno (−1 500 Kč)', money: -1500, note: 'Zábava je v pohodě — pokud na ni máš po nutných výdajích. Sleduj, kolik ti zůstává.' },
       { label: 'Menší akce s nimi (−500 Kč)', money: -500, note: 'Rozumný kompromis — užiješ si s partou a přitom to nepoloží tvůj rozpočet.' },
@@ -53,7 +58,8 @@ const STEPS: Step[] = [
     ],
   },
   {
-    prompt: '👟 Sleva 20 % na boty, co se ti líbí (1 200 Kč). Bereš?',
+    icon: 'dollar-sign',
+    prompt: 'Sleva 20 % na boty, co se ti líbí (1 200 Kč). Bereš?',
     choices: [
       { label: 'Koupím za hotové (−1 200 Kč)', money: -1200, note: 'Když na to máš a fakt to chceš, proč ne — zaplatíš a je hotovo, žádný dluh.' },
       { label: '„Kup teď, zaplať později" (BNPL)', money: 0, note: 'Pozor — BNPL není zadarmo a snadno ztratíš přehled. Odložená platba láká k útratě, kterou bys jinak nezvážil. Dluh nezmizí, jen se schová.' },
@@ -61,6 +67,7 @@ const STEPS: Step[] = [
     ],
   },
   {
+    icon: 'flag',
     prompt: 'Konec měsíce se blíží. Co uděláš s penězi, co ti zůstaly na účtu?',
     choices: [
       { label: 'Nechám je na běžném účtu', money: 0, note: 'V pohodě — ale co leží „jen tak" na běžném účtu, to se snadno rozkutálí do dalších útrat.' },
@@ -145,7 +152,10 @@ export const BudgetSim: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-sm)' }}>
         <span className="eyebrow">Krok {step + 1} / {STEPS.length}</span>
       </div>
-      <p style={{ fontSize: '1.05rem', lineHeight: 1.55, margin: '0 0 var(--space-md)' }}>{s.prompt}</p>
+      <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-start', margin: '0 0 var(--space-md)' }}>
+        <Icon name={s.icon} size={26} color="var(--lg-cyan-2, #4cc4e6)" aria-hidden />
+        <p style={{ fontSize: '1.05rem', lineHeight: 1.55, margin: 0 }}>{s.prompt}</p>
+      </div>
 
       {note === null ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
