@@ -1,6 +1,6 @@
 import React from 'react';
 import { ACADEMY_LESSONS } from '../../data/knowledge';
-import { TOPICS, ROZPOCET_QUIZ, SCAMY_QUIZ, INFLATION_QUIZ, PENSION_QUIZ } from '../../data/topics';
+import { TOPICS, ROZPOCET_QUIZ, SCAMY_QUIZ, BRIGADA_QUIZ, INFLATION_QUIZ, PENSION_QUIZ } from '../../data/topics';
 import type { QuizQuestion } from '../../data/topics';
 import { TOPIC_THEORY, TOPIC_TOOL_LABEL } from '../../data/topicContent';
 import { Quiz } from './Quiz';
@@ -24,6 +24,7 @@ interface TopicDetailProps {
 const TOPIC_QUIZ: Record<string, QuizQuestion[]> = {
   'rozpocet': ROZPOCET_QUIZ,
   'scamy': SCAMY_QUIZ,
+  'dane-brigada': BRIGADA_QUIZ,
   'slozene-uroceni': ACADEMY_LESSONS.find(l => l.id === 'proc-investovat')?.quiz ?? [],
   'akcie-etf': ACADEMY_LESSONS.find(l => l.id === 'akcie-dluhopisy-etf')?.quiz ?? [],
   'inflace': INFLATION_QUIZ,

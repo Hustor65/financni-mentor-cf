@@ -79,6 +79,38 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       ],
     },
   ],
+  'dane-brigada': [
+    {
+      h: 'Hrubá mzda není to, co dostaneš',
+      p: 'Když se domluvíš na brigádě „za 150 Kč na hodinu", je to hrubá mzda — částka před daněmi a odvody. Na účet ti přijde čistá mzda, což může být míň. Rozdíl je dobré znát, ať tě výplatní páska nepřekvapí.',
+      more: [
+        'Z hrubé mzdy se může strhávat daň z příjmu a takzvané odvody — pojistné na zdravotní a sociální pojištění. Co přesně se strhne, závisí na typu smlouvy a na tom, kolik si vyděláš. U malých studentských brigád bývají srážky nízké nebo nulové, u vyšších výdělků větší.',
+        'Příklad: domluvíš se na 8 000 Kč hrubého za měsíc na dohodu. Pokud podepíšeš „prohlášení poplatníka" (víc o něm dál) a jsi pod limitem pro odvody, může ti na účet přijít prakticky celých 8 000 Kč. Bez prohlášení by ti naopak mohli strhnout daň, kterou si ale později vezmeš zpátky.',
+        'Důležité je rozlišovat měsíční a roční pohled. Některé srážky se počítají měsíčně, ale daň se „zúčtuje" za celý rok — proto se i sražená daň dá po roce vrátit, když byl tvůj celkový příjem nízký.',
+        'Pravidlo do života: vždy se ptej na ČISTOU částku („kolik mi reálně přijde na účet?"), ne jen na hrubou. A schovávej si výplatní pásky a doklady — budou se hodit při daňovém přiznání.',
+      ],
+    },
+    {
+      h: 'DPP, DPČ, HPP — jaký je rozdíl',
+      p: 'Brigády se nejčastěji dělají na „dohodu": DPP (dohoda o provedení práce) nebo DPČ (dohoda o pracovní činnosti). HPP (hlavní pracovní poměr) je klasická plná smlouva. Liší se limity hodin, výší odvodů a ochranou.',
+      more: [
+        'DPP (dohoda o provedení práce) je u studentů nejběžnější. Má roční limit odpracovaných hodin u jednoho zaměstnavatele a do určité měsíční odměny se z ní neplatí sociální a zdravotní pojištění. Ten limit se ale rok od roku mění — aktuální hranici si vždy ověř (u zaměstnavatele, na webu Finanční správy nebo se zeptej mentora).',
+        'DPČ (dohoda o pracovní činnosti) umožňuje pracovat víc hodin pravidelně, ale odvody se platí dřív (od nižší částky). HPP je plnohodnotná smlouva s nejvyšší ochranou (výpovědní lhůta, dovolená, nemocenská), ale i nejvyššími odvody.',
+        'Pro krátkou brigádu vedle školy bývá DPP nejjednodušší. Když ale plánuješ pracovat hodně a pravidelně, může se hodit DPČ nebo HPP — kvůli ochraně i tomu, že platíš pojištění (a třeba se ti počítá do důchodu).',
+        'Než něco podepíšeš, přečti si, jaký typ smlouvy to je, kolik je hrubá odměna a jestli máš podepsat prohlášení poplatníka. Když si nejsi jistý, zeptej se — je úplně normální se ptát.',
+      ],
+    },
+    {
+      h: 'Jak si daň vzít zpátky',
+      p: 'Spousta studentů zbytečně přijde o peníze, protože neví, že sraženou daň jde získat zpět. Klíč jsou dvě věci: podepsat „prohlášení poplatníka" a po roce podat daňové přiznání.',
+      more: [
+        '„Prohlášení poplatníka" (lidově „růžový papír") je formulář u zaměstnavatele, díky kterému můžeš uplatnit slevu na poplatníka — v roce 2026 je to 30 840 Kč za rok (2 570 Kč měsíčně). Tahle sleva ti snižuje daň, takže u běžné studentské brigády ti daň často vyjde na nulu. Podepsat ho můžeš ale jen u jednoho zaměstnavatele zároveň.',
+        'Když ti přesto nějakou daň strhli (třeba jsi prohlášení nepodepsal nebo měl víc brigád), můžeš si ji po skončení roku vyžádat zpět. Podáš daňové přiznání, uplatníš slevu na poplatníka a finanční úřad ti přeplatek vrátí na účet. U studentů to často bývá několik tisíc korun.',
+        'Jako student můžeš mít navíc nárok na slevu na studenta (pokud platí pravidla pro daný rok) — další důvod, proč se přiznání vyplatí. Konkrétní podmínky a částky si ověř pro aktuální rok.',
+        'Praktický návod: schovej si všechny výplatní pásky a „potvrzení o zdanitelných příjmech" od zaměstnavatelů. Po Novém roce podáš přiznání (jde to online přes portál Finanční správy). Když si nevíš rady, daňové přiznání ti pomůže vyplnit i rodič nebo poradna — není to tak složité, jak to zní.',
+      ],
+    },
+  ],
   'slozene-uroceni': [
     {
       h: 'Co je složené úročení',

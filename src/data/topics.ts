@@ -16,6 +16,7 @@ export interface Topic {
 export const TOPICS: Topic[] = [
   { id: 'rozpocet', title: 'Rozpočet a první peníze', icon: 'coins', summary: 'Kam s penězi z brigády a jak mít přehled o výdajích. Nejlepší start.', status: 'live' },
   { id: 'scamy', title: 'Podvody a scamy', icon: 'alert-triangle', summary: 'Jak poznat finanční podvod a nenaletět „zaručeným výnosům" ani phishingu.', status: 'live' },
+  { id: 'dane-brigada', title: 'Daně z brigády', icon: 'file-text', summary: 'Hrubá vs. čistá mzda a jak si po brigádě říct o vrácení daně.', status: 'live' },
   { id: 'slozene-uroceni', title: 'Složené úročení', icon: 'trending-up', summary: 'Jak peníze rostou exponenciálně a proč začít brzy.', status: 'live' },
   { id: 'akcie-etf', title: 'Akcie, ETF a dluhopisy', icon: 'bar-chart-3', summary: 'Stavební kameny portfolia a jak se liší.', status: 'live' },
   { id: 'inflace', title: 'Inflace', icon: 'trending-down', summary: 'Proč hotovost „pod polštářem“ reálně ztrácí.', status: 'live' },
@@ -36,6 +37,13 @@ export const SCAMY_QUIZ: QuizQuestion[] = [
   { q: 'Někdo ti slibuje „zaručený" výnos 30 % měsíčně bez rizika. Co to znamená?', options: ['Skvělou příležitost, hned do toho', 'Skoro jistě podvod — vysoký výnos bez rizika neexistuje', 'Úplně běžný výnos u akcií'], correct: 1, explain: 'Čím vyšší slíbený výnos, tím vyšší riziko. „Zaručený" vysoký výnos bez rizika je klasický znak podvodu.' },
   { q: 'Přijde ti SMS „od banky": „Podezřelá platba, potvrď identitu na tomto odkazu." Co uděláš?', options: ['Kliknu a vyplním údaje, ať mi účet nezablokují', 'Neklikám — ověřím to přímo v appce banky nebo na oficiálním webu', 'Přepošlu to kamarádům'], correct: 1, explain: 'To je phishing. Banka tě nikdy nežádá o hesla přes odkaz v SMS nebo e‑mailu. Nikdy neklikej — jdi rovnou do oficiální appky či na web banky.' },
   { q: 'Nabídka „brigády": necháš si posílat cizí peníze na svůj účet a pošleš je dál za 10 % odměny. Co to je?', options: ['Snadný přivýdělek', 'Money muling — praní špinavých peněz, je to trestné', 'Normální práce z domova'], correct: 1, explain: 'Tohle je money muling — pomáháš prát špinavé peníze a je to trestné, i když „jen přeposíláš". Svůj účet nikdy nepůjčuj cizím lidem.' },
+];
+
+// Téma „Daně z brigády" — první kontakt studenta s daněmi (hrubá/čistá, DPP/DPČ, vrácení daně).
+export const BRIGADA_QUIZ: QuizQuestion[] = [
+  { q: 'Jaký je rozdíl mezi hrubou a čistou mzdou?', options: ['Žádný, je to totéž', 'Hrubá je před odečtením daní a odvodů, čistá je to, co ti reálně přijde', 'Čistá je víc než hrubá'], correct: 1, explain: 'Hrubá mzda je částka před odečtením daně a odvodů. Čistá mzda je to, co ti po srážkách opravdu dorazí na účet.' },
+  { q: 'Podepíšeš u zaměstnavatele „prohlášení poplatníka". K čemu to je?', options: ['Zvýší ti to daň', 'Umožní uplatnit slevu na poplatníka, takže platíš nižší (často nulovou) daň', 'Nic to nedělá'], correct: 1, explain: 'Díky prohlášení můžeš uplatnit slevu na poplatníka (2026 je 30 840 Kč ročně). U běžné studentské brigády ti tak daň často vyjde na nulu.' },
+  { q: 'Z brigády ti strhli zálohovou/srážkovou daň. Můžeš ji dostat zpět?', options: ['Ne, daň je nenávratná', 'Často ano — když po roce podáš daňové přiznání a uplatníš slevu na poplatníka', 'Jen když si o to řekneš zaměstnavateli hned'], correct: 1, explain: 'Když máš nižší roční příjem, část nebo celá sražená daň se ti přes daňové přiznání vrátí. Spousta studentů o tyhle peníze zbytečně přijde.' },
 ];
 
 export const INFLATION_QUIZ: QuizQuestion[] = [
