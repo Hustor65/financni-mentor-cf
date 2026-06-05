@@ -520,7 +520,7 @@ body::after {
   /* jen velmi jemné ztmavení k okrajům pro hloubku — nízká opacita, žádné ostré rohy
      ani maska, aby NEvznikla viditelná hranice mezi hero a zbytkem stránky */
   background:
-    radial-gradient(ellipse 92% 82% at 50% 40%, transparent 62%, rgba(8,14,28,0.20) 100%);
+    radial-gradient(ellipse 96% 86% at 50% 40%, transparent 48%, rgba(6,11,22,0.42) 100%);
   pointer-events: none;
 }
 
@@ -535,6 +535,9 @@ body::after {
   text-align: center;
   padding: 2rem;
   pointer-events: none;
+  /* scrim za textem — měkká tmavá elipsa, ať je titulek + CTA VŽDY čitelný přes
+     rotující jasná místa glóbu (světla burz a oblouky se sbíhají u středu). */
+  background: radial-gradient(ellipse 62% 48% at 50% 45%, rgba(6,11,22,0.55) 0%, rgba(6,11,22,0.26) 52%, transparent 80%);
   /* hero (titulek + CTA) posunutý trochu nahoru, ladí s planetou výš */
   transform: translateY(-6vh);
 }
@@ -575,7 +578,7 @@ body::after {
   letter-spacing: -0.04em;
   color: #ffffff;
   margin: 0 0 1.5rem;
-  text-shadow: 0 0 90px rgba(37, 150, 190, 0.45);
+  text-shadow: 0 2px 28px rgba(4, 9, 18, 0.8), 0 0 80px rgba(37, 150, 190, 0.35);
 }
 
 .hero-fs-title .accent {

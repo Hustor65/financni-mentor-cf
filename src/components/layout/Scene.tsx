@@ -231,9 +231,13 @@ const ARC_ORDER: number[] = (() => {
 
 /* Azurový gradient pro oblouky (průhledný → azur → průhledný = putující pulz). */
 const ARC_COLOR: string[] = ['rgba(58,181,224,0)', CYAN, 'rgba(58,181,224,0)'];
+/* ~17 % oblouků dostane ZELENÝ pulz (teal→emerald) = brand-echo s azurovo-zeleným
+ * titulkem → glóbus „si podá ruku" s textem, ubyde monochromní placatost. */
+const ARC_COLOR_GREEN: string[] = ['rgba(45,212,191,0)', '#2dd4bf', 'rgba(45,212,191,0)'];
 /* Stabilní arc accessory nezávislé na dávce (module-scope → nespouští re-digest
  * při každém posunu okna; měnit se musí JEN dash-length/animate-time, viz JSX). */
-const ARC_COLOR_FN = (): string[] => ARC_COLOR;
+const ARC_COLOR_FN = (d: object): string[] =>
+  (d as ArcDatum).id % 6 === 0 ? ARC_COLOR_GREEN : ARC_COLOR;
 const ARC_ALT_FN = (d: object): number => (d as ArcDatum).alt;
 const ARC_INITGAP_FN = (d: object): number => (d as ArcDatum).initGap;
 
@@ -620,13 +624,13 @@ function FresnelRim({ color }: { color: string }) {
   const uniforms = useMemo(
     () => ({
       uColor: { value: new THREE.Color(color) },
-      uOpacity: { value: 0.17 }, // subtle azurový lem
-      uPower: { value: 3.2 },
+      uOpacity: { value: 0.22 }, // měkká svatozář — větší a měkčí → čte jako atmosféra planety
+      uPower: { value: 2.6 },
     }),
     [color],
   );
   return (
-    <mesh scale={1.018} renderOrder={2}>
+    <mesh scale={1.1} renderOrder={2}>
       <sphereGeometry args={[GLOBE_RADIUS, 48, 48]} />
       <shaderMaterial
         vertexShader={FRESNEL_VERT}
@@ -714,8 +718,8 @@ function CityLights({ frozen }: { frozen: boolean }) {
       pos[i * 3 + 0] = rad * Math.sin(phi) * Math.cos(theta);
       pos[i * 3 + 1] = rad * Math.cos(phi);
       pos[i * 3 + 2] = rad * Math.sin(phi) * Math.sin(theta);
-      size[i] = h.tier === 'mega' ? 22 : h.tier === 'major' ? 15 : 10;
-      bright[i] = h.tier === 'mega' ? 1.0 : h.tier === 'major' ? 0.68 : 0.46;
+      size[i] = h.tier === 'mega' ? 22 : h.tier === 'major' ? 14 : 9;
+      bright[i] = h.tier === 'mega' ? 1.0 : h.tier === 'major' ? 0.55 : 0.3;
       seed[i] = rng();
     }
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
@@ -1074,10 +1078,12 @@ export function HeroScene({
       style={{ background: 'transparent', position: 'absolute', inset: 0 }}
       onCreated={({ camera }) => camera.lookAt(0, -28, 0)}
     >
-      {/* osvětlení — MeshPhong povrch + tečky potřebují světlo */}
-      <ambientLight intensity={1.6} color="#9fd6f0" />
-      <directionalLight position={[-180, 120, 200]} intensity={1.1} color="#cfeeff" />
-      <pointLight position={[200, -60, 120]} intensity={0.6} color={accentColor} />
+      {/* osvětlení s TERMINÁTOREM: nižší ambient + silný TEPLÝ key + chladný FIALOVÝ fill
+          → koule dostane světlou a tmavou stranu (objem), místo plochého rovnoměrného
+          nasvícení, které vypadá „placatě 2D". (Teplo/chlad kontrast = hloubka.) */}
+      <ambientLight intensity={0.7} color="#6f9bbd" />
+      <directionalLight position={[-160, 130, 190]} intensity={1.7} color="#fff0db" />
+      <pointLight position={[230, -50, 90]} intensity={1.0} color="#5b6cf5" />
 
       {/* vesmírné pozadí: vrstvené hvězdy + slabá mlhovina + tlumený bg-parallax */}
       <SpaceBackground frozen={bgFrozen} />
