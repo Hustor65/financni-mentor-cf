@@ -204,26 +204,15 @@ function buildArcs(): ArcDatum[] {
 }
 const ARCS: ArcDatum[] = buildArcs(); // ≈ 50 arcs after dedup/skip
 
-/* ── Dávkové „vysílání signálů" (perf na slabších strojích) ──────────────────
- * Všech ~50 oblouků zůstává v grafu (geometrie postavená JEDNOU — měnit arcsData
- * = drahý rebuild tube). Pulz ale „vysílá" jen ACTIVE_ARCS z nich naráz; okno se
- * po ARC_BATCH_MS posune o ARC_BATCH_STEP přes zamíchané pořadí → signály se
- * postupně střídají po celé síti místo 50 najednou. Spící oblouk = arcDashLength 0
- * (fragment shader pixely zahodí) + animace zmrazená → minimální fill/CPU. */
-const ACTIVE_ARCS = 18;     // kolik pulzů „vysílá" zároveň (víc signálů, pořád plynulé)
-const ARC_BATCH_MS = 1100;  // jak často se okno posune (ne každý frame!)
-const ARC_BATCH_STEP = 3;   // o kolik se okno posune (menší = plynulejší střídání)
-/* Deterministicky zamíchané pořadí indexů (mulberry32, žádný Math.random v renderu
- * → react-hooks v7 purita) — rozptýlí aktivní oblouky po celé síti, ne „v řadě". */
-const ARC_ORDER: number[] = (() => {
-  const idx = ARCS.map((_, i) => i);
-  const rng = mulberry32(0x5a7c91);
-  for (let i = idx.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [idx[i], idx[j]] = [idx[j], idx[i]];
-  }
-  return idx;
-})();
+/* ── Oblouky vysílají signál PLYNULE a nepřetržitě ────────────────────────────
+ * Dřív se „aktivní okno" pulzů posouvalo po síti (dávkování kvůli perf). Jenže
+ * když okno opustilo oblouk UPROSTŘED letu, pulz skokem zmizel (dashLength→0) →
+ * čáry „nedojely", síť působila sekaně. Teď pulzuje VŠECH ~50 oblouků naráz a
+ * nepřetržitě; nehoří identicky, protože je de-syncuje fáze (initGap) + per-arc
+ * rychlost (animMs). Žádné okno = žádné mizení uprostřed letu + arcsData je teď
+ * stabilní reference (po vstupu žádný re-digest → i méně CPU). Na slabším HW jen
+ * polovina oblouků (fill na integrované GPU), pořád ale všechny plynule dojedou. */
+const DISPLAY_ARCS: ArcDatum[] = LOW_PERF ? ARCS.filter((_, i) => i % 2 === 0) : ARCS;
 
 /* Markery burz = zářící „světla měst" (komponenta CityLights níže) — sedí na
  * povrchu jako měkká světla, ne trčící válečky. Staví se přímo z HUBS (tier řídí
@@ -799,27 +788,7 @@ function GlobeBody({
     const t = setTimeout(() => setArcsReady(true), 320);
     return () => clearTimeout(t);
   }, [still]);
-  const arcsData = still || arcsReady ? ARCS : [];
-
-  // Dávkové vysílání signálů: okno ACTIVE_ARCS aktivních pulzů se posouvá po síti
-  // (perf — ať se nehýbe všech ~50 najednou). Interval běží JEN když scéna žije
-  // (ne paused/still) → na pozadí/při reduced-motion netiká. Reduced-motion (still)
-  // = všechny oblouky statické plné (řeší JSX accessory), dávka se neuplatní.
-  const [arcBatch, setArcBatch] = useState(0);
-  useEffect(() => {
-    if (still || paused) return;
-    const id = setInterval(
-      () => setArcBatch((b) => (b + ARC_BATCH_STEP) % ARC_ORDER.length),
-      ARC_BATCH_MS,
-    );
-    return () => clearInterval(id);
-  }, [still, paused]);
-  const activeArcs = useMemo(() => {
-    const s = new Set<number>();
-    const n = ARC_ORDER.length;
-    for (let i = 0; i < ACTIVE_ARCS && i < n; i++) s.add(ARC_ORDER[(arcBatch + i) % n]);
-    return s;
-  }, [arcBatch]);
+  const arcsData = still || arcsReady ? DISPLAY_ARCS : [];
 
   // OKLUDÉR: koule nic nemaluje (colorWrite:false), ale PÍŠE hloubku (depthWrite:true,
   // depthTest:true) → v opaque passu zakryje VŠE s depthTest:true za diskem planety:
@@ -1013,18 +982,17 @@ function GlobeBody({
               arcStroke={0.3}
               arcCurveResolution={32}
               arcCircularResolution={4}
-              // DÁVKOVÁNÍ: pulz „vysílá" jen aktivní oblouky (activeArcs), zbytek má
-              // dashLength 0 (shader pixely zahodí) + zmrazenou animaci → menší fill/CPU.
-              // still (reduced-motion) → všechny plné statické (dashLength 1, gap 0).
-              // arcColor/arcAltitude/arcDashInitialGap/arcDashGap jsou STABILNÍ reference,
-              // mění se jen dashLength/animateTime → re-digest přepíše levné uniformy,
-              // NE tube geometrii (ta zůstává postavená jednou).
-              arcDashLength={(d: object) =>
-                still ? 1 : activeArcs.has((d as ArcDatum).id) ? 0.34 : 0}
+              // PLYNULÝ pulz: všechny oblouky mají stálou dash-délku a běží pořád;
+              // de-sync drží initGap (fáze) + per-arc animMs (rychlost) → pulzy se
+              // nepřekrývají identicky, ale žádný nezmizí uprostřed letu. still
+              // (reduced-motion) → plná statická čára (dashLength 1, gap 0).
+              // Všechna accessory jsou STABILNÍ reference → po vstupním draw-in
+              // žádný re-digest (tube geometrie postavená jednou, uniformy beze změn).
+              arcDashLength={still ? 1 : 0.34}
               arcDashGap={still ? 0 : 2.2}
               arcDashInitialGap={ARC_INITGAP_FN}
               arcDashAnimateTime={(d: object) =>
-                still || !activeArcs.has((d as ArcDatum).id) ? 0 : (d as ArcDatum).animMs}
+                still ? 0 : (d as ArcDatum).animMs}
               arcsTransitionDuration={still ? 0 : 1500}
               // RADAR PULZ na hlavních burzách: rozšiřující se prstenec („ping").
               // still (reduced-motion) → žádné ringy; paused/still zmrazí pauseAnimation().
