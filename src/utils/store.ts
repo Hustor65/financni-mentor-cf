@@ -31,12 +31,22 @@ export interface Portfolio {
   trades: Trade[];
 }
 
+/** Body za jednotlivé hry v tématu: odhad před čtením, třídění a kvíz. */
+export type PlayKind = 'tip' | 'sort' | 'quiz';
+export type TopicScore = Partial<Record<PlayKind, number>>;
+
+/** Nejvyšší počet bodů za jednu hru. */
+export const PLAY_MAX: Record<PlayKind, number> = { tip: 20, sort: 30, quiz: 50 };
+const PLAY_KINDS = Object.keys(PLAY_MAX) as PlayKind[];
+
 export interface UserData {
   level: Level;
   completed: string[];
   portfolio: Portfolio;
   /** nejlepší výsledek ve hře Odhadni graf (z 10) */
   guessBest: number;
+  /** nejlepší výsledky her v Akademii podle tématu */
+  scores: Record<string, TopicScore>;
 }
 
 const KEY = 'fm-data';
@@ -44,7 +54,7 @@ const MAX_TRADES = 200;
 
 export const emptyPortfolio = (): Portfolio => ({ cash: START_CASH, positions: {}, trades: [] });
 
-const defaults = (): UserData => ({ level: 'start', completed: [], portfolio: emptyPortfolio(), guessBest: 0 });
+const defaults = (): UserData => ({ level: 'start', completed: [], portfolio: emptyPortfolio(), guessBest: 0, scores: {} });
 
 const num = (v: unknown, fallback: number) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
 
@@ -56,6 +66,17 @@ export function sanitize(raw: unknown): UserData {
   if (r.level === 'pro') d.level = 'pro';
   if (Array.isArray(r.completed)) d.completed = [...new Set(r.completed.filter((x): x is string => typeof x === 'string'))].slice(0, 200);
   d.guessBest = Math.min(10, Math.max(0, Math.round(num(r.guessBest, 0))));
+  if (r.scores && typeof r.scores === 'object') {
+    for (const [topic, raw] of Object.entries(r.scores as Record<string, Record<string, unknown>>).slice(0, 200)) {
+      if (!raw || typeof raw !== 'object') continue;
+      const score: TopicScore = {};
+      for (const kind of PLAY_KINDS) {
+        const pts = Math.min(PLAY_MAX[kind], Math.max(0, Math.round(num(raw[kind], 0))));
+        if (pts > 0) score[kind] = pts;
+      }
+      if (Object.keys(score).length) d.scores[topic] = score;
+    }
+  }
 
   const p = r.portfolio as Record<string, unknown> | undefined;
   if (p && typeof p === 'object') {
@@ -119,7 +140,8 @@ export const useUserData = (): UserData => useSyncExternalStore(subscribeData, g
 
 /** true = návštěvník tu ještě nic neudělal (není co slučovat s účtem) */
 export const isPristine = (d: UserData) =>
-  d.completed.length === 0 && d.portfolio.trades.length === 0 && d.guessBest === 0;
+  d.completed.length === 0 && d.portfolio.trades.length === 0 && d.guessBest === 0
+  && Object.keys(d.scores).length === 0;
 
 /** Sloučí postup z prohlížeče s postupem z účtu — nic hotového se neztratí. */
 export function mergeData(local: UserData, remote: UserData): UserData {
@@ -129,8 +151,37 @@ export function mergeData(local: UserData, remote: UserData): UserData {
     // portfolia sčítat nejde; platí to z účtu, pokud se v něm už obchodovalo
     portfolio: remote.portfolio.trades.length ? remote.portfolio : local.portfolio,
     guessBest: Math.max(local.guessBest, remote.guessBest),
+    scores: mergeScores(local.scores, remote.scores),
   };
 }
+
+function mergeScores(a: Record<string, TopicScore>, b: Record<string, TopicScore>): Record<string, TopicScore> {
+  const out: Record<string, TopicScore> = {};
+  for (const topic of new Set([...Object.keys(a), ...Object.keys(b)])) {
+    const score: TopicScore = {};
+    for (const kind of PLAY_KINDS) {
+      const pts = Math.max(a[topic]?.[kind] ?? 0, b[topic]?.[kind] ?? 0);
+      if (pts > 0) score[kind] = pts;
+    }
+    out[topic] = score;
+  }
+  return out;
+}
+
+/* ── Body za hry v Akademii ───────────────────────────────── */
+
+/** Zapíše výsledek hry; počítá se jen nejlepší pokus, takže opakováním body nepřibývají. */
+export function recordScore(topic: string, kind: PlayKind, points: number) {
+  const pts = Math.min(PLAY_MAX[kind], Math.max(0, Math.round(points)));
+  if (pts <= (state.scores[topic]?.[kind] ?? 0)) return;
+  updateData({ scores: { ...state.scores, [topic]: { ...state.scores[topic], [kind]: pts } } });
+}
+
+export const topicPoints = (score: TopicScore | undefined): number =>
+  PLAY_KINDS.reduce((sum, kind) => sum + (score?.[kind] ?? 0), 0);
+
+export const totalPoints = (scores: Record<string, TopicScore>): number =>
+  Object.values(scores).reduce((sum, score) => sum + topicPoints(score), 0);
 
 /* ── Portfolio na zkoušku ─────────────────────────────────── */
 

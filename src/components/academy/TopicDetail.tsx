@@ -3,7 +3,11 @@ import { ACADEMY_LESSONS } from '../../data/knowledge';
 import { TOPICS, ROZPOCET_QUIZ, SCAMY_QUIZ, BRIGADA_QUIZ, DLUHY_QUIZ, JAKNATO_QUIZ, INFLATION_QUIZ, PENSION_QUIZ, RIZIKO_CISLA_QUIZ, OCENENI_QUIZ, TECHNICKA_QUIZ, OPCE_QUIZ } from '../../data/topics';
 import type { QuizQuestion } from '../../data/topics';
 import { TOPIC_THEORY, TOPIC_TOOL_LABEL } from '../../data/topicContent';
+import { TOPIC_GUESS, TOPIC_SORT, topicMax } from '../../data/play';
+import { recordScore, topicPoints, useUserData } from '../../utils/store';
 import { Quiz } from './Quiz';
+import { GuessFirst } from './GuessFirst';
+import { SortGame } from './SortGame';
 import { TheoryItem } from './TheoryItem';
 import { Icon } from '../Icon';
 import { CompoundInterestCalc } from '../calculators/CompoundInterestCalc';
@@ -46,7 +50,7 @@ const TOPIC_QUIZ: Record<string, QuizQuestion[]> = {
   'opce': OPCE_QUIZ,
 };
 
-const SECTION = { theory: 'ak-teorie', tool: 'ak-nastroj', quiz: 'ak-kviz' } as const;
+const SECTION = { tip: 'ak-tip', theory: 'ak-teorie', tool: 'ak-nastroj', sort: 'ak-trideni', quiz: 'ak-kviz' } as const;
 
 // Skok na část stránky. Kotvy v adrese použít nejde — hash patří směrování.
 const jumpTo = (id: string) => {
@@ -59,7 +63,13 @@ const jumpTo = (id: string) => {
 
 export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onComplete, onAskMentor, onOpenMarket }) => {
   const topic = TOPICS.find(t => t.id === topicId);
+  const { scores } = useUserData();
   if (!topic) return null;
+
+  const guess = TOPIC_GUESS[topicId];
+  const sortSet = TOPIC_SORT[topicId];
+  const points = topicPoints(scores[topicId]);
+  const maxPoints = topicMax(topicId);
 
   const theory = TOPIC_THEORY[topicId] ?? [];
   const quizData = TOPIC_QUIZ[topicId] ?? [];
@@ -93,8 +103,10 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
   const hasTool = tool !== null || marketTask;
 
   const parts: { id: string; label: string }[] = [];
+  if (guess) parts.push({ id: SECTION.tip, label: 'Tipni si' });
   if (theory.length > 0) parts.push({ id: SECTION.theory, label: 'Teorie' });
   if (hasTool) parts.push({ id: SECTION.tool, label: 'Vyzkoušej si' });
+  if (sortSet) parts.push({ id: SECTION.sort, label: 'Roztřiď' });
   if (quizData.length > 0) parts.push({ id: SECTION.quiz, label: 'Ověř si' });
 
   return (
@@ -107,6 +119,17 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
       <header className="page-head">
         <h1 className="page-title">{topic.title}</h1>
         <p className="page-lead">{topic.summary}</p>
+        <div className="ak-score">
+          <p className="ak-score__text num">
+            <strong>{points} z {maxPoints}</strong> bodů za tohle téma
+          </p>
+          <div
+            className="ui-progress" role="progressbar" aria-label="Body za téma"
+            aria-valuemin={0} aria-valuemax={maxPoints} aria-valuenow={points}
+          >
+            <span style={{ width: `${(points / maxPoints) * 100}%` }} />
+          </div>
+        </div>
       </header>
 
       {parts.length > 1 && (
@@ -122,6 +145,16 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
             ))}
           </ol>
         </nav>
+      )}
+
+      {/* ── Odhad před čtením ── */}
+      {guess && (
+        <section className="ui-sec ak-sec" id={SECTION.tip} tabIndex={-1} aria-labelledby={`${SECTION.tip}-h`}>
+          <h2 className="ui-sec__title" id={`${SECTION.tip}-h`}>Tipni si, než začneš číst</h2>
+          <div className="ui-panel ak-play">
+            <GuessFirst key={topicId} topicId={topicId} guess={guess} />
+          </div>
+        </section>
       )}
 
       {/* ── Teorie ── */}
@@ -155,12 +188,26 @@ export const TopicDetail: React.FC<TopicDetailProps> = ({ topicId, onBack, onCom
         </section>
       )}
 
+      {/* ── Třídění ── */}
+      {sortSet && (
+        <section className="ui-sec ak-sec" id={SECTION.sort} tabIndex={-1} aria-labelledby={`${SECTION.sort}-h`}>
+          <h2 className="ui-sec__title" id={`${SECTION.sort}-h`}>Roztřiď kartičky</h2>
+          <div className="ui-panel ak-play">
+            <SortGame key={topicId} topicId={topicId} set={sortSet} />
+          </div>
+        </section>
+      )}
+
       {/* ── Kvíz ── */}
       {quizData.length > 0 && (
         <section className="ui-sec ak-sec" id={SECTION.quiz} tabIndex={-1} aria-labelledby={`${SECTION.quiz}-h`}>
           <h2 className="ui-sec__title" id={`${SECTION.quiz}-h`}>Ověř si, co víš</h2>
-          <div className="ui-panel ak-quiz-panel">
-            <Quiz key={topicId} questions={quizData} onComplete={() => onComplete?.(topicId)} />
+          <div className="ui-panel ak-play">
+            <Quiz
+              key={topicId} questions={quizData}
+              onComplete={() => onComplete?.(topicId)}
+              onScore={pts => recordScore(topicId, 'quiz', pts)}
+            />
           </div>
         </section>
       )}

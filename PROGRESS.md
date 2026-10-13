@@ -132,3 +132,12 @@
 - **Změny chování:** limity vstupů v kalkulačkách (výnos/inflace ≤ 20 %, doba ≤ 60 let, měsíční vklad ≤ 200 000 Kč), výchozí vklad do DIP 24 000 Kč, opakování po chybě v chatu nahradí neúspěšný pokus, mentor má zakázané emoji úplně.
 - **Postup práce agentů:** sdílený strom, každý jen své soubory, náhled přes `npx vite --port 5173` (pod iCloudem tentokrát fungoval), zadání v `scratchpad/redesign-brief.md` (dočasné).
 - **K potvrzení autorem:** zkrácené právní upozornění v patičce, přepsaná tvrzení na stránce Přesnost, nové texty v kalkulačkách.
+
+## 33. Hry v začátečnických tématech a body (13. 10. 2026)
+
+- **Tipni si (`components/academy/GuessFirst.tsx`):** před teorií odhad jednoho čísla na posuvníku, po odhalení srovnání s výsledkem a vysvětlení. Body podle přesnosti (5–20), jezdec začíná na kraji stupnice, aby střed nenapovídal.
+- **Roztřiď kartičky (`SortGame.tsx`):** šest tvrzení po jednom do dvou hromádek (potřeba/chtění, pravda/mýtus, akcie/dluhopis…), odezva hned, až 30 bodů.
+- **Kvíz (`Quiz.tsx`):** po jedné otázce, vyhodnocení a vysvětlení hned po kliknutí, až 50 bodů. Splnění tématu se nemění (aspoň 60 % správně).
+- **Obsah her:** `src/data/play.ts` pro všech 11 začátečnických témat. Čísla jsou spočitatelná ze zadání nebo převzatá z teorie — při změně teorie (sleva na poplatníka, limity DIP, časový test) upravit i tam. Pokročilá témata mají jen kvíz.
+- **Body:** `scores` v `utils/store.ts` (nejlepší pokus za hru a téma, opakováním nepřibývají, slučují se s účtem přes maximum). Na stránce tématu ukazatel „x z 100“, na kartách témat, na Přehledu a v Akademii úroveň (pět stupňů v `RANKS`) a odznaky (`Badges.tsx`, dřív nepoužité).
+- **Stav:** commitnuto a nasazeno 13. 10. 2026.

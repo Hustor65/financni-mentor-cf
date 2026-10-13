@@ -6,6 +6,9 @@ import { TopicCard } from './TopicCard';
 import { StartPath } from '../StartPath';
 import { Glossary } from './Glossary';
 import { ProductComparison } from './ProductComparison';
+import { Badges } from './Badges';
+import { body, rankOf, RANKS, topicMax } from '../../data/play';
+import { topicPoints, totalPoints, useUserData } from '../../utils/store';
 
 interface Props {
   level: Level;
@@ -24,13 +27,21 @@ export const Academy: React.FC<Props> = ({ level, onLevelChange, completed, onOp
   const firstOpen = levelTopics.find(t => !completed.has(t.id))?.id;
   const pct = levelTopics.length ? Math.round((done / levelTopics.length) * 100) : 0;
 
+  const { scores } = useUserData();
+  const points = totalPoints(scores);
+  const rank = rankOf(points);
+  const toNext = rank.next ? rank.next.from - points : 0;
+  const rankPct = rank.next
+    ? ((points - rank.current.from) / (rank.next.from - rank.current.from)) * 100
+    : 100;
+
   return (
     <div>
       <header className="page-head page-head--split">
         <div>
           <h1 className="page-title">Akademie</h1>
           <p className="page-lead">
-            Každé téma má krátkou teorii, něco, co si můžeš sám vyzkoušet, a tři otázky na konec.
+Každé téma má krátkou teorii, hry na vyzkoušení a tři otázky na konec. Za hry sbíráš body.
             {' '}{LEVELS.find(l => l.id === level)!.lead}
           </p>
         </div>
@@ -46,6 +57,29 @@ export const Academy: React.FC<Props> = ({ level, onLevelChange, completed, onOp
           <div className="ui-progress" aria-hidden="true"><span style={{ width: `${pct}%` }} /></div>
         </div>
       </header>
+
+      <section className="ak-rank" aria-label="Tvoje úroveň a body">
+        <div className="ak-rank__main">
+          <p className="ui-hero-num num">
+            <span className="ui-hero-num__label">Úroveň {rank.index + 1} z {RANKS.length}: {rank.current.label}</span>
+            {points} {body(points)}
+          </p>
+          <div className="ak-rank__next">
+            <div
+              className="ui-progress" role="progressbar" aria-label="Postup k další úrovni"
+              aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(rankPct)}
+            >
+              <span style={{ width: `${rankPct}%` }} />
+            </div>
+            <p className="ak-rank__hint num">
+              {rank.next
+                ? `Do úrovně „${rank.next.label}“ ${toNext >= 2 && toNext <= 4 ? 'zbývají' : 'zbývá'} ${toNext} ${body(toNext)}.`
+                : 'Máš nejvyšší úroveň.'}
+            </p>
+          </div>
+        </div>
+        <Badges completed={completed.size} />
+      </section>
 
       {level === 'start' && <StartPath onOpenTopic={onOpenTopic} completed={completed} />}
 
@@ -63,6 +97,8 @@ export const Academy: React.FC<Props> = ({ level, onLevelChange, completed, onOp
                   onClick={onOpenTopic}
                   completed={completed.has(topic.id)}
                   start={topic.id === firstOpen}
+                  points={topicPoints(scores[topic.id])}
+                  max={topicMax(topic.id)}
                 />
               ))}
             </div>

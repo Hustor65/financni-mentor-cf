@@ -8,9 +8,12 @@ interface TopicCardProps {
   completed?: boolean;
   /** doporučené další téma (první nedokončené na dané úrovni) */
   start?: boolean;
+  /** získané body a maximum za hry v tématu */
+  points: number;
+  max: number;
 }
 
-export const TopicCard: React.FC<TopicCardProps> = ({ topic, onClick, completed, start }) => (
+export const TopicCard: React.FC<TopicCardProps> = ({ topic, onClick, completed, start, points, max }) => (
   <button
     type="button"
     className={`ak-card${completed ? ' is-done' : ''}${start ? ' is-next' : ''}`}
@@ -20,6 +23,10 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, onClick, completed,
     <span className="ak-card__body">
       <span className="ak-card__title">{topic.title}</span>
       <span className="ak-card__summary">{topic.summary}</span>
+      <span className="ak-card__points num">
+        <span className="ui-progress" aria-hidden="true"><span style={{ width: `${(points / max) * 100}%` }} /></span>
+        {points} z {max} bodů
+      </span>
     </span>
     {completed ? (
       <span className="ak-card__state is-done"><Icon name="check-circle" size={16} aria-hidden /> Hotovo</span>

@@ -9,7 +9,8 @@ import type { TabId } from '../../data/nav';
 const QrCode = lazy(() => import('../kiosk/QrCode').then(m => ({ default: m.QrCode })));
 import { useAccount } from '../../utils/account';
 import { KIOSK } from '../../utils/kiosk';
-import { START_CASH, useUserData } from '../../utils/store';
+import { START_CASH, totalPoints, useUserData } from '../../utils/store';
+import { body } from '../../data/play';
 import { TRADABLE, fmtCzk, usePrices, valuePortfolio } from '../../utils/portfolio';
 
 /* ════════════════════════════════════════════════════════════
@@ -200,6 +201,7 @@ export const Home: React.FC<Props> = ({ level, completed, onNavigate, onOpenTopi
 
   const levelTopics = useMemo(() => TOPICS.filter(t => t.level === level), [level]);
   const done = levelTopics.filter(t => completed.has(t.id)).length;
+  const points = totalPoints(useUserData().scores);
   const open = levelTopics.filter(t => !completed.has(t.id));
   const next = open[0];
   const after = open.slice(1, 5);
@@ -237,7 +239,7 @@ export const Home: React.FC<Props> = ({ level, completed, onNavigate, onOpenTopi
           </header>
 
           <div className="hm-progress">
-            <p className="num"><strong>{done} z {levelTopics.length}</strong> témat hotovo</p>
+            <p className="num"><strong>{done} z {levelTopics.length}</strong> témat hotovo · {points} {body(points)}</p>
             <div
               className="ui-progress" role="progressbar" aria-label="Dokončená témata"
               aria-valuemin={0} aria-valuemax={levelTopics.length} aria-valuenow={done}

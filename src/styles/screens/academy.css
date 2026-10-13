@@ -188,51 +188,103 @@
 /* úkol bez nástroje (Čtení grafů) */
 .ak-task { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-5); }
 
-/* ── Kvíz ── */
-.ak-quiz__lead { max-width: var(--measure-text); margin: 0 0 var(--s-6); color: var(--text-3); line-height: 1.6; }
-.ak-quiz__q { max-width: 760px; }
-.ak-quiz__q + .ak-quiz__q { margin-top: var(--s-7); }
-.ak-quiz__question { display: flex; align-items: baseline; gap: var(--s-3); max-width: 60ch; margin: 0 0 var(--s-4); color: var(--text-1); font-size: var(--fs-l); font-weight: 700; line-height: 1.4; }
-.ak-quiz__num { flex: none; color: var(--accent); }
-.ak-quiz__num::after { content: '.'; }
-.ak-quiz .ui-choice { transition: background var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out); }
-.ak-quiz .ui-choice:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
-.ak-quiz .ui-choice input:focus-visible { outline: none; }
-/* vlastní kolečko: nativní radio na tmavém pozadí vypadá cize a nedrží barvu úrovně */
-.ak-quiz .ui-choice input {
+/* ── Hry v tématu: odhad, třídění, kvíz ── */
+.ak-score { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin-top: var(--s-4); }
+.ak-score__text { margin: 0; color: var(--text-3); font-size: var(--fs-s); }
+.ak-score__text strong { color: var(--text-1); font-weight: 700; }
+.ak-score .ui-progress { flex: 0 1 220px; min-width: 120px; }
+
+.ak-play { max-width: 860px; }
+.ak-play__q { max-width: 60ch; margin: 0 0 var(--s-5); color: var(--text-1); font-size: var(--fs-l); font-weight: 700; line-height: 1.4; }
+.ak-play__lead { max-width: var(--measure-text); margin: 0 0 var(--s-4); color: var(--text-3); line-height: 1.6; }
+.ak-play__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-5); margin-top: var(--s-5); }
+.ak-play__hint { color: var(--text-3); font-size: var(--fs-s); }
+.ak-play__note { max-width: var(--measure-text); margin-top: var(--s-5); }
+/* místo pro odezvu je vyhrazené předem, aby po odpovědi stránka neposkočila víc, než musí */
+.ak-play__feedback { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-4); min-height: 96px; margin-top: var(--s-5); }
+.ak-play__feedback .ui-note { max-width: var(--measure-text); animation: ak-rise var(--dur-2) var(--ease-out); }
+.ak-play__result { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--s-5) clamp(24px, 6vw, 72px); animation: ak-rise var(--dur-2) var(--ease-out); }
+.ak-play__result .ui-hero-num { flex: none; }
+.ak-play__result .ui-hero-num.is-passed { color: var(--up); }
+.ak-play__verdict { flex: 1 1 280px; max-width: 56ch; }
+.ak-play__verdict-text { margin: 0 0 var(--s-4); color: var(--text-2); line-height: 1.6; }
+
+@keyframes ak-rise { from { opacity: 0; transform: translateY(6px); } }
+
+/* tečky postupu */
+.ak-pips { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-5); }
+.ak-pips__row { display: flex; gap: 6px; }
+.ak-pip { width: 22px; height: 6px; border-radius: 3px; background: var(--fill-2); transition: background var(--dur-2) var(--ease-out); }
+.ak-pip.is-now { background: var(--accent); }
+.ak-pip.is-ok { background: var(--up); }
+.ak-pip.is-miss { background: var(--down); }
+
+/* odhad na posuvníku */
+.ak-tip__value { margin-bottom: var(--s-4); }
+.ak-range {
   appearance: none;
   -webkit-appearance: none;
-  display: grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  height: 44px;
   margin: 0;
-  border: 1.5px solid var(--text-4);
-  border-radius: 50%;
   background: none;
-  cursor: inherit;
-  transition: border-color var(--dur-1) var(--ease-out);
+  cursor: pointer;
 }
-.ak-quiz .ui-choice input::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); transform: scale(0); transition: transform var(--dur-1) var(--ease-out); }
-.ak-quiz .ui-choice input:checked { border-color: var(--accent); }
-.ak-quiz .ui-choice input:checked::after { transform: scale(1); }
-.ak-quiz .ui-choice.is-locked input { border-color: var(--border-default); }
-.ak-quiz .ui-choice.is-correct input { border-color: var(--up); }
-.ak-quiz .ui-choice.is-correct input::after { background: var(--up); }
-.ak-quiz .ui-choice.is-wrong input { border-color: var(--down); }
-.ak-quiz .ui-choice.is-wrong input::after { background: var(--down); }
+.ak-range::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--accent) var(--fill), var(--fill-2) var(--fill)); }
+.ak-range::-moz-range-track { height: 6px; border-radius: 3px; background: var(--fill-2); }
+.ak-range::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--accent); }
+.ak-range::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -10px; border: 3px solid var(--accent); border-radius: 50%; background: var(--text-1); }
+.ak-range::-moz-range-thumb { box-sizing: border-box; width: 26px; height: 26px; border: 3px solid var(--accent); border-radius: 50%; background: var(--text-1); }
+.ak-range:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--r-s); }
+.ak-range__ends { display: flex; justify-content: space-between; max-width: 560px; color: var(--text-4); font-size: var(--fs-xs); }
+.ak-tip__kpis { animation: ak-rise var(--dur-2) var(--ease-out); }
+.ak-tip__axis { position: relative; max-width: 560px; height: 6px; margin: var(--s-6) 13px 0; border-radius: 3px; background: var(--fill-2); }
+.ak-tip__mark { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%); }
+.ak-tip__mark--guess { border: 2px solid var(--text-2); background: var(--surface-0, #0b1626); }
+.ak-tip__mark--answer { background: var(--accent); }
+
+/* třídění */
+.ak-sort__card {
+  display: flex;
+  align-items: center;
+  min-height: 96px;
+  max-width: 60ch;
+  margin: 0 0 var(--s-5);
+  padding-left: var(--s-4);
+  border-left: 3px solid var(--accent);
+  color: var(--text-1);
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: balance;
+  animation: ak-rise var(--dur-2) var(--ease-out);
+}
+.ak-sort__sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); max-width: 560px; }
+.ak-sort__side { justify-content: center; min-height: 56px; font-size: var(--fs-m); font-weight: 700; }
+.ak-sort__side[aria-disabled='true'] { cursor: default; }
+.ak-sort__side.is-correct, .ak-sort__side.is-correct:hover { border-color: var(--up); background: rgba(52, 211, 153, 0.14); color: var(--up); }
+.ak-sort__side.is-wrong, .ak-sort__side.is-wrong:hover { border-color: var(--down); background: rgba(240, 97, 122, 0.14); color: var(--down); }
+.ak-sort__side[aria-disabled='true']:not(.is-correct, .is-wrong) { opacity: 0.5; }
+
+/* kvíz */
+.ak-quiz__question { max-width: 60ch; margin: 0 0 var(--s-4); color: var(--text-1); font-size: var(--fs-l); font-weight: 700; line-height: 1.4; animation: ak-rise var(--dur-2) var(--ease-out); }
+.ak-quiz .ui-choices { max-width: 760px; }
+.ak-quiz .ui-choice { transition: background var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out); }
 .ak-quiz .ui-choice.is-locked { cursor: default; }
 .ak-quiz .ui-choice.is-locked:hover:not(.is-correct, .is-wrong) { background: none; color: var(--text-2); }
 .ak-quiz .ui-choice.is-locked:not(.is-correct, .is-wrong) { color: var(--text-3); }
 .ak-quiz__opt { flex: 1; min-width: 0; line-height: 1.45; }
-.ak-quiz__explain { max-width: var(--measure-text); margin-top: var(--s-4); }
-.ak-quiz__submit { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-5); }
-.ak-quiz__hint { color: var(--text-3); font-size: var(--fs-s); }
-.ak-quiz__result { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--s-5) clamp(24px, 6vw, 72px); }
-.ak-quiz__result .ui-hero-num { flex: none; white-space: nowrap; }
-.ak-quiz__result .ui-hero-num.is-passed { color: var(--up); }
-.ak-quiz__verdict { flex: 1 1 280px; max-width: 56ch; }
-.ak-quiz__verdict-text { margin: 0 0 var(--s-4); color: var(--text-2); line-height: 1.6; }
+
+/* ── Úroveň a body na přehledu ── */
+.ak-rank { display: grid; gap: var(--s-5); margin-bottom: var(--s-6); }
+.ak-rank__main { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s-4) clamp(24px, 6vw, 72px); }
+.ak-rank__next { flex: 1 1 260px; max-width: 420px; }
+.ak-rank__hint { margin: var(--s-2) 0 0; color: var(--text-3); font-size: var(--fs-s); }
+.ak-card__points { display: flex; align-items: center; gap: var(--s-3); margin-top: auto; padding-top: var(--s-3); color: var(--text-3); font-size: var(--fs-xs); font-weight: 600; }
+.ak-card__points .ui-progress { flex: 0 0 72px; height: 4px; }
 
 /* ── Patička tématu ── */
 .ak-foot { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--s-6) var(--s-7); margin-top: var(--s-8); padding-top: var(--s-6); border-top: 1px solid var(--line); }
@@ -291,11 +343,13 @@
   .ak-path__steps > li + li::before { display: none; }
 
   .ak-theory__body { font-size: 1rem; }
-  .ak-quiz__question { font-size: 1.05rem; }
+  .ak-quiz__question, .ak-play__q { font-size: 1.05rem; }
   .ak-quiz .ui-choice { flex-wrap: wrap; }
-  .ak-quiz__opt { flex: 1 1 calc(100% - 40px); }
-  .ak-quiz .ui-choice .ui-tag { margin-left: 32px; }
-  .ak-quiz__submit .btn, .ak-quiz__verdict .btn { width: 100%; }
+  .ak-quiz__opt { flex: 1 1 calc(100% - 80px); }
+  .ak-quiz .ui-choice .ui-tag { margin-left: 38px; }
+  .ak-play__actions .btn, .ak-play__feedback .btn, .ak-play__verdict .btn { width: 100%; }
+  .ak-pip { width: 16px; }
+  .ak-sort__card { min-height: 84px; }
 
   .ak-foot__nav { align-items: flex-start; margin-left: 0; text-align: left; }
   .ak-foot__ask .btn { width: 100%; }
@@ -303,4 +357,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ak-more, .ak-more.is-open, .ak-more__chevron, .ak-foot__next-title svg { transition: none; }
+  .ak-play__feedback .ui-note, .ak-play__result, .ak-tip__kpis, .ak-sort__card, .ak-quiz__question { animation: none; }
 }
