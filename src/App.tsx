@@ -1,130 +1,177 @@
-import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
-import { useScrollReveal } from './hooks/useScrollReveal';
-import { Navigation } from './components/layout/Navigation';
-import { KPIBar } from './components/layout/KPIBar';
+import React, { useState, useCallback, useEffect, useLayoutEffect, useMemo, useRef, lazy, Suspense, useTransition } from 'react';
+import { TopBar } from './components/layout/TopBar';
+import type { TabId } from './data/nav';
 import { HeroSection } from './components/layout/HeroSection';
 import { Footer } from './components/layout/Footer';
-const ChatInterface = lazy(() => import('./components/chat/ChatInterface').then(m => ({ default: m.ChatInterface })));
-import { TopicCard } from './components/academy/TopicCard';
-const TopicDetail = lazy(() => import('./components/academy/TopicDetail').then(m => ({ default: m.TopicDetail })));
-import { Glossary } from './components/academy/Glossary';
-import { Badges } from './components/academy/Badges';
-import { ProductComparison } from './components/academy/ProductComparison';
-const TrustCenter = lazy(() => import('./components/trust/TrustCenter').then(m => ({ default: m.TrustCenter })));
-import { TOPICS } from './data/topics';
+import { Home } from './components/home/Home';
+import { Academy } from './components/academy/Academy';
 import { CommandPalette } from './components/CommandPalette';
-import { StartPath } from './components/StartPath';
+import { TOPICS } from './data/topics';
+import { TOOLS } from './components/tools/registry';
+import type { Level } from './data/levels';
+import { AccountDialog } from './components/account/AccountDialog';
+import { KioskGuard } from './components/kiosk/KioskGuard';
+import { updateData, useUserData } from './utils/store';
+import { initAccount, signOut } from './utils/account';
+import { KIOSK } from './utils/kiosk';
+import { ErrorBoundary } from './components/ErrorBoundary';
+const ChatInterface = lazy(() => import('./components/chat/ChatInterface').then(m => ({ default: m.ChatInterface })));
+const TopicDetail = lazy(() => import('./components/academy/TopicDetail').then(m => ({ default: m.TopicDetail })));
+const MarketScreen = lazy(() => import('./components/market/MarketScreen').then(m => ({ default: m.MarketScreen })));
+const ToolsHub = lazy(() => import('./components/tools/ToolsHub').then(m => ({ default: m.ToolsHub })));
+const TrustCenter = lazy(() => import('./components/trust/TrustCenter').then(m => ({ default: m.TrustCenter })));
 
 /* ════════════════════════════════════════════════════════════
-   Hash routing — #temata · #temata/<topicId> · #presnost
-   (výchozí „mentor“ = čistá URL bez hashe). Funkční Back/Forward
-   v prohlížeči + sdílitelné odkazy na konkrétní sekci/téma.
+   Hash routing — #akademie · #akademie/<téma> · #trhy · #nastroje ·
+   #trhy/<ticker> · #nastroje/<nástroj> · #mentor · #presnost (Přehled = čistá URL).
+   Funkční Back/Forward a sdílitelné odkazy. Staré odkazy #temata/…
+   se přesměrují na #akademie/….
    ════════════════════════════════════════════════════════════ */
-const VALID_TABS = new Set(['mentor', 'temata', 'presnost']);
+interface Route { tab: TabId; sub: string | null }
 
-function parseHash(): { tab: string; topic: string | null } {
-  if (typeof window === 'undefined') return { tab: 'mentor', topic: null };
-  const raw = decodeURIComponent(window.location.hash.replace(/^#/, ''));
-  const [tab, ...rest] = raw.split('/');
-  if (!VALID_TABS.has(tab)) return { tab: 'mentor', topic: null };
-  if (tab === 'temata') {
-    const id = rest.join('/');
-    return { tab: 'temata', topic: id && TOPICS.some(t => t.id === id) ? id : null };
-  }
-  return { tab, topic: null };
+const TICKER_RE = /^[A-Z0-9.^=-]{1,14}$/;
+
+const TABS = new Set<TabId>(['prehled', 'akademie', 'trhy', 'nastroje', 'mentor', 'presnost']);
+
+function parseHash(): Route {
+  if (typeof window === 'undefined') return { tab: 'prehled', sub: null };
+  let raw = window.location.hash.replace(/^#/, '');
+  try { raw = decodeURIComponent(raw); } catch { /* rozbitý odkaz (#%…) → ber ho doslova */ }
+  const [head, ...rest] = raw.split('/');
+  const tab = (head === 'temata' ? 'akademie' : head) as TabId;
+  if (!TABS.has(tab)) return { tab: 'prehled', sub: null };
+  const sub = rest.join('/');
+  if (tab === 'akademie') return { tab, sub: TOPICS.some(t => t.id === sub) ? sub : null };
+  if (tab === 'nastroje') return { tab, sub: TOOLS.some(t => t.id === sub) ? sub : null };
+  if (tab === 'trhy') return { tab, sub: TICKER_RE.test(sub) ? sub : null };
+  return { tab, sub: null };
 }
 
+const toHash = (r: Route) => (r.tab === 'prehled' ? '' : `#${r.tab}${r.sub ? `/${r.sub}` : ''}`);
+
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(() => parseHash().tab);
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(() => parseHash().topic);
-  const [conversationCount, setConversationCount] = useState(0);
-  const [completedTopics, setCompletedTopics] = useState<Set<string>>(() => {
-    try {
-      const raw = localStorage.getItem('fm-completed-topics');
-      return raw ? new Set<string>(JSON.parse(raw)) : new Set<string>();
-    } catch { return new Set<string>(); }
-  });
-  const [sessionStart] = useState(() => Date.now());
-  const [chatPrompt, setChatPrompt] = useState<string | null>(null);
+  const [route, setRoute] = useState<Route>(parseHash);
+  const { level, completed } = useUserData();
+  const completedTopics = useMemo(() => new Set(completed), [completed]);
+  const [chatPrompt, setChatPrompt] = useState<{ text: string; send: boolean } | null>(null);
   const [cmdkOpen, setCmdkOpen] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
+  // změna klíče zahodí rozdělanou konverzaci s mentorem (režim stánku)
+  const [chatEpoch, setChatEpoch] = useState(0);
   const hashInit = useRef(true);
 
-  // Po navigaci z Command palette: když uživatel kouká na hero (je nahoře),
-  // sjeď plynule dolů na obsah, ať vidí to, co vyhledal — ne pořád hero.
-  // Když už je níž v obsahu, nech ho být (neškubej s ním).
-  const scrollToContentIfAtHero = useCallback(() => {
-    if (typeof window === 'undefined') return;
-    if (window.scrollY < window.innerHeight * 0.9) {
-      requestAnimationFrame(() =>
-        contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      );
-    }
+  const { tab, sub } = route;
+
+  // Jak se na stránku přišlo: odkazem (začni nahoře), tlačítkem Zpět/Vpřed (vrať se,
+  // kde návštěvník byl), nebo jen výběrem titulu v Trzích (nikam neskákej).
+  // navigating = nová stránka se ještě chystá → tenký ukazatel pod lištou, ať je vidět, že klik zabral
+  const [navigating, startNav] = useTransition();
+  const arrival = useRef<'push' | 'pop' | 'stay'>('push');
+  const scrollMemo = useRef(new Map<string, number>());
+
+  // startTransition: dokud se nová stránka nestáhne, zůstává na obrazovce ta stará
+  // (žádná prázdná plocha s poskočenou patičkou mezi stránkami)
+  const go = useCallback((next: TabId, nextSub: string | null = null) => {
+    arrival.current = 'push';
+    startNav(() => setRoute({ tab: next, sub: nextSub }));
+  }, [startNav]);
+
+  // pamatuj si, kde návštěvník na které stránce skončil
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = 0; scrollMemo.current.set(window.location.hash, window.scrollY); });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
-  // Znalostní skóre = % zvládnutých témat (originál počítá z dokončených modulů)
-  const knowledgeScore = Math.min(
-    100,
-    Math.round((completedTopics.size / TOPICS.length) * 100)
-  );
+  useLayoutEffect(() => {
+    if (arrival.current === 'stay') return;
+    const top = arrival.current === 'pop' ? scrollMemo.current.get(toHash(route)) ?? 0 : 0;
+    window.scrollTo({ top, left: 0, behavior: 'instant' });
+  }, [route]);
+
+  // ostatní stránky si stáhni předem, až bude klid → přepnutí je pak okamžité
+  useEffect(() => {
+    const preload = () => {
+      void import('./components/academy/TopicDetail');
+      void import('./components/market/MarketScreen');
+      void import('./components/tools/ToolsHub');
+      void import('./components/chat/ChatInterface');
+      void import('./components/trust/TrustCenter');
+    };
+    if (window.requestIdleCallback) {
+      const id = window.requestIdleCallback(preload, { timeout: 6000 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(preload, 3000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const changeLevel = useCallback((next: Level) => updateData({ level: next }), []);
+
+  const openTopic = useCallback((id: string) => {
+    // téma z druhé úrovně (např. z hledání) → přepni úroveň, ať se má kam vrátit
+    const topic = TOPICS.find(t => t.id === id);
+    if (topic && topic.level !== level) changeLevel(topic.level);
+    go('akademie', id);
+  }, [go, level, changeLevel]);
+
+  const openTool = useCallback((id: string | null) => go('nastroje', id), [go]);
+
+  const openMarket = useCallback((ticker?: string) => go('trhy', ticker ?? null), [go]);
+
+  const askMentor = useCallback((text: string, send = false) => {
+    setChatPrompt({ text, send });
+    go('mentor');
+  }, [go]);
 
   const handleTopicComplete = useCallback((id: string) => {
-    setCompletedTopics(prev => new Set(prev).add(id));
+    updateData(d => (d.completed.includes(id) ? {} : { completed: [...d.completed, id] }));
   }, []);
 
-  const handleMessageSent = useCallback(() => {
-    setConversationCount(c => c + 1);
-  }, []);
+  // režim stánku: po nečinnosti odhlásit, smazat postup i konverzaci a vrátit se na úvod
+  const resetForNextVisitor = useCallback(() => {
+    void signOut(true);
+    setCmdkOpen(false);
+    setAccountOpen(false);
+    setChatPrompt(null);
+    setChatEpoch(e => e + 1);
+    go('prehled');
+  }, [go]);
 
-  // po předvyplnění chatu z initialPrompt prompt vynuluj (M16/M23) → klik na STEJNÉ
-  // téma podruhé ho pošle znovu (jinak identický string a efekt v ChatInterface se nespustí)
+  useEffect(() => { initAccount(); }, []);
+
+  // po předvyplnění chatu prompt vynuluj → stejný dotaz jde poslat znovu (M16/M23)
   const clearChatPrompt = useCallback(() => setChatPrompt(null), []);
 
-  // z detailu tématu rovnou do Mentora s předvyplněným dotazem (kontextový chat)
-  const handleAskMentor = useCallback((topicTitle: string) => {
-    setChatPrompt(`Vysvětli mi prosím téma „${topicTitle}“ co nejjednodušeji.`);
-    setSelectedTopic(null);
-    setActiveTab('mentor');
-  }, []);
+  // akcent celého webu se řídí úrovní (azurová → zelená)
+  useEffect(() => {
+    document.documentElement.dataset.level = level;
+  }, [level]);
 
-  // Scroll-reveal: prvky s .reveal se při vstupu do viewportu plynule "rozbalí".
-  // Jediná instance pro celou appku — MutationObserver uvnitř pokryje i lazy/filtrovaný
-  // obsah (témata, glossář, chat), takže další volání hooku nejsou potřeba (M36).
-  useScrollReveal();
-
-  // Start: deep-link (sdílený odkaz na sekci/téma) sjede rovnou na obsah,
-  // jinak začni nahoře na hero. (Prohlížeč jinak občas obnoví starou pozici.)
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
-    const { tab, topic } = parseHash();
-    if (tab === 'mentor' && !topic) {
-      window.scrollTo(0, 0);
-    } else {
-      requestAnimationFrame(() =>
-        contentRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' })
-      );
-    }
   }, []);
 
-  // Stav → URL hash (Back funguje, odkaz jde sdílet). První zápis po načtení
-  // jen NAHRADÍ (nezakládá zbytečný záznam) — tím se i normalizují divné/neplatné hashe.
+  // Stav → URL hash. První zápis po načtení jen NAHRADÍ (normalizuje staré/neplatné hashe).
   useEffect(() => {
-    let next = '';
-    if (activeTab === 'temata') next = selectedTopic ? `#temata/${selectedTopic}` : '#temata';
-    else if (activeTab === 'presnost') next = '#presnost';
+    const next = toHash(route);
     if (window.location.hash === next) { hashInit.current = false; return; }
     const url = next || window.location.pathname + window.location.search;
     if (hashInit.current) window.history.replaceState(null, '', url);
     else window.history.pushState(null, '', url);
     hashInit.current = false;
-  }, [activeTab, selectedTopic]);
+  }, [route]);
 
   // URL hash → stav (Back/Forward přes popstate, ruční editace hashe přes hashchange)
   useEffect(() => {
     const sync = () => {
-      const { tab, topic } = parseHash();
-      setActiveTab(prev => (prev !== tab ? tab : prev));
-      setSelectedTopic(prev => (prev !== topic ? topic : prev));
+      const next = parseHash();
+      arrival.current = 'pop';
+      startNav(() => setRoute(prev => (prev.tab === next.tab && prev.sub === next.sub ? prev : next)));
     };
     window.addEventListener('popstate', sync);
     window.addEventListener('hashchange', sync);
@@ -132,9 +179,9 @@ const App: React.FC = () => {
       window.removeEventListener('popstate', sync);
       window.removeEventListener('hashchange', sync);
     };
-  }, []);
+  }, [startNav]);
 
-  // globální Cmd/Ctrl+K → přepni rychlé hledání (Command palette)
+  // globální Cmd/Ctrl+K → rychlé hledání
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -146,116 +193,116 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // pamatuj dokončená témata → znalostní skóre přežije refresh i návrat
-  useEffect(() => {
-    try { localStorage.setItem('fm-completed-topics', JSON.stringify([...completedTopics])); } catch { /* ignore */ }
-  }, [completedTopics]);
+  const home = tab === 'prehled';
 
   return (
     <>
-      <HeroSection />
-      <div className="hero-spacer" aria-hidden="true" />
-      <div className="page-content">
-        <div className="container">
-        <div className="spacer-lg" />
+      <a
+        className="skip-link" href="#obsah"
+        onClick={e => { e.preventDefault(); document.getElementById('obsah')?.focus(); }}
+      >
+        Přeskočit na obsah
+      </a>
+      <TopBar
+        active={tab}
+        onNavigate={go}
+        level={level}
+        onLevelChange={changeLevel}
+        onOpenCommand={() => setCmdkOpen(true)}
+        onOpenAccount={() => setAccountOpen(true)}
+      />
 
-        {/* Navigace JAKO PRVNÍ pod hero → nováček hned vidí, kam jít (ne nuly statistik) */}
-        <div className="reveal" ref={contentRef} style={{ scrollMarginTop: 'var(--space-xl)' }}>
-          <Navigation activeTab={activeTab} onTabChange={setActiveTab} onOpenCommand={() => setCmdkOpen(true)} />
-        </div>
+      <div className="nav-progress" data-on={navigating || undefined} aria-hidden="true" />
 
-        <div className="spacer-md" />
+      <HeroSection
+        active={home}
+        onChoose={l => { changeLevel(l); go('akademie'); }}
+        onOpenMarket={openMarket}
+      />
+      {home && <div className="hero-spacer" aria-hidden="true" />}
 
-        <KPIBar
-          conversationCount={conversationCount}
-          sessionStart={sessionStart}
-          knowledgeScore={knowledgeScore}
-          modelName="Online"
-        />
+      <div className={`page-content${home ? '' : ' page-content--inner'}`}>
+        <main id="obsah" className="container page-main" tabIndex={-1}>
+          <ErrorBoundary>
+          <Suspense fallback={<div style={{ minHeight: '60vh' }} aria-hidden="true" />}>
+          {/* klíč = stránka → každý příchod krátce prolne (.route); v Trzích se při změně titulu nemění */}
+          <div key={tab === 'trhy' ? tab : `${tab}/${sub ?? ''}`} className="route">
+            {home && (
+              <Home
+                level={level}
+                completed={completedTopics}
+                onNavigate={go}
+                onOpenTopic={openTopic}
+                onOpenTool={openTool}
+                onOpenMarket={openMarket}
+                onAskMentor={q => askMentor(q, true)}
+                onOpenAccount={() => setAccountOpen(true)}
+              />
+            )}
 
-        <main style={{ padding: 'var(--space-lg) 0 var(--space-2xl)', minHeight: '60vh' }}>
-          <Suspense fallback={<div style={{ minHeight: '40vh' }} aria-hidden="true" />}>
-          {/* ── MENTOR TAB ── */}
-          {activeTab === 'mentor' && (
-            <div role="tabpanel" id="panel-mentor" aria-labelledby="tab-mentor" tabIndex={0}>
-              <div className="spacer-md" />
-              <div className="reveal">
-                <ChatInterface onMessageSent={handleMessageSent} initialPrompt={chatPrompt} onPromptConsumed={clearChatPrompt} />
-              </div>
-            </div>
-          )}
+            {tab === 'akademie' && (sub ? (
+              <TopicDetail
+                topicId={sub}
+                onBack={() => go('akademie')}
+                onComplete={handleTopicComplete}
+                onAskMentor={title => askMentor(`Vysvětli mi prosím téma „${title}“ co nejjednodušeji.`)}
+                onOpenMarket={() => openMarket()}
+              />
+            ) : (
+              <Academy level={level} onLevelChange={changeLevel} completed={completedTopics} onOpenTopic={openTopic} />
+            ))}
 
-          {/* ── TÉMATA TAB ── */}
-          {activeTab === 'temata' && (
-            <div role="tabpanel" id="panel-temata" aria-labelledby="tab-temata" tabIndex={0}>
-              <div className="spacer-md" />
-              {selectedTopic ? (
-                <TopicDetail
-                  topicId={selectedTopic}
-                  onBack={() => setSelectedTopic(null)}
-                  onComplete={handleTopicComplete}
-                  onAskMentor={handleAskMentor}
-                />
-              ) : (
-                <>
-                  <div className="section-head reveal">
-                    <span className="eyebrow">Akademie</span>
-                    <p className="section-header">Témata</p>
-                    <p className="section-desc">
-                      Vyber si téma. U každého najdeš srozumitelnou teorii, názornou ukázku
-                      na grafu a vlastní kalkulačku — vše na jednom místě. Na konci si krátkým
-                      kvízem ověříš, že ti to dává smysl.
-                    </p>
-                  </div>
-                  <div className="reveal" style={{ marginBottom: 'var(--space-lg)' }}>
-                    <StartPath onOpenTopic={setSelectedTopic} completed={completedTopics} />
-                  </div>
-                  <div className="reveal"><Badges completed={completedTopics.size} /></div>
-                  <div className="topics-grid">
-                    {TOPICS.map((topic, i) => (
-                      <div className="reveal" style={{ ['--reveal-i' as string]: i }} key={topic.id}>
-                        <TopicCard
-                          topic={topic}
-                          onClick={setSelectedTopic}
-                          completed={completedTopics.has(topic.id)}
-                          start={i === 0}
-                        />
-                      </div>
-                    ))}
-                  </div>
+            {tab === 'trhy' && (
+              <MarketScreen
+                level={level} initialTicker={sub ?? undefined} onAskMentor={q => askMentor(q)}
+                onPick={t => { arrival.current = 'stay'; setRoute({ tab: 'trhy', sub: t }); }}
+              />
+            )}
 
-                  {/* Slovníček pojmů pod tématy */}
-                  <div style={{ height: 'var(--section-gap)' }} />
-                  <div className="reveal"><Glossary /></div>
+            {tab === 'nastroje' && (
+              <ToolsHub level={level} toolId={sub} onOpenTool={openTool} onOpenTopic={openTopic} />
+            )}
 
-                  <div style={{ height: 'var(--section-gap)' }} />
-                  <div className="reveal"><ProductComparison /></div>
+            {tab === 'mentor' && (
+              <>
+                <header className="page-head">
+                  <h1 className="page-title">AI mentor</h1>
+                  <p className="page-lead">
+                    Zeptej se na cokoli kolem peněz a investování. Umí si dohledat aktuální ceny,
+                    nakreslit graf a vysvětlit věc znovu a jednodušeji.
+                  </p>
+                </header>
+                <Suspense fallback={<div className="panel" style={{ minHeight: '50vh' }} role="status"><span className="sr-only">Načítám mentora…</span></div>}>
+                  <ChatInterface
+                    key={chatEpoch}
+                    level={level}
+                    initialPrompt={chatPrompt?.text ?? null}
+                    autoSend={chatPrompt?.send}
+                    onPromptConsumed={clearChatPrompt}
+                  />
+                </Suspense>
+              </>
+            )}
 
-                  {/* Newsletter skrytý — vrátíme, až bude reálný sběr e-mailů */}
-                </>
-              )}
-            </div>
-          )}
-
-          {/* ── PŘESNOST & DŮVĚRA TAB ── */}
-          {activeTab === 'presnost' && (
-            <div role="tabpanel" id="panel-presnost" aria-labelledby="tab-presnost" tabIndex={0}>
-              <div className="spacer-md" />
-              <TrustCenter />
-            </div>
-          )}
+            {tab === 'presnost' && <TrustCenter />}
+          </div>
           </Suspense>
+          </ErrorBoundary>
         </main>
-        </div>
-        <Footer />
+        <Footer onNavigate={go} />
       </div>
+
       <CommandPalette
         open={cmdkOpen}
         onClose={() => setCmdkOpen(false)}
-        onSelectTab={tab => { setActiveTab(tab); scrollToContentIfAtHero(); }}
-        onOpenTopic={id => { setActiveTab('temata'); setSelectedTopic(id); scrollToContentIfAtHero(); }}
-        onAskMentor={prompt => { setChatPrompt(prompt); setSelectedTopic(null); setActiveTab('mentor'); scrollToContentIfAtHero(); }}
+        onSelectTab={t => go(t as TabId)}
+        onOpenTopic={openTopic}
+        onOpenTool={openTool}
+        onOpenMarket={openMarket}
+        onAskMentor={prompt => askMentor(prompt)}
       />
+      <AccountDialog open={accountOpen} onClose={() => setAccountOpen(false)} />
+      {KIOSK && <KioskGuard onReset={resetForNextVisitor} />}
     </>
   );
 };

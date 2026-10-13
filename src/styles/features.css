@@ -1,0 +1,555 @@
+/* ═══════════════════════════════════════════════════════════
+   Účet, portfolio na zkoušku, hra Odhadni graf, režim stánku.
+   Načítá se po redesign.css a používá jeho tokeny.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Tlačítko účtu v horní liště ────────────────────────── */
+
+.topbar__account {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  max-width: 160px;
+  padding-inline: 10px;
+  border: 1px solid var(--glass-edge, var(--border-default));
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.topbar__account span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar__account:hover { color: #fff; border-color: var(--border-strong); }
+.topbar__account.is-in { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
+
+/* ── Dialog (účet, výzva na stánku) ─────────────────────── */
+
+.sheet {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+}
+.sheet::backdrop {
+  background: rgba(4, 10, 20, 0.66);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.sheet__box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  padding: clamp(22px, 4vw, 32px);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(24, 44, 78, 0.92), rgba(13, 28, 52, 0.96));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+}
+.sheet--center .sheet__box { text-align: center; }
+.sheet--center .sheet__actions { justify-content: center; }
+.sheet__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.sheet__close:hover { color: #fff; background: rgba(255, 255, 255, 0.07); }
+.sheet__title {
+  margin: 0 32px 8px 0;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.sheet--center .sheet__title { margin-right: 0; }
+.sheet__lead { margin: 0 0 20px; color: var(--text-secondary); line-height: 1.6; }
+.sheet__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.sheet__actions .btn { margin-top: 0; }
+.sheet__small { margin: 16px 0 0; color: var(--text-muted); font-size: 0.82rem; line-height: 1.55; }
+
+.account-form { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+.account-form .btn { margin-top: 4px; align-self: flex-start; }
+
+.account-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border-block: var(--hairline);
+}
+.account-facts > div { padding: 12px 12px 12px 0; }
+.account-facts > div + div { padding-left: 12px; border-left: var(--hairline); }
+.account-facts dt { color: var(--text-secondary); font-size: 0.76rem; line-height: 1.3; }
+.account-facts dd { margin: 4px 0 0; color: #fff; font-size: 1.1rem; font-weight: 650; }
+
+/* ── Formulářové prvky ──────────────────────────────────── */
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span { color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; }
+.field input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding-inline: 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: rgba(8, 18, 34, 0.6);
+  color: #fff;
+  font: inherit;
+  font-size: 1rem; /* pod 16 px by iOS při zaměření přibližoval stránku */
+}
+.field input:focus-visible { border-color: var(--accent); outline-offset: 0; }
+.field small { color: var(--text-muted); font-size: 0.8rem; }
+.field--inline { flex: 1 1 150px; }
+
+.form-note {
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.form-note--error { border-color: var(--down); background: rgba(240, 97, 122, 0.12); }
+.form-note--warn { border-color: #f5b84a; background: rgba(245, 184, 74, 0.12); }
+.form-note--ok { border-color: var(--up); background: rgba(52, 211, 153, 0.1); }
+
+.btn--danger,
+.btn--danger:hover { border-color: var(--down); background: rgba(240, 97, 122, 0.14); color: #ffd7de; }
+.btn--small { margin-top: 0; padding: 5px 10px; font-size: 0.82rem; }
+
+/* ── Přehled: QR na stánku / nabídka účtu ───────────────── */
+
+.takeaway {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 40px);
+  padding-block: clamp(24px, 3.4vw, 40px);
+  border-bottom: var(--hairline);
+}
+.takeaway h2 { margin: 0 0 8px; color: #fff; font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
+.takeaway p { max-width: 62ch; margin: 0; color: var(--text-secondary); line-height: 1.6; }
+.takeaway .takeaway__url { margin-top: 10px; color: var(--accent); font-weight: 700; overflow-wrap: anywhere; }
+.takeaway--account { justify-content: space-between; }
+.takeaway--account .btn { flex: none; margin-top: 0; }
+.qr { flex: none; border-radius: 10px; }
+
+/* ── Koupit na zkoušku ──────────────────────────────────── */
+
+.trade {
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.trade h3 { margin: 0; color: #fff; font-size: 1.02rem; font-weight: 700; }
+.trade--info p { margin: 6px 0 0; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; }
+.trade__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.trade__cash { color: var(--text-secondary); font-size: 0.88rem; }
+.trade__cash strong { color: #fff; }
+.trade__form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; margin-top: 12px; }
+.trade__form .btn { height: 42px; margin-top: 0; }
+.trade__quick { display: flex; gap: 6px; height: 42px; align-items: center; }
+.trade__calc { margin: 12px 0 0; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; }
+.trade__calc .num { color: #fff; font-weight: 600; }
+.trade__small { margin: 8px 0 0; color: var(--text-muted); font-size: 0.82rem; }
+.trade .text-link { display: inline-block; margin-top: 12px; }
+
+/* ── Portfolio na zkoušku ───────────────────────────────── */
+
+.alloc { display: flex; gap: 2px; height: 14px; margin-top: 22px; border-radius: 7px; overflow: hidden; }
+.alloc span { min-width: 3px; }
+.alloc-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 0; padding: 0; list-style: none; color: var(--text-secondary); font-size: 0.85rem; }
+.alloc-legend i { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 2px; }
+.alloc-legend .num { color: #fff; }
+
+.pf-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+  margin-top: 28px;
+}
+.pf-cols > section { min-width: 0; }
+.pf-cols .trade { margin-top: 14px; }
+.pf-title { margin: 0 0 10px; color: #fff; font-size: 1.02rem; font-weight: 700; }
+.pf-title:not(:first-child) { margin-top: 26px; }
+.pf-empty { margin: 0; color: var(--text-secondary); line-height: 1.6; }
+.table-scroll { overflow-x: auto; }
+.pf-table { width: 100%; min-width: 460px; border-collapse: collapse; font-size: 0.92rem; }
+.pf-table th,
+.pf-table td { padding: 10px 12px 10px 0; border-bottom: var(--hairline); text-align: right; white-space: nowrap; }
+.pf-table th:first-child { text-align: left; }
+.pf-table thead th { color: var(--text-secondary); font-size: 0.78rem; font-weight: 600; }
+.pf-table tbody th { font-weight: 600; }
+.pf-table td:last-child { padding-right: 0; }
+.pf-trades { margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+.pf-trades li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; padding: 8px 0; border-bottom: var(--hairline); color: var(--text-secondary); }
+.pf-trades li span:nth-child(2) { color: var(--text-primary); }
+.pf-foot { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.pf-foot .btn { margin-top: 0; }
+
+/* ── Odhadni graf ───────────────────────────────────────── */
+
+.guess { max-width: 820px; }
+.guess__bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; color: var(--text-secondary); font-size: 0.9rem; font-weight: 600; }
+.guess__dots { display: flex; gap: 5px; }
+.guess__dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); }
+.guess__dots .is-now { background: #fff; }
+.guess__dots .is-hit { background: var(--up); }
+.guess__dots .is-miss { background: var(--down); }
+
+.guess-chart { display: block; width: 100%; height: auto; border: 1px solid var(--border-subtle); border-radius: 12px; background: rgba(8, 18, 34, 0.45); }
+.guess-chart__future { fill: rgba(255, 255, 255, 0.035); }
+.guess-chart__cut { stroke: rgba(255, 255, 255, 0.28); stroke-width: 1; stroke-dasharray: 4 5; }
+.guess-chart__level { stroke: rgba(255, 255, 255, 0.12); stroke-width: 1; }
+.guess-chart__line { fill: none; stroke: #dbe7f7; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.guess-chart__line.is-up { stroke: var(--up); }
+.guess-chart__line.is-down { stroke: var(--down); }
+.guess-chart__dot { fill: #fff; }
+.guess-chart__q { fill: rgba(255, 255, 255, 0.3); font-family: var(--font-display); font-size: 110px; font-weight: 700; }
+
+.guess__ask,
+.guess__reveal { margin-top: 18px; }
+.guess__ask p,
+.guess__reveal p { margin: 0 0 14px; color: var(--text-secondary); line-height: 1.6; }
+.guess__reveal strong { color: #fff; }
+.guess__reveal .btn { margin-top: 0; }
+.guess__reveal .guess__verdict { margin-bottom: 4px; font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
+.guess__buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.guess-btn {
+  min-height: 64px;
+  padding: 12px 16px;
+  border: 1px solid;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.guess-btn--up { border-color: rgba(52, 211, 153, 0.55); background: rgba(52, 211, 153, 0.12); color: #b9f5dd; }
+.guess-btn--down { border-color: rgba(240, 97, 122, 0.55); background: rgba(240, 97, 122, 0.12); color: #ffd0d8; }
+.guess-btn--up:hover { background: rgba(52, 211, 153, 0.22); }
+.guess-btn--down:hover { background: rgba(240, 97, 122, 0.22); }
+
+.guess__result { margin: 0 0 6px; color: var(--text-secondary); font-family: var(--font-display); font-size: clamp(1.8rem, 5vw, 2.6rem); font-weight: 700; line-height: 1.1; }
+.guess__result strong { color: #fff; }
+.guess__lesson { margin: 24px 0; padding-left: 16px; border-left: 3px solid var(--accent); }
+.guess__lesson h3 { margin: 0 0 8px; color: #fff; font-size: 1.05rem; }
+.guess__lesson p { max-width: 70ch; margin: 0 0 10px; color: var(--text-secondary); line-height: 1.65; }
+
+/* ── Hero bez 3D (úsporný režim dat) ────────────────────── */
+
+.hero-fs-scene--lite {
+  background:
+    radial-gradient(60% 70% at 78% 42%, rgba(58, 181, 224, 0.22), transparent 70%),
+    radial-gradient(40% 50% at 88% 70%, rgba(52, 211, 153, 0.12), transparent 70%);
+}
+
+/* ── Režim stánku: odkazy ven z webu jsou vypnuté ───────── */
+
+html[data-kiosk] a[target='_blank'],
+html[data-kiosk] a[href^='mailto:'] { pointer-events: none; color: inherit; text-decoration: none; }
+
+/* ── Menší obrazovky ────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .pf-cols { grid-template-columns: minmax(0, 1fr); }
+  .topbar__account span { display: none; }
+  .topbar__account { width: 34px; justify-content: center; padding: 0; }
+}
+
+@media (max-width: 620px) {
+  .takeaway { flex-direction: column; align-items: flex-start; }
+  .account-facts dd { font-size: 1rem; }
+  .guess-chart__q { font-size: 90px; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .sheet__box { background: #12264a; backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+.sheet__actions .btn--ghost { padding-inline: 14px; }
+
+/* ── Popisek glóbu v hero ───────────────────────────────── */
+
+.globe-caption {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 68px;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 400px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  pointer-events: none;
+}
+.globe-caption strong { color: #fff; font-weight: 650; }
+.globe-caption i {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: #4aa3cf;
+}
+.globe-caption i.is-open { background: var(--up); box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.18); }
+
+@media (max-width: 900px) {
+  .globe-caption { display: none; }
+}
+
+/* ── Záchranná obrazovka (část webu se nenačetla) ───────── */
+
+.page-fail { padding-block: clamp(40px, 10vh, 120px); }
+.page-fail .btn { margin-top: 8px; }
+
+/* ═══════════════════════════════════════════════════════════
+   POHYB — jedna sada hodnot pro celý web.
+   Krátké přechody, které odpovídají na akci návštěvníka
+   (přepnutí stránky, otevření okna, potvrzení). Nic se nehýbe samo.
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --dur-1: 120ms; /* hover, stisk, barva */
+  --dur-2: 200ms; /* otevření/zavření, změna stránky, hlášky */
+  --dur-3: 320ms; /* jeden velký pohyb: odhalení grafu ve hře */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-std: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: var(--dur-1) var(--ease-std);
+  --transition-normal: var(--dur-2) var(--ease-std);
+}
+
+/* skok na začátek stránky při navigaci má být okamžitý, ne dojezd přes půl webu */
+html { scroll-behavior: auto; }
+
+/* ── Změna stránky ──────────────────────────────────────── */
+
+/* jen průhlednost: transformace by rozbila pevně umístěné potomky */
+.route { animation: routeIn var(--dur-2) var(--ease-out) both; }
+@keyframes routeIn { from { opacity: 0; } }
+
+.hero-fs-root { transition: opacity var(--dur-2) var(--ease-out), visibility 0s; }
+.hero-fs-root[data-off] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--dur-1) var(--ease-in), visibility 0s var(--dur-1);
+}
+
+/* ── Úroveň: akcent celého webu přechází naráz a plynule ── */
+
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #3ab5e0; }
+@property --accent-strong { syntax: '<color>'; inherits: true; initial-value: #2596be; }
+@property --accent-soft { syntax: '<color>'; inherits: true; initial-value: rgba(58, 181, 224, 0.12); }
+@property --accent-line { syntax: '<color>'; inherits: true; initial-value: rgba(58, 181, 224, 0.45); }
+@property --accent-ink { syntax: '<color>'; inherits: true; initial-value: #06141c; }
+:root {
+  transition:
+    --accent var(--dur-2) var(--ease-std), --accent-strong var(--dur-2) var(--ease-std),
+    --accent-soft var(--dur-2) var(--ease-std), --accent-line var(--dur-2) var(--ease-std),
+    --accent-ink var(--dur-2) var(--ease-std);
+}
+/* místa, která měla modrou natvrdo a při přepnutí úrovně zůstávala modrá */
+.glossary-card__term { color: var(--accent); }
+.glossary-card__dot { background: var(--accent); }
+
+/* ── Okna (hledání, účet, výzva na stánku): stejné otevření i zavření ── */
+
+dialog.cmdk,
+dialog.sheet {
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-out), overlay var(--dur-2) allow-discrete, display var(--dur-2) allow-discrete;
+}
+dialog.cmdk[open],
+dialog.sheet[open] { opacity: 1; }
+dialog.cmdk::backdrop,
+dialog.sheet::backdrop {
+  background: rgba(4, 10, 20, 0.64);
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-out), overlay var(--dur-2) allow-discrete, display var(--dur-2) allow-discrete;
+}
+dialog.cmdk[open]::backdrop,
+dialog.sheet[open]::backdrop { opacity: 1; }
+.cmdk__box { animation: none; }
+.cmdk__box,
+.sheet__box { translate: 0 8px; transition: translate var(--dur-2) var(--ease-out); }
+dialog[open] .cmdk__box,
+dialog[open] .sheet__box { translate: 0 0; }
+@starting-style {
+  dialog.cmdk[open],
+  dialog.sheet[open],
+  dialog.cmdk[open]::backdrop,
+  dialog.sheet[open]::backdrop { opacity: 0; }
+  dialog[open] .cmdk__box,
+  dialog[open] .sheet__box { translate: 0 8px; }
+}
+
+/* okno účtu drží horní hranu → při přepnutí „Nový účet / Už účet mám“ neposkočí pod prstem */
+.sheet__box { top: max(16px, 12vh); transform: translateX(-50%); max-height: calc(100dvh - max(16px, 12vh) - 16px); }
+.sheet--center .sheet__box { top: 50%; transform: translate(-50%, -50%); max-height: calc(100dvh - 32px); }
+
+/* ── Trhy: graf při načítání nezmizí, jen se ztlumí ─────── */
+
+.mk-chart canvas,
+.stats { transition: opacity var(--dur-2) var(--ease-std); }
+.mk-chart[aria-busy='true'] canvas,
+.stats[aria-busy='true'] { opacity: 0.4; }
+.mk-quote__about { min-height: 2lh; }
+
+/* ── Koupit na zkoušku: hláška má své místo a neodstrkuje obsah ── */
+
+.trade__msg { min-height: 52px; }
+.trade__msg .form-note { margin-top: 10px; animation: noteIn var(--dur-2) var(--ease-out) both; }
+@keyframes noteIn { from { opacity: 0; translate: 0 4px; } }
+
+/* ── Odhadni graf: odhalení je jediný „velký“ pohyb hry ── */
+
+.guess-chart__plot { transform-origin: 0 0; transition: transform var(--dur-3) var(--ease-out); }
+.guess-chart__move { transition: transform var(--dur-3) var(--ease-out); }
+.guess-chart__line { vector-effect: non-scaling-stroke; }
+.guess-chart__hidden { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.guess-chart__hidden.is-shown { stroke-dashoffset: 0; transition: stroke-dashoffset 480ms var(--ease-out) var(--dur-3); }
+.guess-chart__q { transition: opacity var(--dur-2) var(--ease-std); }
+.guess-chart__q.is-gone { opacity: 0; }
+.guess__ask,
+.guess__reveal { min-height: 150px; }
+.guess__reveal { animation: routeIn var(--dur-2) var(--ease-out) var(--dur-3) both; }
+
+/* ── Společný základ pro hover a stisk ──────────────────── */
+
+:where(a, button, .chip-toggle, .mk-row__main, .mk-row__cmp, .row-link, .guess-btn, .topbar__account, .topbar__search, .sheet__close, .back-link, .brand) {
+  transition:
+    color var(--dur-1) var(--ease-std), background-color var(--dur-1) var(--ease-std),
+    border-color var(--dur-1) var(--ease-std), box-shadow var(--dur-1) var(--ease-std), opacity var(--dur-1) var(--ease-std);
+}
+/* stisk je na dotykové obrazovce jediná odezva → musí být vidět */
+.btn:active,
+.guess-btn:active,
+.chip-toggle:active,
+.hero-path:active,
+.tool-row:active,
+.row-link:active,
+.mk-row__main:active { transform: scale(0.98); transition-duration: 60ms; }
+.footer-item--link:hover,
+.chat-suggestion:hover { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::backdrop {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TELEFON A TABLET — opravy z testování na malých obrazovkách
+   ═══════════════════════════════════════════════════════════ */
+
+/* skrytý popisek v posledním sloupci tabulky nesmí roztáhnout stránku do strany */
+.table-scroll { position: relative; }
+
+/* čísla v přehledu: žádné svislé linky ani odsazení, které se ve dvou sloupcích rozsypaly */
+.stats { column-gap: 24px; }
+.stats > div,
+.stats > div:first-child { padding: 12px 0; border-left: 0; }
+
+/* účet: mazání účtu dál od odhlášení */
+.sheet__actions { gap: 12px 14px; }
+
+@media (max-width: 900px) {
+  /* mentor: nejdřív okno chatu, vysvětlivky až pod ním */
+  .chat-info { order: 0; }
+}
+
+/* dotykové obrazovky: pole aspoň 16 px (jinak iOS při zaměření přiblíží stránku)
+   a ovládací prvky dost velké na prst */
+@media (pointer: coarse) {
+  input, select, textarea, .form-input, .form-select { font-size: 16px !important; }
+  .cmdk__esc { display: none; }
+  .topbar__search, .topbar__account { min-width: 40px; height: 40px; }
+  .chip-toggle { min-height: 40px; }
+  .segmented--md .segmented__item span { min-height: 40px; display: inline-flex; align-items: center; }
+  .mk-row__main { min-height: 44px; }
+  .mk-row__cmp { min-width: 40px; min-height: 40px; }
+  .footer-item--link { display: inline-block; padding-block: 8px; }
+}
+
+/* psaní do chatu: obrys má zaoblený rámeček okolo, ne samotné pole uvnitř */
+[class*='composer'] textarea:focus-visible { outline: none; }
+
+/* telefon na šířku: úvod i hra se musí vejít na nízkou obrazovku */
+@media (max-height: 480px) and (orientation: landscape) {
+  .hero-title { font-size: clamp(1.6rem, 6vh + 1rem, 2.4rem); }
+  .hero-lead { display: none; }
+  .guess-chart { max-height: 46vh; width: auto; max-width: 100%; margin-inline: auto; }
+  .guess__ask, .guess__reveal { min-height: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   POČÍTAČ — opravy z testování
+   ═══════════════════════════════════════════════════════════ */
+
+/* tlačítko „Začít“ v průvodci Akademií vypadalo jako vypnuté */
+.btn.btn--primary:not(:disabled) { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.btn--primary:not(:disabled):hover { background: color-mix(in srgb, var(--accent) 86%, white); }
+
+/* horní lišta drží na velké obrazovce stejné okraje jako obsah */
+.topbar { padding-inline: max(clamp(16px, 3vw, 32px), calc((100% - var(--measure)) / 2)); }
+
+/* okno mentora se musí vejít na obrazovku i s polem pro psaní */
+.chat-main .chat-panel { height: clamp(420px, calc(100dvh - 300px), 1000px); }
+@media (max-width: 900px) {
+  .chat-main .chat-panel { height: clamp(420px, calc(100dvh - 250px), 1000px); }
+}
+
+/* ── Přehled: obsah přejíždí přes úvod jako plná vrstva ──
+   (dřív byl průhledný a text úvodu prosvítal skrz karty) */
+.page-content:not(.page-content--inner)::before {
+  content: '';
+  position: absolute;
+  inset: -140px 0 0 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(13, 28, 54, 0) 0, #0d1c36 140px, #0f2342 1000px);
+  pointer-events: none;
+}
+
+/* ── Odhadni graf: hra uprostřed karty, verdikt v barvě ── */
+.guess { margin-inline: auto; }
+.guess__reveal .guess__verdict.is-up { color: var(--up); }
+.guess__reveal .guess__verdict.is-down { color: var(--down); }

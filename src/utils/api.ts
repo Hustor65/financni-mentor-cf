@@ -7,14 +7,20 @@ export async function streamChatMessage(
   history: Array<{ role: string; content: string }>,
   onChunk: (fullText: string) => void,
   signal?: AbortSignal,
+  level: 'start' | 'pro' = 'start',
 ): Promise<string> {
   // GROUNDING — stejná logika jako core.py send_message
   const docs = retrieve(message);
   const ctx = formatContext(docs);
 
-  const augmentedMessage = ctx
+  // úroveň návštěvníka → mentor ví, jak hluboko může jít
+  const levelNote = level === 'pro'
+    ? '(Uživatel si zvolil úroveň „pokročilý“: můžeš používat odborné pojmy — volatilita, P/E, opce, diskontování — a jít do větší hloubky. Pořád vysvětluj, neraď konkrétní nákupy.)\n\n'
+    : '';
+
+  const augmentedMessage = levelNote + (ctx
     ? `${ctx}\n\n=== DOTAZ UŽIVATELE ===\n${message}`
-    : `(K tomuto dotazu nemáme v ověřené databázi materiál — u faktických tvrzení buď opatrný a případně odkaž na lekci, kalkulačku nebo poradce.)\n\n=== DOTAZ UŽIVATELE ===\n${message}`;
+    : `(K tomuto dotazu nemáme v ověřené databázi materiál — u faktických tvrzení buď opatrný a případně odkaž na lekci, kalkulačku nebo poradce.)\n\n=== DOTAZ UŽIVATELE ===\n${message}`);
 
   const response = await fetch(`${API_BASE}/chat`, {
     method: 'POST',

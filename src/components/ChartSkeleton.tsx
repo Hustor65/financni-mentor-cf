@@ -1,8 +1,8 @@
 /* ════════════════════════════════════════════════════════════
-   ChartSkeleton — pulzující zástupný obrys grafu (sloupce pulzují
-   mezi --surface-1 a --surface-2). Nahrazuje textové „Načítám graf…“
-   fallbacky během lazy-loadu ECharts/Mermaid i streamu v chatu.
-   `bare` = bez vlastního okraje/pozadí (pro vložení do už orámované karty).
+   ChartSkeleton — zástupný obrys grafu, než se načte ECharts/Mermaid
+   nebo doteče odpověď v chatu. Drží výšku budoucího grafu, takže
+   stránka po načtení neposkočí. Styly: styles/screens/tools.css.
+   `bare` = bez podkladu (uvnitř panelu, kde už rámeček je).
    ════════════════════════════════════════════════════════════ */
 
 // výšky sloupců v % — evokují graf (mírně stoupavý trend s variací), ne náhodný šum
@@ -16,21 +16,21 @@ interface ChartSkeletonProps {
 }
 
 export const ChartSkeleton: React.FC<ChartSkeletonProps> = ({
-  height = 280,
+  height = 320,
   label = 'Načítám graf',
   bare = false,
   style,
 }) => (
   <div
-    className={`chart-skeleton${bare ? ' chart-skeleton--bare' : ''}`}
+    className={`chart-skel${bare ? ' chart-skel--bare' : ''}`}
     style={{ height, ...style }}
     role="status"
   >
-    <div className="chart-skeleton__bars" aria-hidden="true">
+    <div className="chart-skel__bars" aria-hidden="true">
       {BARS.map((h, i) => (
         <span
           key={i}
-          className="chart-skeleton__bar"
+          className="chart-skel__bar"
           style={{ height: `${h}%`, animationDelay: `${i * 110}ms` }}
         />
       ))}

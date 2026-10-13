@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
-import { czInvestmentTax, czDipDeduction, czNum } from '../../utils/calculators';
+import { czInvestmentTax, czDipDeduction } from '../../utils/calculators';
 import { DIP_DEDUCT_LIMIT_2026 } from '../../data/constants';
-import { Icon } from '../Icon';
+import { NumberField } from '../NumberField';
+import { kc } from './shared';
 
 export const TaxCalc: React.FC = () => {
   // ── Prodej cenných papírů ──
@@ -11,7 +12,7 @@ export const TaxCalc: React.FC = () => {
   const [heldOver3y, setHeld] = useState(false);
 
   // ── DIP ──
-  const [dipContrib, setDipContrib] = useState(0);
+  const [dipContrib, setDipContrib] = useState(24000);
   const [otherContrib, setOtherContrib] = useState(0);
 
   const taxResult = useMemo(
@@ -23,7 +24,7 @@ export const TaxCalc: React.FC = () => {
     [dipContrib, otherContrib],
   );
 
-  // cap meter — sdílený strop se plní penzijkem jako první, pak DIP
+  // ukazatel stropu — sdílený strop se plní penzijkem jako první, pak DIP
   const CAP = DIP_DEDUCT_LIMIT_2026;
   const otherCapped = Math.min(otherContrib, CAP);
   const otherPct = Math.min(100, (otherCapped / CAP) * 100);
@@ -31,209 +32,125 @@ export const TaxCalc: React.FC = () => {
   const dipOverCap = Math.max(0, dipContrib - dipResult.deductible);
 
   return (
-    <div>
-      {/* ════ ČÁST 1: Daň z prodeje ════ */}
-      <div
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontWeight: 700,
-          fontSize: '0.9rem',
-          color: 'var(--lg-cyan-400)',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          marginBottom: '0.9rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}
-      >
-        <Icon name="scale" size={16} color="var(--lg-cyan-400)" /> Daň z prodeje investic
-      </div>
-
-      <div className="calc-form">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="tax-buy">Nákupní cena (Kč)</label>
-            <input
-              id="tax-buy"
-              className="form-input"
-              type="number"
-              min={0}
-              value={buy}
-              onChange={e => setBuy(Number(e.target.value))}
-            />
+    <div className="tl-calc">
+      {/* ════ Část 1: daň z prodeje ════ */}
+      <section aria-labelledby="tax-sale-title">
+        <h3 className="ui-h3 tl-part__title" id="tax-sale-title">Daň z prodeje investic</h3>
+        <p className="tl-part__lead">Zisk z prodeje akcií a fondů se daní 15 %. Dvě výjimky tě od daně osvobodí úplně.</p>
+        <div className="tl-calc__grid">
+          <div className="tl-inputs">
+            <NumberField label="Nákupní cena" suffix="Kč" value={buy} onChange={setBuy}
+              min={0} max={100000000} sliderMin={0} sliderMax={500000} step={1000} />
+            <NumberField label="Prodejní cena" suffix="Kč" value={sell} onChange={setSell}
+              min={0} max={100000000} sliderMin={0} sliderMax={500000} step={1000} />
+            <NumberField label="Všechny prodeje za rok" suffix="Kč" value={proceeds} onChange={setProceeds}
+              min={0} max={100000000} sliderMin={0} sliderMax={500000} step={1000} />
+            <label className="ui-check">
+              <input type="checkbox" checked={heldOver3y} onChange={e => setHeld(e.target.checked)} />
+              <span>Držím je déle než 3 roky</span>
+            </label>
           </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="tax-sell">Prodejní cena (Kč)</label>
-            <input
-              id="tax-sell"
-              className="form-input"
-              type="number"
-              min={0}
-              value={sell}
-              onChange={e => setSell(Number(e.target.value))}
-            />
-          </div>
-        </div>
-        <div className="form-group">
-          <label className="form-label" htmlFor="tax-proceeds">Roční příjmy z prodeje cenných papírů (Kč)</label>
-          <input
-            id="tax-proceeds"
-            className="form-input"
-            type="number"
-            min={0}
-            value={proceeds}
-            onChange={e => setProceeds(Number(e.target.value))}
-          />
-        </div>
-        <label
-          className="form-group"
-          style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
-        >
-          <input
-            type="checkbox"
-            checked={heldOver3y}
-            onChange={e => setHeld(e.target.checked)}
-            style={{ accentColor: 'var(--lg-cyan-500)', width: '15px', height: '15px', flexShrink: 0 }}
-          />
-          <span className="form-label" style={{ cursor: 'pointer', marginBottom: 0 }}>
-            Cenné papíry držím déle než 3 roky (časový test)
-          </span>
-        </label>
-      </div>
 
-      {/* KPI řádek — daň */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', marginTop: '1rem' }}>
-        {[
-          { label: 'Hrubý zisk', value: `${czNum(taxResult.gain)} Kč`, color: 'var(--text-primary)' },
-          { label: 'Daň', value: taxResult.exempt ? '0 Kč ✓' : `${czNum(taxResult.tax)} Kč`, color: taxResult.exempt ? 'var(--lg-green-500)' : '#ef4444' },
-          { label: 'Čistý zisk', value: `${czNum(taxResult.netGain)} Kč`, color: 'var(--lg-green-500)' },
-        ].map(k => (
-          <div key={k.label} className="glass-panel--sunken" style={{ padding: '0.7rem 0.75rem', textAlign: 'center', borderRadius: 'var(--radius-md)', border: '1px solid var(--glass-border)' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.2rem' }}>{k.label}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 700, color: k.color }}>{k.value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Vysvětlení */}
-      <div
-        style={{
-          borderLeft: `3px solid ${taxResult.exempt ? 'var(--lg-green-500)' : '#f59e0b'}`,
-          padding: '0.6rem 0.75rem',
-          marginTop: '0.75rem',
-          background: taxResult.exempt ? 'rgba(16,185,129,0.05)' : 'rgba(245,158,11,0.05)',
-          borderRadius: '0 8px 8px 0',
-        }}
-      >
-        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-          {taxResult.exempt ? (
-            <>
-              <strong style={{ color: 'var(--lg-green-500)' }}>Osvobozeno</strong> —{' '}
-              {taxResult.passedTimeTest
-                ? 'držíš je déle než 3 roky, takže zisk nedaníš.'
-                : 'souhrn tvých prodejů je do 100 000 Kč za rok, takže zisk nedaníš.'}
-            </>
-          ) : (
-            <>
-              Neplatí žádné osvobození, proto zisk daníš 15 %.{' '}
-              <strong style={{ color: 'var(--lg-green-500)' }}>Tip: když cenné papíry držíš déle než 3 roky, je zisk od daně osvobozený.</strong>
-            </>
-          )}
-        </span>
-      </div>
-
-      {/* ════ ODDĚLOVAČ ════ */}
-      <div style={{ borderTop: '1px solid var(--glass-border)', margin: '1.75rem 0 1.25rem' }} />
-
-      {/* ════ ČÁST 2: DIP ════ */}
-      <div
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontWeight: 700,
-          fontSize: '0.9rem',
-          color: 'var(--lg-cyan-400)',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          marginBottom: '0.9rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}
-      >
-        <Icon name="coins" size={16} color="var(--lg-cyan-400)" /> DIP — kolik ušetříš na daních
-      </div>
-
-      <div className="calc-form">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="tax-dip">Roční vklad do DIP (Kč)</label>
-            <input
-              id="tax-dip"
-              className="form-input"
-              type="number"
-              min={0}
-              step={2000}
-              value={dipContrib}
-              onChange={e => setDipContrib(Number(e.target.value))}
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="tax-other">Penzijní a životní pojištění (Kč/rok)</label>
-            <input
-              id="tax-other"
-              className="form-input"
-              type="number"
-              min={0}
-              step={2000}
-              value={otherContrib}
-              onChange={e => setOtherContrib(Number(e.target.value))}
-            />
+          <div className="tl-out" aria-live="polite">
+            <p className="ui-hero-num tl-hero">
+              <span className="ui-hero-num__label">Daň k zaplacení</span>
+              {kc(taxResult.tax)}
+            </p>
+            <dl className="ui-kpis">
+              <div>
+                <dt>Zisk před zdaněním</dt>
+                <dd>{kc(taxResult.gain)}</dd>
+              </div>
+              <div>
+                <dt>Zisk po zdanění</dt>
+                <dd className="is-up">{kc(taxResult.netGain)}</dd>
+              </div>
+            </dl>
+            {taxResult.exempt ? (
+              <p className="ui-note ui-note--ok">
+                <strong>Osvobozeno od daně.</strong>{' '}
+                {taxResult.passedTimeTest
+                  ? 'Cenné papíry držíš déle než 3 roky, takže zisk nedaníš (časový test).'
+                  : 'Tvoje prodeje za rok nepřesáhly 100 000 Kč, takže zisk nedaníš.'}
+              </p>
+            ) : (
+              <p className="ui-note ui-note--warn">
+                <strong>Zisk daníš 15 %.</strong>{' '}
+                Prodeje za rok přesáhly 100 000 Kč a cenné papíry držíš kratší dobu než 3 roky. Po třech letech
+                držení by byl zisk od daně osvobozený.
+              </p>
+            )}
+            <p className="ui-small">
+              Do limitu 100 000 Kč se počítají příjmy ze všech prodejů cenných papírů za kalendářní rok, ne jen zisk.
+              Bez poplatků; orientační výpočet podle pravidel roku 2026.
+            </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* KPI řádek — DIP */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', marginTop: '1rem' }}>
-        {[
-          { label: 'Odečet od základu daně', value: `${czNum(dipResult.deductible)} Kč`, color: 'var(--text-primary)' },
-          { label: 'Daňová úspora', value: `${czNum(dipResult.taxSaving)} Kč`, color: 'var(--lg-green-500)' },
-          { label: 'Čistá cena vkladu', value: `${czNum(dipResult.netCost)} Kč`, color: 'var(--lg-cyan-400)' },
-        ].map(k => (
-          <div key={k.label} className="glass-panel--sunken" style={{ padding: '0.7rem 0.75rem', textAlign: 'center', borderRadius: 'var(--radius-md)', border: '1px solid var(--glass-border)' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.2rem' }}>{k.label}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 700, color: k.color }}>{k.value}</div>
+      <hr className="ui-divide" />
+
+      {/* ════ Část 2: DIP ════ */}
+      <section aria-labelledby="tax-dip-title">
+        <h3 className="ui-h3 tl-part__title" id="tax-dip-title">Kolik ušetříš přes DIP</h3>
+        <p className="tl-part__lead">
+          Vklady do dlouhodobého investičního produktu si odečteš od základu daně, nejvýš {kc(CAP)} ročně
+          dohromady s penzijním a životním pojištěním.
+        </p>
+        <div className="tl-calc__grid">
+          <div className="tl-inputs">
+            <NumberField label="Roční vklad do DIP" suffix="Kč" value={dipContrib} onChange={setDipContrib}
+              min={0} max={1000000} sliderMin={0} sliderMax={120000} step={1000} />
+            <NumberField label="Penzijní a životní pojištění za rok" suffix="Kč" value={otherContrib} onChange={setOtherContrib}
+              min={0} max={1000000} sliderMin={0} sliderMax={120000} step={1000} />
           </div>
-        ))}
-      </div>
 
-      {/* Cap meter — vizualizuje, kde se DIP přestává vyplácet (sdílený strop) */}
-      <div style={{ marginTop: '1.1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-          <span>Roční strop odpočtu (DIP + penzijní a životní pojištění)</span>
-          <span style={{ fontVariantNumeric: 'tabular-nums' }}>{czNum(CAP)} Kč</span>
+          <div className="tl-out" aria-live="polite">
+            <p className="ui-hero-num tl-hero">
+              <span className="ui-hero-num__label">Na dani ušetříš za rok</span>
+              {kc(dipResult.taxSaving)}
+            </p>
+            <dl className="ui-kpis">
+              <div>
+                <dt>Odečteš od základu daně</dt>
+                <dd>{kc(dipResult.deductible)}</dd>
+              </div>
+              <div>
+                <dt>Vklad tě po úspoře vyjde na</dt>
+                <dd>{kc(dipResult.netCost)}</dd>
+              </div>
+            </dl>
+
+            <div className="tl-cap">
+              <div className="tl-cap__head">
+                <span>Roční strop odpočtu</span>
+                <span>{kc(CAP)}</span>
+              </div>
+              <div className="tl-cap__bar" aria-hidden="true">
+                <span className="tl-cap__seg tl-cap__seg--other" style={{ width: `${otherPct}%` }} />
+                <span className="tl-cap__seg tl-cap__seg--dip" style={{ width: `${dipPct}%` }} />
+              </div>
+              <ul className="tl-cap__legend">
+                {otherCapped > 0 && (
+                  <li><span className="tl-cap__sw tl-cap__sw--other" aria-hidden="true" />Penzijní a životní pojištění {kc(otherCapped)}</li>
+                )}
+                <li><span className="tl-cap__sw tl-cap__sw--dip" aria-hidden="true" />DIP s odpočtem {kc(dipResult.deductible)}</li>
+                {dipResult.unused > 0 && <li>Volné místo {kc(dipResult.unused)}</li>}
+              </ul>
+            </div>
+
+            {dipOverCap > 0 && (
+              <p className="ui-note ui-note--warn">
+                <strong>{kc(dipOverCap)} je nad stropem.</strong> Tahle část vkladu už daň nesníží.
+              </p>
+            )}
+            <p className="ui-small">
+              Úspora je 15 % z odečtené částky a projeví se v ročním zúčtování nebo v daňovém přiznání.
+              Strop plní nejdřív penzijní a životní pojištění, na DIP zbývá zbytek.
+            </p>
+          </div>
         </div>
-        <div style={{ display: 'flex', height: '14px', borderRadius: '7px', overflow: 'hidden', background: 'rgba(148,163,184,0.1)' }}>
-          <div style={{ width: `${otherPct}%`, background: '#64748b', transition: 'width 300ms ease' }} title="Penzijko / životko" />
-          <div style={{ width: `${dipPct}%`, background: 'var(--lg-cyan-500)', transition: 'width 300ms ease' }} title="DIP s odpočtem" />
-        </div>
-        <div style={{ display: 'flex', gap: '0.4rem 1.1rem', flexWrap: 'wrap', marginTop: '0.55rem', fontSize: '0.72rem' }}>
-          {otherCapped > 0 && (
-            <span style={{ color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ width: 8, height: 8, borderRadius: 2, background: '#64748b' }} /> Penzijko/životko {czNum(otherCapped)} Kč
-            </span>
-          )}
-          <span style={{ color: 'var(--lg-cyan-400)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-            <span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--lg-cyan-500)' }} /> DIP s odpočtem {czNum(dipResult.deductible)} Kč
-          </span>
-          {dipResult.unused > 0 && (
-            <span style={{ color: 'var(--text-muted)' }}>Volný strop {czNum(dipResult.unused)} Kč</span>
-          )}
-          {dipOverCap > 0 && (
-            <span style={{ color: '#f59e0b' }}>DIP nad strop {czNum(dipOverCap)} Kč — už bez úspory</span>
-          )}
-        </div>
-      </div>
+      </section>
     </div>
   );
 };

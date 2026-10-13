@@ -1,5 +1,3 @@
-import { Icon } from '../Icon';
-
 interface Product {
   name: string;
   liquidity: string;
@@ -31,38 +29,36 @@ const COLS: { key: keyof Product; label: string }[] = [
 
 /** Přehledové srovnání hlavních typů produktů (ilustrativní, ne doporučení). */
 export const ProductComparison: React.FC = () => (
-  <div>
-    <span className="eyebrow">Orientační srovnání</span>
-    <h2 className="section-header" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-      <Icon name="scale" size={24} color="#3ab5e0" aria-hidden />
-      Srovnání produktů
-    </h2>
-    <p className="section-desc">
-      Rychlá orientace, kam peníze patří podle tvého cíle a časového horizontu. Jde o obecné informace, ne o investiční doporučení.
+  <section className="ui-sec ak-compare">
+    <h2 className="ui-sec__title">Srovnání produktů</h2>
+    <p className="ui-sec__lead">
+      Kam peníze patří podle cíle a toho, kdy je budeš potřebovat. Jde o obecné informace, ne o investiční doporučení.
     </p>
 
-    <div className="compare-grid">
-      {PRODUCTS.map(p => (
-        <div
-          key={p.name}
-          className={`glass-panel compare-card${p.featured ? ' compare-card--featured' : ' glass-panel--sunken'}`}
-        >
-          {p.featured && <span className="compare-card__tag">Nejčastější volba</span>}
-          <div className="compare-card__name">{p.name}</div>
-          <dl className="compare-card__list">
-            {COLS.map(c => (
-              <div key={c.key} className="compare-card__row">
-                <dt>{c.label}</dt>
-                <dd>{p[c.key]}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      ))}
+    <div className="ui-table-wrap">
+      <table className="ui-table ak-compare__table">
+        <thead>
+          <tr>
+            <th scope="col">Produkt</th>
+            {COLS.map(c => <th key={c.key} scope="col">{c.label}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {PRODUCTS.map(p => (
+            <tr key={p.name}>
+              <th scope="row">
+                {p.name}
+                {p.featured && <span className="ui-tag ui-tag--accent ak-compare__tag">Nejčastější volba</span>}
+              </th>
+              {COLS.map(c => <td key={c.key} data-label={c.label}>{p[c.key]}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
 
-    <p className="data-note" style={{ marginTop: '0.9rem' }}>
-      * Orientační historický průměr globálních akcií. Minulé výnosy nezaručují ty budoucí a hodnota investice v čase kolísá.
+    <p className="ui-small ak-compare__note">
+      * Orientační historický průměr globálních akcií. Minulé výnosy nezaručují budoucí a hodnota investice v čase kolísá.
     </p>
-  </div>
+  </section>
 );

@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import type { CSSProperties } from 'react';
 
 /**
  * NumberField — slider + textové pole, synchronizované přes jeden float.
@@ -10,8 +11,8 @@ import { useId, useState } from 'react';
  *  - akceptuje čárku i tečku i mezery; tvrdá validace min/max až na blur
  */
 
-const fmt = (decimals: number) =>
-  new Intl.NumberFormat('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: decimals });
+const fmt = (decimals: number, grouping: boolean) =>
+  new Intl.NumberFormat('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: decimals, useGrouping: grouping });
 
 const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
 
@@ -34,6 +35,8 @@ interface NumberFieldProps {
   step?: number;
   decimals?: number;
   suffix?: string;
+  /** bez oddělovače tisíců (letopočet) */
+  plain?: boolean;
 }
 
 export function NumberField({
@@ -41,18 +44,21 @@ export function NumberField({
   value,
   onChange,
   min = 0,
-  max = Number.POSITIVE_INFINITY,
+  max: maxProp,
   sliderMin = 0,
   sliderMax = 100000,
   step = 1000,
   decimals = 0,
   suffix = '',
+  plain = false,
 }: NumberFieldProps) {
+  // do pole jde napsat víc, než dovolí posuvník, ale ne nesmysl o třiceti nulách
+  const max = maxProp ?? sliderMax * 10;
   const id = useId();
   const [focused, setFocused] = useState(false);
   const [draft, setDraft] = useState('');
 
-  const formatter = fmt(decimals);
+  const formatter = fmt(decimals, !plain);
   const displayValue = focused
     ? draft
     : Number.isFinite(value)
@@ -70,47 +76,49 @@ export function NumberField({
 
   const sliderPos = clamp(Number.isFinite(value) ? value : sliderMin, sliderMin, sliderMax);
 
+  const fill = sliderMax > sliderMin ? ((sliderPos - sliderMin) / (sliderMax - sliderMin)) * 100 : 0;
+
   return (
-    <div className="num-field">
-      <label className="num-field__label" htmlFor={id}>
+    <div className="num-field nf">
+      <label className="nf__label" htmlFor={id}>
         {label}
       </label>
 
-      <div className="num-field__row">
+      <div className="nf__box">
         <input
-          className="num-field__slider form-range"
-          type="range"
-          min={sliderMin}
-          max={sliderMax}
-          step={step}
-          value={sliderPos}
-          aria-label={label}
-          onChange={e => onChange(clamp(parseFloat(e.target.value), min, max))}
+          id={id}
+          className="nf__input"
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          value={displayValue}
+          onFocus={() => {
+            setFocused(true);
+            setDraft(Number.isFinite(value) ? String(value).replace('.', ',') : '');
+          }}
+          onChange={e => setDraft(e.target.value)}
+          onBlur={e => {
+            setFocused(false);
+            commit(e.target.value);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur();
+          }}
         />
-
-        <div className="num-field__inputwrap">
-          <input
-            id={id}
-            className="num-field__input form-input"
-            type="text"
-            inputMode="decimal"
-            value={displayValue}
-            onFocus={() => {
-              setFocused(true);
-              setDraft(Number.isFinite(value) ? String(value).replace('.', ',') : '');
-            }}
-            onChange={e => setDraft(e.target.value)}
-            onBlur={e => {
-              setFocused(false);
-              commit(e.target.value);
-            }}
-            onKeyDown={e => {
-              if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur();
-            }}
-          />
-          {suffix && <span className="num-field__suffix" aria-hidden="true">{suffix}</span>}
-        </div>
+        {suffix && <span className="nf__suffix" aria-hidden="true">{suffix}</span>}
       </div>
+
+      <input
+        className="nf__slider"
+        type="range"
+        min={sliderMin}
+        max={sliderMax}
+        step={step}
+        value={sliderPos}
+        aria-label={label}
+        style={{ '--nf-fill': `${fill}%` } as CSSProperties}
+        onChange={e => onChange(clamp(parseFloat(e.target.value), min, max))}
+      />
     </div>
   );
 }

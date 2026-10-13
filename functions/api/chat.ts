@@ -6,7 +6,7 @@
  *  - kompletní systémové instrukce (10 guardrails) jako v core.py
  *  - Function Calling nad živými daty z Yahoo Finance
  *    (get_stock_price, get_crypto_price, get_market_summary, get_historical_performance)
- *  - primární model gemini-3.5-flash + fallback gemini-2.5-flash-lite při chybě 429
+ *  - řetěz modelů (MODEL_CHAIN): nejnovější flash → 2.5-flash → 2.5-flash-lite
  */
 
 interface Env {
@@ -25,11 +25,12 @@ interface GeminiContent {
   parts: GeminiPart[];
 }
 
-// gemini-3.5-flash má na free tieru jen 20 requestů/den → web po pár dotazech
-// padal na 429. gemini-2.5-flash má výrazně vyšší free kvótu a kvalitou bohatě stačí.
-// (Chceš-li zpět 3.5-flash, zapni billing v Google AI Studio a vrať název modelu.)
-const PRIMARY_MODEL = 'gemini-2.5-flash';
-const FALLBACK_MODEL = 'gemini-2.5-flash-lite';
+// Modely se zkouší v tomto pořadí; další přijde na řadu, když předchozí nic
+// neodeslal (429 = vyčerpaná kvóta, 503 = přetížení, prázdná/blokovaná odpověď).
+// Nejnovější flash je první, ale na bezplatném tarifu mívá nízkou denní kvótu
+// a bývá přetížený (10/2026: 3.8-flash vracel 503) — proto za ním stojí
+// gemini-2.5-flash s výrazně vyšší kvótou, který web spolehlivě utáhne.
+const MODEL_CHAIN = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 // ── Systémové instrukce (1:1 s core.py) ───────────────────────────────
 function buildSystemInstruction(): string {
@@ -68,8 +69,8 @@ function buildSystemInstruction(): string {
     'použít odborný pojem (např. likvidita, volatilita), hned ho krátce vysvětli vlastními slovy ' +
     'a ideálně na příkladu ze života studenta (brigáda, první výplata, spoření na cestu).\n\n' +
 
-    '6. FORMÁTOVÁNÍ: Data prezentuj přehledně. Emoji používej střídmě, jen pro lepší ' +
-    'orientaci (📈 růst, 📉 pokles, 💰 cena). Čísla formátuj s mezerami jako oddělovači ' +
+    '6. FORMÁTOVÁNÍ: Data prezentuj přehledně. Emoji ani jiné obrázkové znaky ' +
+    'nepoužívej vůbec. O sobě mluv v mužském rodě („rád ti to vysvětlím“). Čísla formátuj s mezerami jako oddělovači ' +
     'tisíců (např. 1 234 567) a používej desetinnou čárku, ne tečku.\n\n' +
 
     "7. OVĚŘENÝ KONTEXT (GROUNDING): Před dotazem uživatele můžeš dostat blok " +
@@ -81,6 +82,11 @@ function buildSystemInstruction(): string {
     "odpovědi přidej řádek začínající 'Zdroje:' a vyjmenuj použité zdroje přesně tak, jak " +
     "jsou uvedené v hranatých závorkách (např. 'Akademie → lekce 2: Akcie, dluhopisy, ETF' " +
     "nebo 'Slovníček → ETF'). Pokud jsi z kontextu nečerpal, řádek se zdroji neuváděj.\n\n" +
+
+    '8b. FORMA: Nepoužívej emoji ani jiné obrázkové znaky. Uživateli tykej a piš v druhé osobě ' +
+    'tak, aby věta seděla komukoli (žádné tvary s lomítkem typu „kupoval/a“ — raději ' +
+    '„když koupíš“). Každý zdroj v řádku Zdroje odděl středníkem a opiš ho doslova, nic si ' +
+    'k němu nedomýšlej.\n\n' +
 
     '9. MIMO ROZSAH: Pokud kontext téma nepokrývá a nejde o obecně známý vzdělávací pojem, ' +
     'raději přiznej, že to přesně nevíš, a nasměruj uživatele na příslušnou lekci či ' +
@@ -383,11 +389,12 @@ async function callGeminiStream(
   apiKey: string,
   contents: GeminiContent[],
   systemInstruction: string,
+  connectTimeoutMs = 30000,
 ): Promise<Response> {
   // Timeout jen na NAVÁZÁNÍ spojení (zaseknutý connect). Po příchodu hlaviček časovač
   // zrušíme → tělo se streamuje bez limitu (ať nesekneme legitimně dlouhou odpověď). (M3)
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 30000);
+  const timer = setTimeout(() => controller.abort(), connectTimeoutMs);
   try {
     return await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
@@ -420,12 +427,13 @@ async function streamConversation(
   contents: GeminiContent[],
   systemInstruction: string,
   write: (text: string) => void | Promise<void>,
+  connectTimeoutMs?: number,
 ): Promise<{ ok: boolean; status: number; streamed: boolean }> {
   const maxIterations = 5;
   let streamed = false;
 
   for (let i = 0; i < maxIterations; i++) {
-    const resp = await callGeminiStream(model, apiKey, contents, systemInstruction);
+    const resp = await callGeminiStream(model, apiKey, contents, systemInstruction, connectTimeoutMs);
     if (!resp.ok || !resp.body) {
       return { ok: false, status: resp.status, streamed };
     }
@@ -475,7 +483,7 @@ async function streamConversation(
       // Gemini narazil na limit délky → odpověď je uříznutá (možná i uprostřed
       // echarts/mermaid bloku). Dej to najevo místo tichého konce. (M1)
       if (finishReason === 'MAX_TOKENS' && streamed) {
-        await write('\n\n_(Odpověď byla zkrácena — došel limit délky. Zkuste dotaz rozdělit na menší části.)_');
+        await write('\n\n_(Odpověď byla zkrácena — došel limit délky. Zkus dotaz rozdělit na menší části.)_');
       }
       return { ok: true, status: 200, streamed };
     }
@@ -492,7 +500,7 @@ async function streamConversation(
     contents.push({ role: 'user', parts: responseParts });
   }
 
-  await write('\n\n_(Odpověď se nepodařilo dokončit — dotaz vyžadoval příliš mnoho kroků. Zkuste ho prosím položit jednodušeji.)_');
+  await write('\n\n_(Odpověď se nepodařilo dokončit — dotaz vyžadoval příliš mnoho kroků. Zkus ho prosím položit jednodušeji.)_');
   return { ok: true, status: 200, streamed };
 }
 
@@ -536,30 +544,47 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     async start(controller) {
       const write = (text: string) => controller.enqueue(encoder.encode(text));
       try {
-        let result = await streamConversation(PRIMARY_MODEL, apiKey, contents, systemInstruction, write);
-
-        // Fallback model, pokud primární NIC neodeslal — ať už kvůli 429, chybě,
-        // nebo prázdné/blokované odpovědi (SAFETY apod.) s HTTP 200.
-        if (!result.streamed) {
-          result = await streamConversation(FALLBACK_MODEL, apiKey, contents, systemInstruction, write);
+        let result = { ok: false, status: 0, streamed: false };
+        // Druhé kolo: když všechny modely narazí na limit (víc lidí naráz), chvíli
+        // počkej a zkus celý řetěz ještě jednou, než to vzdáš.
+        for (let round = 0; round < 2 && !result.streamed; round++) {
+        if (round === 1) {
+          if (result.status !== 429 && result.status !== 503) break;
+          await new Promise(resolve => setTimeout(resolve, 3500));
+        }
+        for (let i = 0; i < MODEL_CHAIN.length && !result.streamed; i++) {
+          const last = i === MODEL_CHAIN.length - 1;
+          // Každý pokus dostane čistou kopii konverzace (neúspěšný pokus do ní mohl
+          // připsat rozpracovaná volání funkcí). Model, za kterým je ještě záloha,
+          // má na navázání spojení jen 8 s — zaseknutý model nesmí zdržet odpověď.
+          const attempt = contents.map(c => ({ ...c, parts: [...c.parts] }));
+          try {
+            result = await streamConversation(MODEL_CHAIN[i], apiKey, attempt, systemInstruction, write, last ? 30000 : 8000);
+          } catch (error) {
+            console.error(`Chat: model ${MODEL_CHAIN[i]} selhal`, error);
+            // text už odešel → nezačínej jiným modelem znovu, jen přiznej nedokončenou odpověď
+            result = { ok: false, status: 0, streamed: result.streamed };
+            if (last && round === 1) throw error;
+          }
+        }
         }
 
         if (!result.streamed) {
           // ani jeden model nic neodeslal → srozumitelná hláška místo prázdna
           write(
             result.status === 429
-              ? '⏳ Mentor je teď přetížený. Zkuste to prosím za chvíli znovu.'
-              : '⚠️ Odpověď se teď nepodařilo vygenerovat. Zkuste dotaz přeformulovat nebo to zkuste znovu.',
+              ? 'Mentor má teď hodně dotazů naráz. Zkus to prosím za chvilku znovu.'
+              : 'Odpověď se teď nepodařilo vygenerovat. Zkus dotaz přeformulovat nebo ho poslat znovu.',
           );
         } else if (!result.ok) {
           // něco se odeslalo, ale stream skončil chybou (např. selhání po tool-callu)
           // → neukončuj tiše, dej najevo, že odpověď není kompletní
-          write('\n\n⚠️ _Odpověď se nepodařilo dokončit. Zkuste dotaz prosím zopakovat._');
+          write('\n\n_Odpověď se nepodařilo dokončit. Zkus dotaz prosím poslat znovu._');
         }
       } catch (error) {
         console.error('Chat API error:', error);
         try {
-          write('⚠️ Něco se nepovedlo. Zkuste to prosím za chvíli znovu.');
+          write('Něco se nepovedlo. Zkus to prosím za chvíli znovu.');
         } catch {
           /* stream už mohl být uzavřen */
         }

@@ -1,31 +1,38 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { ChartSkeleton } from '../ChartSkeleton';
+import { CHART, axisLabel, tooltipBase } from '../../utils/chartTheme';
 
 // Lazy jako v TopicTools — ECharts se nestáhne, dokud mentor nepošle první graf.
 const ReactECharts = lazy(() => import('echarts-for-react'));
 
 /* ════════════════════════════════════════════════════════════
    ChatChart — renderer pro ```echarts bloky v odpovědích mentora.
-   Model posílá JEN data + osy + název; tmavý brand-styl (paleta,
-   tooltip, mřížka, fonty) doplníme tady. Díky tomu zůstává systémový
+   Model posílá JEN data + osy + název; vzhled (paleta, tooltip,
+   mřížka, písmo) doplníme tady ze sdíleného chartTheme. Díky tomu zůstává systémový
    prompt malý a každý graf automaticky ladí se zbytkem aplikace.
    ════════════════════════════════════════════════════════════ */
 
-// cyan-first paleta, sladěná s kalkulačkami (TopicTools / CompoundInterestCalc)
-const PALETTE = ['#3ab5e0', '#10B981', '#F59E0B', '#a78bfa', '#fb7185', '#64748b'];
+const PALETTE = [CHART.cyan, CHART.up, CHART.amber, CHART.violet, CHART.down, CHART.axis];
+
+// čísla česky: mezera mezi tisíci, desetinná čárka
+const czNum = (v: unknown) => (typeof v === 'number' ? v.toLocaleString('cs-CZ') : String(v ?? ''));
 
 const AXIS = {
-  axisLine: { lineStyle: { color: 'rgba(148,163,184,0.25)' } },
+  axisLine: { lineStyle: { color: CHART.axisLine } },
   axisTick: { show: false },
-  axisLabel: { color: '#64748b', fontFamily: 'Space Grotesk, sans-serif', fontSize: 10 },
-  splitLine: { lineStyle: { color: 'rgba(148,163,184,0.08)', type: 'dashed' } },
+  axisLabel,
+  splitLine: { lineStyle: { color: CHART.grid, type: 'dashed' } },
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Nastyluje osu (jednu i pole os) brand vzhledem, data modelu nechá být.
 function styleAxis(axis: any): any {
   if (!axis) return undefined;
-  const one = (a: any) => ({ ...AXIS, ...a, axisLabel: { ...AXIS.axisLabel, ...(a?.axisLabel ?? {}) } });
+  const one = (a: any) => ({
+    ...AXIS,
+    ...a,
+    axisLabel: { ...AXIS.axisLabel, ...(a?.type === 'value' ? { formatter: czNum } : {}), ...(a?.axisLabel ?? {}) },
+  });
   return Array.isArray(axis) ? axis.map(one) : one(axis);
 }
 
@@ -39,8 +46,8 @@ function withTheme(model: any): any {
       ? {
           left: 'center',
           top: 6,
-          textStyle: { color: '#e2e8f0', fontFamily: 'Space Grotesk, sans-serif', fontSize: 14, fontWeight: 600 },
-          subtextStyle: { color: '#64748b', fontSize: 11 },
+          textStyle: { color: CHART.text, fontFamily: CHART.font, fontSize: 14, fontWeight: 600 },
+          subtextStyle: { color: CHART.axis, fontSize: 12 },
           ...(typeof model.title === 'object' ? model.title : { text: String(model.title) }),
         }
       : undefined;
@@ -50,18 +57,10 @@ function withTheme(model: any): any {
     backgroundColor: 'transparent',
     animationDuration: 700,
     animationEasing: 'cubicOut',
-    textStyle: { fontFamily: 'Inter, sans-serif', color: '#cbd5e1' },
+    textStyle: { fontFamily: CHART.font, color: CHART.text },
     ...model,
     // ── naše přepisy (vyhrávají nad modelem) ──
-    tooltip: {
-      trigger: isPie ? 'item' : 'axis',
-      backgroundColor: 'rgba(11,22,41,0.92)',
-      borderColor: 'rgba(58,181,224,0.35)',
-      borderWidth: 1,
-      padding: [8, 12],
-      textStyle: { color: '#e2e8f0', fontFamily: 'Inter, sans-serif' },
-      extraCssText: 'backdrop-filter: blur(14px); border-radius: 12px; box-shadow: 0 18px 50px -10px rgba(0,0,0,0.6);',
-    },
+    tooltip: { ...tooltipBase, trigger: isPie ? 'item' : 'axis', valueFormatter: czNum },
     title,
     legend: model.legend
       ? {
@@ -70,7 +69,7 @@ function withTheme(model: any): any {
           icon: 'roundRect',
           itemWidth: 10,
           itemHeight: 10,
-          textStyle: { color: '#94a3b8', fontFamily: 'Inter, sans-serif', fontSize: 11 },
+          textStyle: { color: CHART.axis, fontFamily: CHART.font, fontSize: 12 },
           ...(typeof model.legend === 'object' ? model.legend : {}),
         }
       : undefined,
@@ -82,28 +81,6 @@ function withTheme(model: any): any {
   };
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
-
-const WRAP: React.CSSProperties = {
-  margin: '0.85rem 0',
-  padding: '0.6rem 0.5rem 0.35rem',
-  borderRadius: '14px',
-  background: 'rgba(11,22,41,0.35)',
-  border: '1px solid rgba(58,181,224,0.18)',
-};
-
-// Když se graf nepodaří načíst, ukážeme radši zdroj než věčný placeholder.
-const FALLBACK: React.CSSProperties = {
-  margin: '0.85rem 0',
-  padding: '0.85rem 1rem',
-  borderRadius: '14px',
-  background: 'rgba(11,22,41,0.35)',
-  border: '1px solid rgba(148,163,184,0.18)',
-  color: '#94a3b8',
-  fontSize: '0.78rem',
-  whiteSpace: 'pre-wrap',
-  overflowX: 'auto',
-  fontFamily: "'Space Grotesk', ui-monospace, monospace",
-};
 
 export const ChatChart: React.FC<{ code: string }> = ({ code }) => {
   // Debounce: během streamu se `code` mění po každém chunku. Renderujeme až
@@ -129,7 +106,7 @@ export const ChatChart: React.FC<{ code: string }> = ({ code }) => {
 
   if (state.option) {
     return (
-      <div style={WRAP}>
+      <div className="mn-figure">
         <Suspense fallback={<ChartSkeleton height={280} bare />}>
           <ReactECharts option={state.option} style={{ height: 280, width: '100%' }} opts={{ renderer: 'canvas' }} />
         </Suspense>
@@ -137,7 +114,8 @@ export const ChatChart: React.FC<{ code: string }> = ({ code }) => {
     );
   }
   if (state.failed) {
-    return <pre style={FALLBACK}>{code.trim()}</pre>;
+    // když se graf nepodaří sestavit, ukážeme radši zdroj než věčný zástupný obrys
+    return <pre className="mn-figure mn-figure--src">{code.trim()}</pre>;
   }
-  return <ChartSkeleton height={280} label="Připravuji graf" style={{ margin: '0.85rem 0' }} />;
+  return <div className="mn-figure"><ChartSkeleton height={280} label="Připravuji graf" bare /></div>;
 };

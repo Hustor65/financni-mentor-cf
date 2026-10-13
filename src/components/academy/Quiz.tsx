@@ -1,20 +1,28 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { QuizQuestion } from '../../data/topics';
-import { Icon } from '../Icon';
 
 interface QuizProps {
   questions: QuizQuestion[];
   onComplete?: () => void;
 }
 
+// 1 otázku, 2–4 otázky, 5+ otázek
+const otazky = (n: number) => (n === 1 ? 'otázku' : n >= 2 && n <= 4 ? 'otázky' : 'otázek');
+
 export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
   // answers[i] = selected option index, or null if not answered yet
   const [answers, setAnswers] = useState<(number | null)[]>(() => questions.map(() => null));
   const [submitted, setSubmitted] = useState(false);
+  const uid = useId();
 
   // prázdný kvíz by se po „Vyhodnotit“ sám označil za 100% zvládnutý (0===0) a zavolal
   // onComplete bez jediné odpovědi → defenzivně nic nevykresluj (L49)
   if (!questions.length) return null;
+
+  const total = questions.length;
+  // Téma se počítá jako zvládnuté (→ Znalostní Skóre), když trefíš většinu (~60 %).
+  // Nechceme trestat za jednu chybu — klidně to jde zkoušet víckrát.
+  const need = Math.ceil(total * 0.6);
 
   const handleSelect = (qi: number, optIdx: number) => {
     if (submitted) return;
@@ -27,177 +35,109 @@ export const Quiz: React.FC<QuizProps> = ({ questions, onComplete }) => {
 
   const handleSubmit = () => {
     setSubmitted(true);
-    // Téma se počítá jako zvládnuté (→ Znalostní Skóre), když trefíš většinu (~60 %).
-    // Nechceme trestat za jednu chybu — klidně to jde zkoušet víckrát.
     const correctCount = questions.filter((q, i) => answers[i] === q.correct).length;
-    if (correctCount >= Math.ceil(questions.length * 0.6)) onComplete?.();
+    if (correctCount >= need) onComplete?.();
   };
 
-  const correct = submitted
-    ? questions.filter((q, i) => answers[i] === q.correct).length
-    : 0;
-  const total = questions.length;
-  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const handleRetry = () => {
+    setAnswers(questions.map(() => null));
+    setSubmitted(false);
+  };
 
-  // feedback: ikona + text (SVG místo emoji). Práh „zvládnuto“ je ~60 %, takže
-  // od 60 % už chválíme; pod prahem jen povzbudíme, ať to zkusí znovu.
-  const feedback = submitted
-    ? pct === 100
-      ? { icon: 'circle-check', text: `Výborně! ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-green-500)' }
-      : pct >= 60
-        ? { icon: 'target', text: `Hezky! Téma máš zvládnuté. ${correct}/${total} správně (${pct} %)`, color: 'var(--lg-green-500)' }
-        : { icon: 'book-open', text: `Skoro! Zkus to ještě jednou. ${correct}/${total} správně (${pct} %)`, color: 'var(--text-secondary)' }
-    : null;
+  const correct = submitted ? questions.filter((q, i) => answers[i] === q.correct).length : 0;
+  const missing = answers.filter(a => a === null).length;
+  const passed = correct >= need;
+
+  const feedback = !submitted
+    ? null
+    : correct === total
+      ? { title: 'Všechno správně', text: 'Téma máš hotové. Můžeš pokračovat dalším tématem.' }
+      : passed
+        ? { title: 'Téma máš hotové', text: 'U otázky, která nevyšla, si přečti vysvětlení. Pak můžeš pokračovat dalším tématem.' }
+        : {
+            title: correct > 0 ? 'Ještě to chce jeden pokus' : 'Tentokrát to nevyšlo',
+            text: `Ke splnění potřebuješ aspoň ${need} z ${total}. Projdi si vysvětlení u otázek, případně se vrať k teorii, a zkus to znovu.`,
+          };
 
   return (
-    <div>
-      {/* Section label — eyebrow style */}
-      <div className="eyebrow eyebrow--cyan" style={{ marginBottom: '0.75rem' }}>
-        <Icon name="circle-check" size={15} color="var(--lg-cyan-400)" />
-        <span>Ověř si pochopení</span>
-      </div>
-
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem', lineHeight: 1.6 }}>
-        Stačí, když odpovíš správně na většinu — klidně to zkoušej víckrát.
+    <div className="ak-quiz">
+      <p className="ak-quiz__lead">
+        Ke splnění stačí {need} z {total} správně. Zkoušet to můžeš, kolikrát chceš.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        {questions.map((q, qi) => {
-          const userAns = answers[qi];
-          return (
-            <div key={qi}>
-              {/* Question */}
-              <div
-                id={`quiz-q-${qi}-label`}
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 600,
-                  fontSize: '0.95rem',
-                  color: 'var(--text-primary)',
-                  marginBottom: '0.75rem',
-                  lineHeight: 1.5,
-                }}
-              >
-                {qi + 1}. {q.q}
-              </div>
+      {questions.map((q, qi) => {
+        const userAns = answers[qi];
+        const labelId = `${uid}-q-${qi}`;
+        const right = userAns === q.correct;
+        return (
+          <div key={qi} className="ak-quiz__q">
+            <h3 className="ak-quiz__question" id={labelId}>
+              <span className="ak-quiz__num num" aria-hidden="true">{qi + 1}</span>
+              <span>{q.q}</span>
+            </h3>
 
-              {/* Options */}
-              <div role="radiogroup" aria-labelledby={`quiz-q-${qi}-label`} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {q.options.map((opt, oi) => {
-                  let cls = 'quiz-option';
-                  const isSelected = userAns === oi;
-                  const isCorrect = oi === q.correct;
+            <div className="ui-choices" role="radiogroup" aria-labelledby={labelId}>
+              {q.options.map((opt, oi) => {
+                const isSelected = userAns === oi;
+                const isCorrect = oi === q.correct;
+                let cls = 'ui-choice';
+                if (submitted) {
+                  cls += ' is-locked';
+                  if (isCorrect) cls += ' is-correct';
+                  else if (isSelected) cls += ' is-wrong';
+                } else if (isSelected) cls += ' is-selected';
 
-                  if (submitted && isCorrect) cls += ' quiz-option--correct';
-                  else if (submitted && isSelected && !isCorrect) cls += ' quiz-option--wrong';
-
-                  return (
-                    <label
-                      key={oi}
-                      className={cls}
-                      style={{
-                        cursor: submitted ? 'default' : 'pointer',
-                        userSelect: 'none',
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name={`quiz-q-${qi}`}
-                        checked={isSelected}
-                        onChange={() => handleSelect(qi, oi)}
-                        disabled={submitted}
-                        style={{
-                          accentColor: 'var(--lg-cyan-500)',
-                          width: '16px',
-                          height: '16px',
-                          flexShrink: 0,
-                          cursor: submitted ? 'default' : 'pointer',
-                        }}
-                      />
-                      <span style={{ flex: 1 }}>{opt}</span>
-                      {submitted && isCorrect && (
-                        <Icon name="check-circle" size={17} color="var(--lg-green-500)" />
-                      )}
-                      {submitted && isSelected && !isCorrect && (
-                        <Icon name="alert-triangle" size={16} color="#ef4444" />
-                      )}
-                    </label>
-                  );
-                })}
-              </div>
-
-              {/* Per-question explanation after submit */}
-              {submitted && (
-                <div
-                  style={{
-                    marginTop: '0.5rem',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.5rem',
-                    borderLeft: `3px solid ${answers[qi] === q.correct ? 'var(--lg-green-500)' : '#ef4444'}`,
-                    padding: '0.5rem 0.75rem',
-                    background: 'rgba(148,163,184,0.04)',
-                    borderRadius: '0 4px 4px 0',
-                  }}
-                >
-                  <span style={{ marginTop: '1px', flexShrink: 0 }}>
-                    <Icon
-                      name={answers[qi] === q.correct ? 'check-circle' : 'alert-triangle'}
-                      size={15}
-                      color={answers[qi] === q.correct ? 'var(--lg-green-500)' : '#ef4444'}
+                return (
+                  <label key={oi} className={cls}>
+                    <input
+                      type="radio"
+                      name={`${uid}-q-${qi}`}
+                      checked={isSelected}
+                      onChange={() => handleSelect(qi, oi)}
+                      disabled={submitted}
                     />
-                  </span>
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.84rem', lineHeight: 1.55 }}>
-                    {answers[qi] === q.correct ? 'Správně:' : 'Správná odpověď:'} <strong style={{ color: 'var(--text-primary)' }}>{q.options[q.correct]}</strong> — {q.explain}
-                  </span>
-                </div>
-              )}
+                    <span className="ak-quiz__opt">{opt}</span>
+                    {submitted && isCorrect && <span className="ui-tag ui-tag--ok">Správně</span>}
+                    {submitted && isSelected && !isCorrect && <span className="ui-tag ui-tag--danger">Tvoje odpověď</span>}
+                  </label>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
 
-      {/* Submit / Score */}
+            {submitted && (
+              <p className={`ui-note ${right ? 'ui-note--ok' : 'ui-note--danger'} ak-quiz__explain`}>
+                <strong>{right ? 'Správně.' : 'Vedle.'}</strong> {q.explain}
+              </p>
+            )}
+          </div>
+        );
+      })}
+
+      <hr className="ui-divide" />
+
       {!submitted ? (
-        <button
-          className="btn btn--primary btn--block"
-          style={{ marginTop: '1.5rem' }}
-          onClick={handleSubmit}
-          disabled={answers.some(a => a === null)}
-        >
-          Vyhodnotit kvíz
-        </button>
-      ) : (
-        <div
-          className="glass-panel--elevated"
-          role="status"
-          aria-live="polite"
-          style={{
-            marginTop: '1.5rem',
-            padding: '1rem 1.25rem',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--glass-border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.6rem',
-            fontWeight: 700,
-            fontSize: '1rem',
-            color: feedback!.color,
-          }}
-        >
-          <Icon name={feedback!.icon} size={20} color={feedback!.color} />
-          {feedback!.text}
+        <div className="ak-quiz__submit">
+          <button type="button" className="btn btn--primary" onClick={handleSubmit} disabled={missing > 0}>
+            Vyhodnotit odpovědi
+          </button>
+          <span className="ak-quiz__hint num" aria-live="polite">
+            {missing > 0 ? `Zbývá odpovědět na ${missing} ${otazky(missing)}.` : 'Všechno zodpovězeno.'}
+          </span>
         </div>
-      )}
-      {submitted && (
-        <button
-          className="btn btn--block"
-          style={{ marginTop: '0.75rem' }}
-          onClick={() => { setAnswers(questions.map(() => null)); setSubmitted(false); }}
-        >
-          Zkusit znovu
-        </button>
+      ) : (
+        <div className="ak-quiz__result" role="status" aria-live="polite">
+          <p className={`ui-hero-num${passed ? ' is-passed' : ''}`}>
+            <span className="ui-hero-num__label">Správné odpovědi</span>
+            {correct} z {total}
+          </p>
+          <div className="ak-quiz__verdict">
+            <p className="ui-h3">{feedback!.title}</p>
+            <p className="ak-quiz__verdict-text">{feedback!.text}</p>
+            <button type="button" className={`btn${passed ? '' : ' btn--primary'}`} onClick={handleRetry}>
+              Zkusit znovu
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

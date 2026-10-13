@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { Icon } from '../Icon';
 
 /**
- * ScamCheck — interaktivní „Je to scam?" cvičení k tématu Podvody a scamy.
+ * ScamCheck — interaktivní „Je to scam?“ cvičení k tématu Podvody a scamy.
  * Student dostane reálné scénáře (zprávy/nabídky) a hádá, jestli jde o podvod.
- * Po každé volbě dostane vysvětlení → trénuje rozpoznávání. Sedí k brandu „Nachytej AI".
+ * Po každé volbě dostane vysvětlení → trénuje rozpoznávání.
  */
 
 interface Scenario {
-  icon: string;
   text: string;
   isScam: boolean;
   explain: string;
@@ -16,37 +14,31 @@ interface Scenario {
 
 const SCENARIOS: Scenario[] = [
   {
-    icon: 'mail',
-    text: '„Gratulujeme! Vyhrál jsi nový iPhone. Pro doručení zaplať jen 49 Kč poplatek tady: bit.ly/vyhra-cz"',
+    text: '„Gratulujeme! Vyhrál jsi nový iPhone. Pro doručení zaplať jen 49 Kč poplatek tady: bit.ly/vyhra-cz“',
     isScam: true,
-    explain: 'Výhra v soutěži, které ses neúčastnil, plus malý „poplatek" předem = klasická past na tvoje platební údaje. Skutečné výhry se neplatí dopředu.',
+    explain: 'Výhra v soutěži, které ses neúčastnil, plus malý „poplatek“ předem = klasická past na tvoje platební údaje. Skutečné výhry se neplatí dopředu.',
   },
   {
-    icon: 'trending-up',
-    text: '„Investuj 1 000 Kč do našeho krypto fondu a garantujeme ti 500 Kč každý týden. Úplně bez rizika!"',
+    text: '„Investuj 1 000 Kč do našeho krypto fondu a garantujeme ti 500 Kč každý týden. Úplně bez rizika!“',
     isScam: true,
     explain: 'Zaručený vysoký výnos bez rizika neexistuje. Tohle je typický investiční podvod (často Ponziho schéma, co vyplácí první z peněz dalších).',
   },
   {
-    icon: 'message-circle',
-    text: 'SMS „od banky": „Zaznamenali jsme podezřelou platbu. Potvrďte identitu zde, jinak účet zablokujeme: secure-bank-cz.net"',
+    text: 'SMS „od banky“: „Zaznamenali jsme podezřelou platbu. Potvrďte identitu zde, jinak účet zablokujeme: secure-bank-cz.net“',
     isScam: true,
     explain: 'Phishing. Banka tě nikdy nežádá o přihlášení přes odkaz v SMS a doména je podezřelá. Nikdy neklikej — jdi rovnou do oficiální appky banky.',
   },
   {
-    icon: 'users',
-    text: '„Práce z domova: necháš si na svůj účet posílat platby od našich klientů a pošleš je dál. Necháš si 10 %."',
+    text: '„Práce z domova: necháš si na svůj účet posílat platby od našich klientů a pošleš je dál. Necháš si 10 %.“',
     isScam: true,
-    explain: 'Money muling — praní špinavých peněz přes tvůj účet. Je to trestné, i když „jen přeposíláš". Svůj účet nikdy nikomu nepůjčuj.',
+    explain: 'Money muling — praní špinavých peněz přes tvůj účet. Je to trestné, i když „jen přeposíláš“. Svůj účet nikdy nikomu nepůjčuj.',
   },
   {
-    icon: 'lock',
-    text: '„Někdo ti poslal dárek! Pro odemčení potvrď číslo karty, datum platnosti, CVV a kód z SMS."',
+    text: '„Někdo ti poslal dárek! Pro odemčení potvrď číslo karty, datum platnosti, CVV a kód z SMS.“',
     isScam: true,
-    explain: 'CVV a kód z SMS jsou klíče k tvým penězům — nikdy je nikam nezadávej kvůli „dárku". Žádná legitimní služba je takhle nechce.',
+    explain: 'CVV a kód z SMS jsou klíče k tvým penězům — nikdy je nikam nezadávej kvůli „dárku“. Žádná legitimní služba je takhle nechce.',
   },
   {
-    icon: 'dollar-sign',
     text: 'Na e‑shopu, kde běžně nakupuješ, je sleva 20 %. Otevřeš si jejich oficiální stránku (adresu znáš) a koupíš.',
     isScam: false,
     explain: 'V pořádku — jdeš přes ověřený web, který znáš, ne přes odkaz z podezřelé zprávy. Slevy na známém e‑shopu jsou normální.',
@@ -74,75 +66,95 @@ export const ScamCheck: React.FC = () => {
   };
   const restart = () => { setI(0); setGuess(null); setScore(0); setDone(false); };
 
+  const answered = i + (guess !== null ? 1 : 0);
+  const options: { value: boolean; label: string }[] = [
+    { value: true, label: 'Podvod' },
+    { value: false, label: 'V pořádku' },
+  ];
+
+  const scoreboard = (
+    <dl className="ui-kpis">
+      <div>
+        <dt>Správně</dt>
+        <dd className={score > 0 ? 'is-up' : undefined}>{score}</dd>
+      </div>
+      <div>
+        <dt>Vedle</dt>
+        <dd>{answered - score}</dd>
+      </div>
+    </dl>
+  );
+
   if (done) {
     const pct = Math.round((score / SCENARIOS.length) * 100);
     const good = score >= Math.ceil(SCENARIOS.length * 0.6);
     return (
-      <div role="status" aria-live="polite" style={{ textAlign: 'center', padding: 'var(--space-sm) 0' }}>
-        <Icon name={good ? 'shield-check' : 'alert-triangle'} size={40} color={good ? 'var(--lg-green-500, #10B981)' : '#F59E0B'} aria-hidden />
-        <p style={{ fontWeight: 700, fontSize: '1.15rem', margin: 'var(--space-sm) 0 0' }}>
-          {good ? 'Hezky! Podvod poznáš.' : 'Ještě trénuj — podvodníci jsou vychytralí.'}
+      <div className="tl-quiz tl-quiz--end" role="status" aria-live="polite">
+        <p className="ui-steps">Hotovo, {SCENARIOS.length} z {SCENARIOS.length}</p>
+        <p className="ui-hero-num tl-hero">
+          <span className="ui-hero-num__label">Tvůj výsledek</span>
+          {score} z {SCENARIOS.length}
         </p>
-        <p style={{ opacity: 0.75, margin: '0.3rem 0 var(--space-md)' }}>
-          Trefil/a jsi {score} z {SCENARIOS.length} ({pct} %).
+        <p className={`ui-note ${good ? 'ui-note--ok' : 'ui-note--warn'}`}>
+          <strong>{good ? 'Podvod poznáš.' : 'Ještě trénuj, podvodníci jsou vychytralí.'}</strong>{' '}
+          Správně máš {pct}{'\u00a0'}% odpovědí. {good ? 'Stejné triky se opakují: spěch, výhra zadarmo a žádost o údaje z karty.' : 'Všímej si spěchu, výher zadarmo a žádostí o údaje z karty.'}
         </p>
-        <button type="button" className="btn btn--ghost" onClick={restart}>Zkusit znovu</button>
+        <div className="tl-quiz__actions">
+          <button type="button" className="btn btn--primary" onClick={restart}>Zkusit znovu</button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-sm)' }}>
-        <span className="eyebrow">Scénář {i + 1} / {SCENARIOS.length}</span>
-        <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Skóre {score}</span>
-      </div>
-
-      <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-start', margin: '0 0 var(--space-md)' }}>
-        <Icon name={s.icon} size={26} color="var(--lg-cyan-2, #4cc4e6)" aria-hidden />
-        <p style={{ fontSize: '1.05rem', lineHeight: 1.55, margin: 0 }}>{s.text}</p>
-      </div>
-
-      {guess === null ? (
-        <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => answer(true)}
-            style={{ flex: 1, minWidth: 130, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(245,158,11,0.5)', background: 'rgba(245,158,11,0.12)', color: '#fbbf24', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
-          >
-            <Icon name="flag" size={18} aria-hidden /> Podvod
-          </button>
-          <button
-            type="button"
-            onClick={() => answer(false)}
-            style={{ flex: 1, minWidth: 130, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(16,185,129,0.5)', background: 'rgba(16,185,129,0.12)', color: '#34d399', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
-          >
-            <Icon name="check-circle" size={18} aria-hidden /> V pořádku
-          </button>
-        </div>
-      ) : (
-        <div aria-live="polite">
-          <div
-            style={{
-              display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-start',
-              padding: 'var(--space-sm) var(--space-md)', borderRadius: 'var(--radius-md, 10px)',
-              background: correct ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
-              border: `1px solid ${correct ? 'rgba(16,185,129,0.4)' : 'rgba(245,158,11,0.4)'}`,
-            }}
-          >
-            <Icon name={correct ? 'check-circle' : 'alert-triangle'} size={22} color={correct ? 'var(--lg-green-500, #10B981)' : '#F59E0B'} aria-hidden />
-            <div>
-              <p style={{ fontWeight: 700, margin: 0 }}>
-                {correct ? 'Správně!' : 'Pozor!'} {s.isScam ? 'Tohle je podvod.' : 'Tohle je v pořádku.'}
-              </p>
-              <p style={{ margin: '0.3rem 0 0', fontSize: '0.92rem', lineHeight: 1.5, opacity: 0.85 }}>{s.explain}</p>
-            </div>
+    <div className="tl-ex">
+      <div className="tl-quiz tl-quiz--run">
+        <div className="tl-quiz__side">
+          <div className="tl-quiz__head">
+            <span className="ui-steps">Scénář {i + 1} z {SCENARIOS.length}</span>
+            <div className="ui-progress" aria-hidden="true"><span style={{ width: `${(answered / SCENARIOS.length) * 100}%` }} /></div>
           </div>
-          <button type="button" className="btn btn--primary" onClick={next} style={{ marginTop: 'var(--space-md)' }}>
-            {i + 1 >= SCENARIOS.length ? 'Zobrazit výsledek' : 'Další scénář →'}
-          </button>
+          {scoreboard}
         </div>
-      )}
+        <div className="tl-quiz__main">
+          <p className="tl-quiz__prompt">{s.text}</p>
+
+          <ul className="ui-choices">
+            {options.map(o => {
+              const isAnswer = guess !== null && o.value === s.isScam;
+              const isMiss = guess !== null && guess === o.value && !isAnswer;
+              return (
+                <li key={o.label}>
+                  <button
+                    type="button"
+                    className={`ui-choice${isAnswer ? ' is-correct' : ''}${isMiss ? ' is-wrong' : ''}`}
+                    aria-disabled={guess !== null}
+                    onClick={() => answer(o.value)}
+                  >
+                    <span className="tl-choice__text">{o.label}</span>
+                    {guess === o.value && <span className="tl-choice__end">tvoje odpověď</span>}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          {guess !== null && (
+            <div className="tl-quiz__feedback" aria-live="polite">
+              <p className={`ui-note ${correct ? 'ui-note--ok' : 'ui-note--danger'}`}>
+                <strong>{correct ? 'Správně.' : 'Vedle.'} {s.isScam ? 'Tohle je podvod.' : 'Tohle je v pořádku.'}</strong>{' '}
+                {s.explain}
+              </p>
+              <div className="tl-quiz__actions">
+                <button type="button" className="btn btn--primary" onClick={next}>
+                  {i + 1 >= SCENARIOS.length ? 'Zobrazit výsledek' : 'Další scénář'}
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
     </div>
   );
 };

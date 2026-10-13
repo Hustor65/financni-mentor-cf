@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChartSkeleton } from '../ChartSkeleton';
+import { CHART } from '../../utils/chartTheme';
 
 /* ════════════════════════════════════════════════════════════
    ChatMermaid — renderer pro ```mermaid bloky: procesní diagramy,
@@ -26,30 +27,6 @@ function serialRender(doRender: () => Promise<{ svg: string }>): Promise<{ svg: 
   return run;
 }
 
-const WRAP: React.CSSProperties = {
-  margin: '0.85rem 0',
-  padding: '0.9rem 0.6rem',
-  borderRadius: '14px',
-  background: 'rgba(11,22,41,0.35)',
-  border: '1px solid rgba(58,181,224,0.18)',
-  textAlign: 'center',
-  overflowX: 'auto',
-};
-
-// Když se diagram nepodaří vykreslit, ukážeme radši jeho zdroj než věčný spinner.
-const FALLBACK: React.CSSProperties = {
-  margin: '0.85rem 0',
-  padding: '0.85rem 1rem',
-  borderRadius: '14px',
-  background: 'rgba(11,22,41,0.35)',
-  border: '1px solid rgba(148,163,184,0.18)',
-  color: '#94a3b8',
-  fontSize: '0.78rem',
-  whiteSpace: 'pre-wrap',
-  overflowX: 'auto',
-  fontFamily: "'Space Grotesk', ui-monospace, monospace",
-};
-
 export const ChatMermaid: React.FC<{ code: string }> = ({ code }) => {
   const [state, setState] = useState<{ svg?: string; failed?: boolean }>({});
   const reqRef = useRef(0);
@@ -71,19 +48,19 @@ export const ChatMermaid: React.FC<{ code: string }> = ({ code }) => {
               startOnLoad: false,
               securityLevel: 'strict', // popisky se escapují → bezpečné i s textem od uživatele
               theme: 'base',
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: CHART.font,
               flowchart: { useMaxWidth: true, curve: 'basis' },
               themeVariables: {
                 background: 'transparent',
-                primaryColor: '#0e1d33',
-                primaryBorderColor: '#3ab5e0',
-                primaryTextColor: '#e2e8f0',
-                lineColor: '#5fb8d6',
-                secondaryColor: '#13241d',
-                tertiaryColor: '#1a1330',
-                textColor: '#cbd5e1',
-                edgeLabelBackground: '#0b1629',
-                fontFamily: 'Inter, sans-serif',
+                primaryColor: CHART.tooltipBg,
+                primaryBorderColor: CHART.cyan,
+                primaryTextColor: CHART.text,
+                lineColor: CHART.axis,
+                secondaryColor: CHART.tooltipBg,
+                tertiaryColor: CHART.tooltipBg,
+                textColor: CHART.text,
+                edgeLabelBackground: CHART.tooltipBg,
+                fontFamily: CHART.font,
               },
             });
             initialized = true;
@@ -101,7 +78,8 @@ export const ChatMermaid: React.FC<{ code: string }> = ({ code }) => {
     };
   }, [code]);
 
-  if (state.svg) return <div style={WRAP} dangerouslySetInnerHTML={{ __html: state.svg }} />;
-  if (state.failed) return <pre style={FALLBACK}>{code.trim()}</pre>;
-  return <ChartSkeleton height={200} label="Připravuji diagram" style={{ margin: '0.85rem 0' }} />;
+  if (state.svg) return <div className="mn-figure mn-figure--diagram" dangerouslySetInnerHTML={{ __html: state.svg }} />;
+  // když se diagram nepodaří vykreslit, ukážeme radši jeho zdroj než věčný zástupný obrys
+  if (state.failed) return <pre className="mn-figure mn-figure--src">{code.trim()}</pre>;
+  return <div className="mn-figure"><ChartSkeleton height={200} label="Připravuji diagram" bare /></div>;
 };

@@ -1,0 +1,267 @@
+/* ═══════════════════════════════════════════════════════════
+   NÁVRHOVÝ SYSTÉM — společné stavební kameny všech obrazovek.
+   Načítá se po index.css / redesign.css / features.css a před
+   styly jednotlivých obrazovek (styles/screens/*.css).
+
+   Zásady:
+   1. Jedna úroveň rámečku. Rámeček (.ui-panel) dostane jen celek,
+      se kterým se pracuje (kalkulačka, kvíz, graf, chat). Uvnitř
+      panelu už žádné další rámečky — člení se linkou a mezerou.
+   2. Text stojí na typografii: nadpis sekce bez ikony a bez
+      štítku nad ním, žádná VERZÁLKOVÁ návěští, nic pod 13 px.
+   3. Čísla jsou hrdina: velká, tabulková, s popiskem malým písmem.
+   4. Formulář se neroztahuje přes celou stránku: pole mají
+      rozumnou šířku, ovládání vlevo, výsledek vpravo (.ui-split).
+   5. Barvy jen z proměnných (var(--accent), --up, --down,
+      --text-secondary…). Žádné hex kódy v komponentách.
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 72px;
+
+  --r-s: 8px;
+  --r-m: 12px;
+  --r-l: 16px;
+
+  --text-1: #ffffff;                  /* nadpisy, čísla */
+  --text-2: #c3d0e4;                  /* běžný text */
+  --text-3: var(--text-secondary);    /* doprovodný text, popisky */
+  --text-4: var(--text-muted);        /* poznámky pod čarou */
+
+  --fs-xs: 0.82rem;   /* nejmenší povolená velikost */
+  --fs-s: 0.9rem;
+  --fs-m: 1rem;
+  --fs-l: 1.15rem;
+  --fs-h3: 1.2rem;
+  --fs-h2: 1.6rem;
+  --fs-num: 1.55rem;  /* číslo ve výsledku */
+
+  --fill-1: rgba(255, 255, 255, 0.035);  /* jemná výplň uvnitř panelu */
+  --fill-2: rgba(255, 255, 255, 0.07);   /* hover */
+  --line: var(--border-subtle);
+  --amber: #f5b84a;
+  --measure-text: 68ch;
+}
+
+/* ── Sekce stránky ──────────────────────────────────────── */
+
+.ui-sec { margin-top: var(--s-8); }
+.ui-sec:first-child { margin-top: 0; }
+.ui-sec__title {
+  margin: 0 0 var(--s-2);
+  color: var(--text-1);
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.ui-sec__lead { max-width: var(--measure-text); margin: 0 0 var(--s-5); color: var(--text-3); line-height: 1.6; }
+.ui-sec__title + :not(.ui-sec__lead) { margin-top: var(--s-5); }
+.ui-h3 { margin: 0 0 var(--s-2); color: var(--text-1); font-size: var(--fs-h3); font-weight: 700; line-height: 1.25; }
+.ui-prose { max-width: var(--measure-text); color: var(--text-2); line-height: 1.7; }
+.ui-prose p { margin: 0 0 var(--s-4); }
+.ui-prose p:last-child { margin-bottom: 0; }
+.ui-prose strong { color: var(--text-1); font-weight: 650; }
+.ui-small { color: var(--text-4); font-size: var(--fs-xs); line-height: 1.55; }
+
+/* ── Panel: jediný rámeček na celek ─────────────────────── */
+
+.ui-panel {
+  padding: clamp(18px, 3vw, 32px);
+  border: 1px solid var(--glass-edge, var(--border-subtle));
+  border-radius: var(--r-l);
+  background: var(--glass-fill, none), var(--glass-tint, var(--surface-0));
+  box-shadow: var(--glass-shine, none), var(--glass-drop, none);
+}
+.ui-panel__title { margin: 0 0 var(--s-4); color: var(--text-1); font-size: var(--fs-h3); font-weight: 700; }
+/* dělení uvnitř panelu: linka, ne další rámeček */
+.ui-divide { margin-block: var(--s-6); border: 0; border-top: 1px solid var(--line); }
+
+/* ── Rozložení ──────────────────────────────────────────── */
+
+/* ovládání vlevo, výsledek vpravo */
+.ui-split {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+.ui-split > * { min-width: 0; }
+.ui-stack { display: flex; flex-direction: column; gap: var(--s-4); }
+.ui-stack--l { gap: var(--s-6); }
+.ui-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.ui-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--col, 220px)), 1fr)); gap: var(--s-4); }
+
+/* ── Čísla ──────────────────────────────────────────────── */
+
+.ui-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: var(--s-4) var(--s-6);
+  margin: 0;
+  padding-block: var(--s-4);
+  border-block: 1px solid var(--line);
+}
+.ui-kpis > div { min-width: 0; }
+.ui-kpis dt { color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
+.ui-kpis dd {
+  margin: var(--s-1) 0 0;
+  color: var(--text-1);
+  font-family: var(--font-display);
+  font-size: var(--fs-num);
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.ui-kpis dd small { display: block; margin-top: 2px; color: var(--text-3); font-family: var(--font-body); font-size: var(--fs-xs); font-weight: 500; }
+.ui-kpis .is-up, .ui-kpis dd.is-up { color: var(--up); }
+.ui-kpis .is-down, .ui-kpis dd.is-down { color: var(--down); }
+.ui-kpis .is-accent { color: var(--accent); }
+/* jedno hlavní číslo nad ostatními */
+.ui-hero-num { margin: 0; color: var(--text-1); font-family: var(--font-display); font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.ui-hero-num__label { display: block; margin-bottom: var(--s-1); color: var(--text-3); font-family: var(--font-body); font-size: var(--fs-s); font-weight: 500; }
+
+/* ── Formuláře ──────────────────────────────────────────── */
+
+.ui-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ui-field > span, .ui-field > label { color: var(--text-3); font-size: var(--fs-s); font-weight: 600; }
+.ui-input,
+.ui-field input:not([type='checkbox'], [type='radio'], [type='range']),
+.ui-field select {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding-inline: 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-s);
+  background: rgba(8, 18, 34, 0.6);
+  color: var(--text-1);
+  font: inherit;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+.ui-input:focus-visible,
+.ui-field input:focus-visible,
+.ui-field select:focus-visible { border-color: var(--accent); outline-offset: 0; }
+.ui-field small { color: var(--text-4); font-size: var(--fs-xs); }
+/* pole vedle sebe; nikdy širší než ~320 px */
+.ui-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 320px)); gap: var(--s-4); }
+.ui-check { display: flex; align-items: center; gap: var(--s-3); min-height: 44px; color: var(--text-2); cursor: pointer; }
+.ui-check input { width: 20px; height: 20px; accent-color: var(--accent); }
+
+/* ── Volby (kvíz, simulace, dotazník) ───────────────────── */
+
+.ui-choices { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.ui-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--s-3) var(--s-3);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-left: 3px solid transparent;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ui-choice:hover:not(:disabled, [aria-disabled='true']) { background: var(--fill-1); color: var(--text-1); }
+.ui-choice.is-selected, .ui-choice[aria-pressed='true'], .ui-choice[aria-checked='true'] { border-left-color: var(--accent); background: var(--accent-soft); color: var(--text-1); }
+.ui-choice.is-correct { border-left-color: var(--up); background: rgba(52, 211, 153, 0.1); color: var(--text-1); }
+.ui-choice.is-wrong { border-left-color: var(--down); background: rgba(240, 97, 122, 0.1); color: var(--text-1); }
+.ui-choice:disabled { cursor: default; }
+.ui-choice__mark { flex: none; width: 26px; color: var(--text-3); font-weight: 700; font-variant-numeric: tabular-nums; }
+.ui-choice input { flex: none; width: 18px; height: 18px; accent-color: var(--accent); }
+
+/* ── Poznámky a výsledky slovem ─────────────────────────── */
+
+.ui-note { margin: 0; padding: var(--s-2) 0 var(--s-2) var(--s-4); border-left: 3px solid var(--accent); color: var(--text-2); line-height: 1.6; }
+.ui-note strong { color: var(--text-1); }
+.ui-note--ok { border-color: var(--up); }
+.ui-note--warn { border-color: var(--amber); }
+.ui-note--danger { border-color: var(--down); }
+.ui-tag { display: inline-flex; align-items: center; height: 24px; padding-inline: 9px; border-radius: 999px; background: var(--fill-2); color: var(--text-2); font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; }
+.ui-tag--accent { background: var(--accent-soft); color: var(--accent); }
+.ui-tag--ok { background: rgba(52, 211, 153, 0.14); color: var(--up); }
+.ui-tag--danger { background: rgba(240, 97, 122, 0.14); color: var(--down); }
+
+/* ── Seznamy a tabulky ──────────────────────────────────── */
+
+.ui-rows { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.ui-rows > li { padding: var(--s-4) 0; border-bottom: 1px solid var(--line); }
+.ui-table-wrap { position: relative; overflow-x: auto; }
+.ui-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s); }
+.ui-table th, .ui-table td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+.ui-table th:first-child, .ui-table td:first-child { text-align: left; }
+.ui-table thead th { color: var(--text-3); font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; }
+.ui-table tbody th { color: var(--text-1); font-weight: 600; }
+
+/* ── Postup ─────────────────────────────────────────────── */
+
+.ui-progress { height: 6px; border-radius: 3px; background: var(--fill-2); overflow: hidden; }
+.ui-progress > span { display: block; height: 100%; border-radius: 3px; background: var(--accent); transition: width var(--dur-2) var(--ease-out); }
+.ui-steps { color: var(--text-3); font-size: var(--fs-s); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ── Tlačítka: doplnění k existujícímu .btn ─────────────── */
+
+.btn { min-height: 42px; }
+.btn--small { min-height: 34px; }
+.btn--quiet { border-color: transparent; background: none; color: var(--accent); padding-inline: 6px; }
+.btn--quiet:hover { background: var(--accent-soft); border-color: transparent; }
+
+@media (max-width: 900px) {
+  .ui-split { grid-template-columns: minmax(0, 1fr); }
+  .ui-sec { margin-top: var(--s-7); }
+}
+
+/* druhotné tlačítko: barva podle úrovně a normální vnitřní okraj */
+.btn--ghost { padding-inline: 14px; border-color: var(--accent-line); background: none; color: var(--accent); }
+.btn--ghost:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+/* vlastní přepínač ve volbách (kvíz, dotazníky) */
+.ui-choice input[type='radio'] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+  background: none;
+  transition: border-color var(--dur-1) var(--ease-std), box-shadow var(--dur-1) var(--ease-std);
+}
+.ui-choice input[type='radio']:checked { border-color: var(--accent); box-shadow: inset 0 0 0 4px var(--accent); }
+
+/* číslo s jednotkou se nikdy neláme („10 000 Kč“); v úzkém sloupci se raději zmenší */
+.ui-kpis dd, .ui-hero-num { white-space: nowrap; overflow-wrap: normal; }
+.ui-kpis { container-type: inline-size; }
+@container (max-width: 300px) { .ui-kpis dd { font-size: 1.2rem; } }
+
+/* ── Ukazatel přechodu na další stránku ─────────────────── */
+.nav-progress {
+  position: fixed;
+  top: var(--bar-h);
+  left: 0;
+  z-index: 60;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+/* objeví se až po 150 ms — rychlé přepnutí ho vůbec neukáže */
+.nav-progress[data-on] { opacity: 1; transform: scaleX(0.85); transition: transform 2.5s cubic-bezier(0.1, 0.7, 0.2, 1) 150ms, opacity 0s 150ms; }
+/* …ale vysvětlivka pod číslem se láme normálně */
+.ui-kpis dd small, .ui-kpis dd p, .ui-kpis dd span[class] { white-space: normal; }

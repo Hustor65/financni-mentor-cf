@@ -145,6 +145,18 @@ export const GLOSSARY: GlossaryTerm[] = [
   { term: 'Nouzová rezerva', def: 'Peníze odložené stranou na 3–6 měsíců tvých výdajů pro případ nouze (rozbité auto, výpadek příjmu). Měl bys ji mít dřív, než začneš investovat — je to tvůj záchranný polštář.' },
   { term: 'Rozpočet 50/30/20', def: 'Jednoduché pravidlo, jak rozdělit příjem: 50 % na potřeby (nájem, jídlo), 30 % na chtění (zábava) a 20 % na spoření a splátky dluhů. Snadno zapamatovatelný start, čísla si můžeš upravit.' },
   { term: 'BNPL (kup teď, zaplať později)', def: 'Z anglického „Buy Now, Pay Later“ — odložená platba, kterou splácíš po částech. Láká, protože si věc odneseš hned, ale snadno se v drobných splátkách utopíš a ztratíš přehled. Měj na ně velký pozor.' },
+  { term: 'Opce', def: 'Právo (ne povinnost) koupit nebo prodat akcii za předem danou cenu do určitého data. Za to právo se platí prémie.' },
+  { term: 'Call a put', def: 'Call je opce na nákup — vydělává při růstu ceny. Put je opce na prodej — vydělává při poklesu a slouží i jako pojistka.' },
+  { term: 'Strike', def: 'Předem dohodnutá cena, za kterou můžeš díky opci akcii koupit (call) nebo prodat (put).' },
+  { term: 'Prémie', def: 'Cena opce. Kupující ji platí a je to nejvíc, o co může přijít; vypisovatel ji inkasuje.' },
+  { term: 'Delta', def: 'Udává, o kolik se změní cena opce, když se cena akcie pohne o 1. Jedno z „řeckých písmen“.' },
+  { term: 'Max drawdown', def: 'Největší propad z vrcholu na dno za sledované období. Ukazuje, co nejhoršího by investor musel ustát.' },
+  { term: 'Korelace', def: 'Míra toho, jak moc se dvě aktiva pohybují společně (−1 až +1). Nízká korelace je základ diverzifikace.' },
+  { term: 'Sharpeho poměr', def: 'Výnos nad bezrizikovou sazbu dělený volatilitou. Říká, kolik výnosu dostáváš za jednotku rizika.' },
+  { term: 'DCF', def: 'Model diskontovaných cash flow — ocenění firmy podle budoucích peněz přepočtených na dnešní hodnotu.' },
+  { term: 'Klouzavý průměr', def: 'Průměr ceny za posledních N dní (často 50 nebo 200). Vyhlazuje šum a ukazuje směr trendu.' },
+  { term: 'RSI', def: 'Index relativní síly (0–100). Měří tempo růstu ceny oproti poklesům; nad 70 „překoupeno“, pod 30 „přeprodáno“.' },
+  { term: 'Svíčka', def: 'Způsob zobrazení ceny za jedno období: otevírací a zavírací cena tvoří tělo, maximum a minimum knoty.' },
 ];
 
 // ── EXTRA FAKTA ──

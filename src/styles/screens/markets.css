@@ -1,0 +1,503 @@
+/* Styly obrazovky: markets. Staví na styles/system.css.
+   Předpony: .mx-* Trhy · .tb* nákup na zkoušku · .lab* pokročilé nástroje
+             .pp-* portfolio na zkoušku · .gg-* hra Odhadni graf */
+
+:is(.mx, .tb, .lab, .pp, .gg) .is-up { color: var(--up); }
+:is(.mx, .tb, .lab, .pp, .gg) .is-down { color: var(--down); }
+
+/* ═══ Trhy ═════════════════════════════════════════════════ */
+
+.mx-layout {
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+}
+
+/* ── seznam titulů ── */
+.mx-rail {
+  position: sticky;
+  top: calc(var(--bar-h) + var(--s-4));
+  max-height: calc(100vh - var(--bar-h) - var(--s-6));
+  overflow-y: auto;
+  padding-right: var(--s-1);
+  scrollbar-width: thin;
+}
+.mx-rail__toggle { display: none; }
+.mx-search { display: flex; gap: var(--s-2); }
+.mx-search .ui-input { flex: 1; height: 42px; }
+.mx-search .btn { flex: none; padding-inline: 14px; }
+
+.mx-list ul { margin: 0; padding: 0; list-style: none; }
+.mx-list section { padding-top: var(--s-2); }
+.mx-list section + section { margin-top: var(--s-2); border-top: 1px solid var(--line); }
+.mx-group { margin: 0 0 var(--s-1); padding-left: var(--s-3); color: var(--text-3); font-size: var(--fs-xs); font-weight: 600; }
+
+.mx-row { display: flex; align-items: center; gap: var(--s-1); border-radius: var(--r-s); }
+.mx-row__main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 var(--s-2) 0 var(--s-3);
+  border: 0;
+  border-radius: var(--r-s);
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-s);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-std), color var(--dur-1) var(--ease-std);
+}
+.mx-row__main:hover { background: var(--fill-1); color: var(--text-1); }
+.mx-row__name { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.mx-row__chg { font-size: var(--fs-xs); font-weight: 600; }
+.mx-row.is-active .mx-row__main { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); color: var(--text-1); }
+.mx-row.is-active .mx-row__main { margin-right: 32px; }
+.mx-row__cmp {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  background: none;
+  color: var(--text-3);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease-std), color var(--dur-1) var(--ease-std), background-color var(--dur-1) var(--ease-std);
+}
+.mx-row__cmp:hover:not(:disabled) { border-color: var(--accent-line); color: var(--text-1); }
+.mx-row__cmp.is-on { border-color: var(--c, var(--accent)); background: var(--fill-2); color: var(--c, var(--accent)); }
+.mx-row__cmp:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.mx-hint {
+  margin: var(--s-3) 0 var(--s-1);
+  padding-left: var(--s-3);
+  border-left: 2px solid var(--line);
+  color: var(--text-4);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+.mx-hint.is-full { border-left-color: var(--amber); color: var(--text-2); }
+
+/* ── hlavička titulu: cena je hlavní číslo ── */
+.mx-main { min-width: 0; }
+.mx-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--s-3) var(--s-6); }
+.mx-head__main { min-width: 0; }
+.mx-head__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  margin: 0;
+  color: var(--text-1);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.mx-price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  margin: var(--s-2) 0 0;
+  color: var(--text-1);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 7vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.mx-price__cur { color: var(--text-3); font-family: var(--font-body); font-size: var(--fs-s); font-weight: 600; letter-spacing: 0; }
+.mx-change { margin: var(--s-2) 0 0; color: var(--text-3); font-size: var(--fs-s); }
+.mx-change .num { font-size: var(--fs-m); font-weight: 700; }
+.mx-change__sep { margin-inline: var(--s-2); color: var(--text-4); }
+.mx-head__about { max-width: 34ch; margin: 0; color: var(--text-3); font-size: var(--fs-s); line-height: 1.55; }
+
+/* ── lišta nad grafem ── */
+.mx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+.mx-toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+.mx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-3);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease-std), color var(--dur-1) var(--ease-std), background-color var(--dur-1) var(--ease-std);
+}
+.mx-chip i { width: 10px; height: 3px; border-radius: 2px; opacity: 0.55; }
+.mx-chip:hover:not(:disabled) { border-color: var(--accent-line); color: var(--text-1); }
+.mx-chip.is-on { border-color: var(--accent-line); background: var(--accent-soft); color: var(--text-1); }
+.mx-chip.is-on i { opacity: 1; }
+.mx-chip:disabled { opacity: 0.4; cursor: not-allowed; }
+.mx-chip:active:not(:disabled) { transform: scale(0.97); }
+
+.mx-compare { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin-top: var(--s-3); color: var(--text-3); font-size: var(--fs-s); }
+.mx-compare__list { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); margin: 0; padding: 0; list-style: none; }
+.mx-compare__item { display: inline-flex; align-items: center; gap: 6px; color: var(--text-1); font-weight: 600; }
+.mx-compare__item i { width: 12px; height: 3px; border-radius: 2px; }
+.mx-compare__item button {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: -2px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+}
+.mx-compare__item button:hover { background: var(--fill-2); color: var(--text-1); }
+.mx-compare .btn { margin: 0 0 0 auto; box-shadow: none; }
+
+.mx-chart { margin-top: var(--s-3); transition: opacity var(--dur-2) var(--ease-std); }
+.mx-chart[aria-busy='true'], .mx-kpis[aria-busy='true'] { opacity: 0.45; }
+.mx-kpis { grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: var(--s-4); margin-top: var(--s-3); transition: opacity var(--dur-2) var(--ease-std); }
+.mx-kpis dd { font-size: 1.3rem; }
+.mx-empty { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--s-2); min-height: 300px; max-width: 52ch; color: var(--text-3); line-height: 1.6; }
+.mx-empty p { margin: 0; }
+.mx-empty strong { color: var(--text-1); }
+.mx-empty .btn { margin-top: var(--s-2); }
+.mx-offline { margin-top: var(--s-3); font-size: var(--fs-s); }
+.mx-panel > .tb { margin-top: var(--s-5); }
+
+/* ── Co na grafu vidíš ── */
+.mx-notes.ui-sec { margin-top: var(--s-7); }
+.mx-notes__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: var(--s-5) var(--s-7); margin-bottom: var(--s-5); }
+.mx-note { max-width: var(--measure-text); }
+.mx-note p { margin: 0; color: var(--text-2); line-height: 1.7; }
+.mx-source { margin: var(--s-6) 0 0; }
+
+/* ═══ Nákup na zkoušku (v Trzích i v portfoliu) ═══════════ */
+
+.tb { min-width: 0; }
+.tb .ui-h3 { margin: 0; }
+.tb__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s-1) var(--s-4); }
+.tb__cash { margin: 0; color: var(--text-3); font-size: var(--fs-s); }
+.tb__cash strong { color: var(--text-1); font-weight: 650; }
+.tb__form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s-3); margin-top: var(--s-3); }
+.tb__amount { flex: 0 1 170px; }
+.tb__amount input { text-align: right; }
+.tb__amount input[aria-invalid='true'] { border-color: var(--down); }
+.tb__quick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 44px; }
+.tb__actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.tb__actions .btn { min-height: 44px; margin: 0; }
+.tb__calc { max-width: var(--measure-text); margin: var(--s-3) 0 0; color: var(--text-3); font-size: var(--fs-s); line-height: 1.6; }
+.tb__calc .num { color: var(--text-1); font-weight: 600; }
+.tb__calc.is-error { color: var(--down); }
+.tb__msg:empty { display: none; }
+.tb__msg { margin-top: var(--s-3); }
+.tb__msg .ui-note { animation: tbIn var(--dur-2) var(--ease-out) both; }
+@keyframes tbIn { from { opacity: 0; transform: translateY(4px); } }
+.tb > .ui-small { margin: var(--s-2) 0 0; }
+.tb__link { margin: var(--s-3) 0 0; font-size: var(--fs-s); }
+.tb--info p { max-width: var(--measure-text); margin: var(--s-2) 0 0; color: var(--text-3); line-height: 1.6; }
+
+/* ═══ Pokročilé nástroje: opce, Monte Carlo, DCF ══════════ */
+
+.lab .ui-h3 { font-size: var(--fs-m); }
+.lab .ui-hero-num { overflow-wrap: anywhere; }
+.lab-inputs .segmented { align-self: flex-start; max-width: 100%; }
+.lab-inputs .segmented--md .segmented__item span { padding-inline: 12px; }
+.lab-inputs .ui-field > span { color: var(--text-3); font-size: var(--fs-s); font-weight: 600; }
+.lab-chart .ui-h3 { margin-bottom: var(--s-1); color: var(--text-3); font-weight: 600; }
+.lab-kpis-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lab-assume { max-width: var(--measure-text); margin: 0; }
+.lab .ui-note { max-width: var(--measure-text); }
+
+.lab-legs { margin-top: var(--s-3); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+.lab-legs .ui-small { margin: 0 0 var(--s-2); }
+.lab-legs__table th, .lab-legs__table td { padding-block: 8px; }
+.lab-legs__table td:last-child, .lab-legs__table th:last-child { padding-right: 0; }
+.lab-legs__table tbody th { font-weight: 600; white-space: nowrap; }
+.lab-legs__type { margin-left: 0.35em; color: var(--text-1); }
+.lab-legs__strike.ui-input { width: 84px; height: 40px; padding-inline: 8px; text-align: right; }
+
+.lab-greeks { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: var(--s-4) var(--s-5); }
+.lab-greeks dd small { max-width: 30ch; line-height: 1.45; margin-top: var(--s-1); }
+
+.lab-sens { max-width: 520px; }
+.lab-sens td { font-weight: 600; }
+.lab-sens td.is-base { background: var(--fill-2); box-shadow: inset 0 -2px 0 currentColor; }
+.lab-sens th + th, .lab-sens td { padding-left: 10px; padding-right: 10px; }
+.lab-result section > .ui-small { margin: 0 0 var(--s-2); }
+
+/* ═══ Portfolio na zkoušku ═════════════════════════════════ */
+
+.pp { --pp-cash: rgba(255, 255, 255, 0.2); display: flex; flex-direction: column; gap: var(--s-5); }
+.pp-summary { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s-3) var(--s-6); }
+.pp-profit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-3);
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: var(--fs-num);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.pp-profit__pct { font-size: var(--fs-l); }
+.pp-profit__label { color: var(--text-3); font-family: var(--font-body); font-size: var(--fs-s); font-weight: 500; }
+.pp-alloc { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; }
+.pp-alloc span { min-width: 3px; transition: flex-grow var(--dur-3) var(--ease-out); }
+.pp-legend { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-5); margin: var(--s-3) 0 0; padding: 0; list-style: none; color: var(--text-3); font-size: var(--fs-s); }
+.pp-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 7px; border-radius: 3px; }
+.pp-legend .num { margin-left: 2px; color: var(--text-1); font-weight: 600; }
+.pp-body { margin-top: var(--s-3); }
+.pp-buy .tb { margin-top: var(--s-5); }
+.pp-table { min-width: 500px; }
+.pp-table th, .pp-table td { white-space: nowrap; }
+.pp-table td:last-child { width: 1%; padding-right: 0; }
+.pp-table .btn { margin: 0; }
+.pp-empty { max-width: 58ch; color: var(--text-2); line-height: 1.65; }
+.pp-empty p { margin: 0; }
+.pp-empty strong { color: var(--text-1); }
+.pp-empty ol { margin: var(--s-3) 0; padding-left: 1.3em; }
+.pp-empty li { padding-left: 4px; }
+.pp-empty li + li { margin-top: var(--s-1); }
+.pp-empty li::marker { color: var(--accent); font-weight: 700; }
+.pp-trades { margin: 0; padding: 0; list-style: none; color: var(--text-3); font-size: var(--fs-s); }
+.pp-trades li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s-4); padding: var(--s-2) 0; border-bottom: 1px solid var(--line); }
+.pp-trades li span:nth-child(2) { color: var(--text-2); }
+.pp-trades__when { color: var(--text-4); }
+.pp-foot { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--s-4) var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+.pp-foot .ui-small { flex: 1 1 320px; max-width: var(--measure-text); margin: 0; }
+.pp-foot .btn { margin: 0; }
+
+/* ═══ Odhadni graf ═════════════════════════════════════════ */
+
+.gg {
+  /* všechno kolem grafu, co se musí vejít na výšku okna: lišta, hlavička hry, tlačítka */
+  --gg-chrome: 290px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  scroll-margin-top: calc(var(--bar-h) + var(--s-4));
+}
+.gg--msg { align-items: flex-start; }
+.gg__loading { margin: 0; color: var(--text-3); }
+
+.gg-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s-3); }
+.gg-bar p { margin: 0; color: var(--text-3); font-size: var(--fs-s); font-weight: 600; }
+.gg-bar strong { color: var(--text-1); font-family: var(--font-display); font-size: var(--fs-h3); font-weight: 700; }
+.gg-bar__score { text-align: right; }
+.gg-dots { display: flex; gap: 6px; }
+.gg-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--fill-2); transition: background-color var(--dur-2) var(--ease-std), transform var(--dur-2) var(--ease-out); }
+.gg-dots .is-now { background: var(--text-1); transform: scale(1.25); }
+.gg-dots .is-hit { background: var(--up); }
+.gg-dots .is-miss { background: var(--down); }
+
+/* graf: SVG vyplní celou plochu, tečka a otazník leží nad ním v HTML */
+.gg-stage {
+  position: relative;
+  height: clamp(170px, calc(100dvh - var(--gg-chrome)), 560px);
+  border-radius: var(--r-m);
+  background: rgba(8, 18, 34, 0.5);
+  overflow: hidden;
+}
+.gg-chart { display: block; width: 100%; height: 100%; }
+.gg-chart__future { fill: rgba(255, 255, 255, 0.04); }
+.gg-chart__cut { stroke: rgba(255, 255, 255, 0.28); stroke-width: 1; stroke-dasharray: 4 5; }
+.gg-chart__level { stroke: rgba(255, 255, 255, 0.12); stroke-width: 1; }
+.gg-chart__line { fill: none; stroke: var(--text-2); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.gg-chart__line.is-up { stroke: var(--up); }
+.gg-chart__line.is-down { stroke: var(--down); }
+/* odhalení: skupina přejede z „tipovacího“ měřítka do konečného a skrytá část se dokreslí */
+.gg-chart__plot { transform-origin: 0 0; transition: transform var(--dur-3) var(--ease-out); }
+.gg-chart__move { transition: transform var(--dur-3) var(--ease-out); }
+.gg-chart__hidden { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.gg-chart__hidden.is-shown { stroke-dashoffset: 0; transition: stroke-dashoffset 480ms var(--ease-out) var(--dur-3); }
+.gg-chart__dot { fill: var(--text-1); }
+.gg-chart__halo { fill: rgba(255, 255, 255, 0.16); }
+.gg-stage__q {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.26);
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 16vh, 7rem);
+  font-weight: 700;
+  line-height: 1;
+  transition: opacity var(--dur-2) var(--ease-std);
+}
+.gg-stage__q { right: 0; }
+.gg-stage__q.is-gone { opacity: 0; }
+.gg-stage__cap { position: absolute; bottom: var(--s-2); padding-inline: var(--s-3); white-space: nowrap; color: var(--text-4); font-size: var(--fs-xs); pointer-events: none; }
+.gg-stage__cap--past { left: 0; }
+
+/* pult pod grafem: text, dvě odpovědi a „Další graf“ mají každý své stálé místo */
+.gg-console { display: grid; grid-template-columns: minmax(0, 1fr) auto 168px; align-items: center; gap: var(--s-3) var(--s-4); min-height: 84px; }
+.gg-say { min-width: 0; color: var(--text-2); line-height: 1.5; }
+.gg-say p { margin: 0; }
+.gg-say strong { color: var(--text-1); }
+.gg-say__ask { color: var(--text-1); font-size: var(--fs-l); font-weight: 600; }
+.gg-say__reveal { animation: ggLand var(--dur-3) var(--ease-out) 520ms both; }
+.gg-verdict { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; line-height: 1.1; }
+@keyframes ggLand { from { opacity: 0; transform: translateY(6px); } }
+
+.gg-answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); width: 400px; }
+.gg-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  min-height: 64px;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid;
+  border-radius: var(--r-m);
+  color: var(--text-1);
+  font: inherit;
+  font-size: var(--fs-l);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-std), opacity var(--dur-2) var(--ease-std), transform var(--dur-1) var(--ease-out);
+}
+.gg-btn--up { border-color: rgba(52, 211, 153, 0.6); background: rgba(52, 211, 153, 0.14); }
+.gg-btn--down { border-color: rgba(240, 97, 122, 0.6); background: rgba(240, 97, 122, 0.14); }
+.gg-btn--up:hover:not(:disabled) { background: rgba(52, 211, 153, 0.26); }
+.gg-btn--down:hover:not(:disabled) { background: rgba(240, 97, 122, 0.26); }
+.gg-btn:active:not(:disabled) { transform: scale(0.97); }
+.gg-btn:disabled { cursor: default; }
+.gg-btn.is-idle { opacity: 0.3; }
+.gg-btn--up.is-picked { background: rgba(52, 211, 153, 0.3); }
+.gg-btn--down.is-picked { background: rgba(240, 97, 122, 0.3); }
+.gg-btn__arrow { width: 0; height: 0; border-inline: 7px solid transparent; }
+.gg-btn--up .gg-btn__arrow { border-bottom: 10px solid var(--up); }
+.gg-btn--down .gg-btn__arrow { border-top: 10px solid var(--down); }
+.gg-next { display: flex; }
+.gg-next .btn { width: 100%; min-height: 64px; margin: 0; animation: ggLand var(--dur-3) var(--ease-out) 520ms both; }
+
+/* výsledek */
+.gg--result { gap: var(--s-6); max-width: 880px; }
+.gg-score { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4) var(--s-6); }
+.gg-score__num { margin: 0; color: var(--text-1); font-family: var(--font-display); font-size: clamp(4.5rem, 16vw, 7.5rem); font-weight: 700; line-height: 0.9; letter-spacing: -0.03em; white-space: nowrap; }
+.gg-score__of { color: var(--text-3); font-size: 0.34em; letter-spacing: 0; }
+.gg-score__text { flex: 1 1 260px; max-width: 46ch; color: var(--text-2); line-height: 1.6; }
+.gg-score__text p { margin: 0; }
+.gg-score__verdict { margin-bottom: var(--s-1) !important; color: var(--text-1); font-family: var(--font-display); font-size: var(--fs-h2); font-weight: 700; line-height: 1.15; }
+.gg-dots--result { gap: 8px; margin-top: calc(var(--s-3) * -1); }
+.gg-dots--result i { width: 12px; height: 12px; }
+.gg-lesson .ui-h3 { margin-bottom: var(--s-3); }
+
+/* ═══ Menší obrazovky ══════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .mx-layout { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+  .mx-rail { position: static; max-height: none; overflow: visible; padding: 0; }
+  /* seznam titulů je sbalený pod tlačítkem s právě zobrazeným titulem */
+  .mx-rail__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    width: 100%;
+    min-height: 56px;
+    padding: var(--s-2) var(--s-3) var(--s-2) var(--s-4);
+    border: 1px solid var(--glass-edge, var(--line));
+    border-radius: var(--r-m);
+    background: var(--fill-1);
+    color: var(--text-1);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mx-rail__toggle-text { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+  .mx-rail__toggle-label { color: var(--text-3); font-size: var(--fs-xs); }
+  .mx-rail__toggle-name { overflow: hidden; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+  .mx-rail__toggle .num { font-size: var(--fs-s); font-weight: 600; }
+  .mx-rail__chev { flex: none; color: var(--text-3); transition: transform var(--dur-2) var(--ease-out); }
+  .mx-rail__toggle[aria-expanded='true'] .mx-rail__chev { transform: rotate(180deg); }
+  .mx-rail__body { display: none; padding-top: var(--s-3); }
+  .mx-rail__body.is-open { display: block; animation: tbIn var(--dur-2) var(--ease-out) both; }
+  .mx-list { columns: 2 220px; column-gap: var(--s-5); }
+  .mx-list section { break-inside: avoid; }
+  .mx-row__main { min-height: 44px; }
+  .mx-row__cmp { width: 40px; height: 40px; }
+  .mx-row.is-active .mx-row__main { margin-right: 44px; }
+  .mx-chip { min-height: 40px; }
+  .mx-head__about { max-width: var(--measure-text); }
+  .mx-compare .btn { margin-left: 0; }
+}
+
+@media (max-width: 760px) {
+  .gg { --gg-chrome: 452px; gap: var(--s-3); }
+  .gg-console { grid-template-columns: minmax(0, 1fr); min-height: 0; gap: var(--s-3); }
+  .gg-say { min-height: 5rem; }
+  .gg-stage__cap { padding-inline: var(--s-2); }
+  .gg-say__ask { font-size: var(--fs-m); }
+  .gg-verdict { font-size: 1.5rem; }
+  .gg-answers { width: auto; }
+  .gg-btn { min-height: 58px; font-size: var(--fs-m); gap: var(--s-2); }
+  .gg-next { min-height: 48px; }
+  .gg-next .btn { min-height: 48px; }
+}
+
+@media (max-width: 520px) {
+  .mx-price { font-size: clamp(2.2rem, 11vw, 2.8rem); }
+  .mx-kpis, .pp .ui-kpis, .lab .ui-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lab .lab-greeks { grid-template-columns: minmax(0, 1fr); }
+  .lab .ui-kpis dd, .pp .ui-kpis dd { font-size: 1.2rem; }
+  .tb__amount { flex: 1 1 100%; }
+  .tb__actions { flex: 1 1 100%; }
+  .tb__actions .btn { flex: 1; }
+  .pp-trades li { grid-template-columns: minmax(0, 1fr) auto; gap: 0 var(--s-3); }
+  .pp-trades__when { grid-column: 1 / -1; }
+  .gg-bar strong { font-size: var(--fs-l); }
+  .gg-dots { gap: 4px; }
+  .gg-dots i { width: 8px; height: 8px; }
+}
+
+/* telefon na šířku: graf vlevo, pult vpravo — tlačítka zůstanou na obrazovce */
+@media (max-height: 500px) and (orientation: landscape) {
+  .gg:not(.gg--result, .gg--msg) {
+    --gg-chrome: 196px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 264px;
+    grid-template-rows: auto 1fr;
+    gap: var(--s-2) var(--s-4);
+    scroll-margin-top: calc(var(--bar-h) + var(--s-2));
+  }
+  .gg-bar { grid-column: 1 / -1; }
+  .gg-console { grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto auto; align-content: stretch; min-height: 0; gap: var(--s-2); }
+  .gg-say { min-height: 0; align-self: start; font-size: var(--fs-xs); line-height: 1.4; }
+  .gg-say__ask { font-size: var(--fs-s); }
+  .gg-verdict { font-size: 1.3rem; }
+  .gg-answers { width: auto; gap: var(--s-2); }
+  .gg-btn { min-height: 46px; padding-inline: var(--s-2); font-size: var(--fs-s); gap: 6px; }
+  .gg-btn__arrow { display: none; }
+  .gg-next { min-height: 42px; }
+  .gg-next .btn { min-height: 42px; }
+  .gg-score__num { font-size: 4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gg-chart__plot, .gg-chart__move, .gg-chart__hidden.is-shown { transition: none; }
+  .gg-say__reveal, .gg-next .btn, .tb__msg .ui-note, .mx-rail__body.is-open { animation: none; }
+}

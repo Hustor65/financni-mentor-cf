@@ -10,3 +10,9 @@ pages_build_output_dir = "dist"
 
 # Secret variables (set via dashboard or CLI):
 # wrangler pages secret put GEMINI_API_KEY
+
+# Účty návštěvníků (přezdívka + heslo, uložený postup). Schéma: db/schema.sql
+[[d1_databases]]
+binding = "DB"
+database_name = "financni-mentor"
+database_id = "655a4cf8-43a7-40ae-b68c-f01390afcff0"

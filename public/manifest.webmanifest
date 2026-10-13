@@ -1,0 +1,11 @@
+{
+  "name": "Finanční mentor",
+  "short_name": "Mentor",
+  "description": "Akademie o penězích, grafy trhů, portfolio na zkoušku a AI mentor.",
+  "lang": "cs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c1a30",
+  "theme_color": "#0c1a30",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

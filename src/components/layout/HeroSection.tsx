@@ -1,70 +1,84 @@
 import React, { useEffect, useRef, useState, Suspense, lazy } from 'react';
+import { MarketTape } from './MarketTape';
+import { Icon } from '../Icon';
+import type { Level } from '../../data/levels';
+import { KIOSK } from '../../utils/kiosk';
+import { useGlobeStatus } from '../../utils/globeStatus';
+
+/** Co glóbus právě ukazuje: kolik burz obchoduje, případně že jde o zrychlenou ukázku. */
+function GlobeCaption() {
+  const s = useGlobeStatus();
+  if (!s) return null;
+  return (
+    <p className="globe-caption">
+      <i className={s.open ? 'is-open' : undefined} aria-hidden="true" />
+      {s.lapse ? (
+        <span>
+          Burzy mají teď zavřeno, tohle je zrychlený obchodní den. V Praze je{' '}
+          <strong className="num">{s.time}</strong>, obchoduje <strong className="num">{s.open} z {s.total}</strong> burz.
+        </span>
+      ) : (
+        <span>
+          Právě teď obchoduje <strong className="num">{s.open} z {s.total}</strong> světových burz.
+          Zelená svítí tam, kde je otevřeno.
+        </span>
+      )}
+    </p>
+  );
+}
 // lazy → three.js (~900 kB) se stáhne až po prvním renderu, ne v hlavním bundlu
 const HeroScene = lazy(() => import('./Scene').then(m => ({ default: m.HeroScene })));
 
 /**
- * Cosmic Hero — 1:1 port původního fullscreen hera (hero_3d_component).
- *  - 3D koule z částic + torus prstenec + hvězdy
- *  - overlay: badge, titulek, typewriter podtitulek, CTA, rohové popisky, SCROLL hint
- *  - PLYNULÝ scroll-fade: při scrollu dolů se celé hero hladce rozplyne (opacity +
- *    jemný posun/zoom) přes requestAnimationFrame s přímou DOM manipulací → bez
- *    re-renderů a bez zasekávání. Pozadí hera ladí s pozadím stránky = bezešvý přechod.
+ * Hero — glóbus světových burz vpravo, vlevo nadpis a volba úrovně.
+ * Volba úrovně je hlavní akce celé stránky: podle ní se poskládá Akademie,
+ * Trhy i Nástroje. Dole běží pásek se skutečnými kotacemi.
+ *
+ * Při scrollu se celá vrstva plynule rozplyne (opacity přes rAF, přímá DOM
+ * manipulace → bez re-renderů) a 3D scéna se pauzne.
  */
 
-const TITLE_HEAD = 'Tvůj osobní AI';
-const TITLE_ACCENT = 'finanční mentor';
-const SUBTITLE =
-  'Nauč se penězům a investování od nuly — srozumitelně, vlastním tempem a bez žargonu.';
-const CTA = 'Pojďme začít';
-
-function useTypewriter(text: string, speed = 32, startDelay = 520) {
-  const reduce =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const [typedRaw, setTypedRaw] = useState('');
-  // typed i done jsou ODVOZENÉ ze stavu → žádný synchronní setState v efektu (čistý lint).
-  // reduced-motion: rovnou celý text, bez animace.
-  const typed = reduce ? text : typedRaw;
-  const done = reduce ? true : typedRaw.length >= text.length;
-  useEffect(() => {
-    if (reduce || !text) return;
-    let i = 0;
-    let next: ReturnType<typeof setTimeout> | undefined;
-    const tick = () => {
-      i += 1;
-      setTypedRaw(text.slice(0, i));
-      if (i >= text.length) return;
-      const jitter = speed + (Math.random() * 26 - 13);
-      next = setTimeout(tick, Math.max(12, jitter));
-    };
-    const start = setTimeout(tick, startDelay);
-    return () => {
-      clearTimeout(start);
-      if (next) clearTimeout(next);
-    };
-  }, [text, speed, startDelay, reduce]);
-  return { typed, done };
+interface Props {
+  /** false = jiná stránka než Přehled: hero zůstává připojené (glóbus se nemusí znovu stavět), jen se skryje a zastaví */
+  active: boolean;
+  onChoose: (level: Level) => void;
+  onOpenMarket: (ticker: string) => void;
 }
 
-export const HeroSection: React.FC = () => {
-  // 1) napíše se titulek, 2) teprve po něm navazuje podtitulek
-  const TITLE_FULL = TITLE_HEAD + TITLE_ACCENT;
-  const { typed: titleTyped, done: titleDone } = useTypewriter(TITLE_FULL, 58, 260);
-  const { typed, done } = useTypewriter(titleDone ? SUBTITLE : '', 32, 120);
-  const headShown = titleTyped.slice(0, TITLE_HEAD.length);
-  const accentShown = titleTyped.length > TITLE_HEAD.length ? titleTyped.slice(TITLE_HEAD.length) : '';
+export const HeroSection: React.FC<Props> = ({ active, onChoose, onOpenMarket }) => {
   const innerRef = useRef<HTMLDivElement>(null);
   // 3D scéna se pauzne, jakmile hero sjede z obrazovky (šetří CPU/GPU)
   const [sceneActive, setSceneActive] = useState(true);
-  // příchod scény = CSS opacity fade (heroSceneFade); reduced-motion → bez fade
   const reduce =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-  // Plynulý scroll-fade celé hero vrstvy
+  // Glóbus (three.js, ~1,9 MB) nesmí brzdit první vykreslení: stáhne se, až když je
+  // stránka hotová a prohlížeč má klid. V úsporném režimu dat se nestahuje vůbec.
+  const lite = !KIOSK && typeof navigator !== 'undefined'
+    && (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+  const small = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 720px)').matches;
+  const [sceneWanted, setSceneWanted] = useState(false);
+  useEffect(() => {
+    if (lite) return;
+    let idle = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const start = () => {
+      if (window.requestIdleCallback) idle = window.requestIdleCallback(() => setSceneWanted(true), { timeout: 2500 });
+      else timer = setTimeout(() => setSceneWanted(true), 400);
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+    return () => {
+      window.removeEventListener('load', start);
+      if (idle) window.cancelIdleCallback?.(idle);
+      clearTimeout(timer);
+    };
+  }, [lite]);
+
   useEffect(() => {
     const inner = innerRef.current;
-    if (!inner) return;
+    if (!inner || !active) return;
 
     let raf = 0;
     let lastP = -1;
@@ -72,18 +86,14 @@ export const HeroSection: React.FC = () => {
     const apply = () => {
       raf = 0;
       const vh = window.innerHeight || 800;
-      // hero mizí RYCHLE — celé zhasne během ~40 % obrazovky scrollu, ať neprosvítá
-      // přes obsah/chat (hero je fixed v pozadí, obsah najíždí v popředí).
-      const p = Math.min(Math.max(window.scrollY / (vh * 0.4), 0), 1);
+      // hero slábne po celou dobu, co přes něj najíždí obsah (obsah potřebuje ~100 % výšky
+      // obrazovky) — zpočátku pomalu, ke konci rychle, ať nevznikne ani duch nadpisu, ani prázdno
+      const p = Math.min(Math.max(window.scrollY / (vh * 0.8), 0), 1);
       if (Math.abs(p - lastP) < 0.001) return;
       lastP = p;
-      const eased = Math.pow(1 - p, 1.5);
-      inner.style.opacity = String(eased);
-      inner.style.transform = 'translate3d(0, 0, 0)';
-      // pointer-events vypni až když je hero prakticky neviditelné (eased ≈ 0.06 při p=0.85),
-      // jinak by CTA/scroll-cue přestaly reagovat, dokud je hero ještě dobře vidět (M27)
+      inner.style.opacity = String(1 - p * p);
+      // pointer-events vypni až když je hero prakticky neviditelné (M27)
       inner.style.pointerEvents = p > 0.85 ? 'none' : '';
-      // pauza 3D scény, když je hero prakticky mimo obrazovku (setState jen při změně)
       setSceneActive(prev => (prev === p < 0.99 ? prev : p < 0.99));
     };
 
@@ -99,66 +109,46 @@ export const HeroSection: React.FC = () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, []);
-
-  const scrollDown = () => {
-    // scroll přesně pod hero → scroll-snap docvakne na začátek appky (funguje v každém tabu)
-    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-  };
+  }, [active]);
 
   return (
-    <div className="hero-fs-root">
-      {/* vrstva, kterou plynule fadeujeme při scrollu */}
+    <div className="hero-fs-root" data-off={active ? undefined : ''} inert={!active}>
       <div className="hero-fs-inner" ref={innerRef}>
-        {/* 3D scéna */}
-        <div className={`hero-fs-scene${reduce ? '' : ' hero-fs-scene--enter'}`}>
-          <Suspense fallback={null}>
-            <HeroScene accentColor="#2596be" particleCount={2400} paused={!sceneActive} />
-          </Suspense>
+        <div className={`hero-fs-scene${reduce ? '' : ' hero-fs-scene--enter'}${lite ? ' hero-fs-scene--lite' : ''}`}>
+          {sceneWanted && (
+            <Suspense fallback={null}>
+              <HeroScene accentColor="#2596be" particleCount={small ? 1200 : 2400} paused={!sceneActive || !active} />
+            </Suspense>
+          )}
         </div>
+        <div className="hero-fs-shade" aria-hidden="true" />
 
-        {/* dekorativní vrstvy */}
-        <div className="hero-fs-grid" aria-hidden="true" />
-        <div className="hero-fs-vignette" aria-hidden="true" />
-
-        {/* obsah */}
-        <div className="hero-fs-content">
-          <h1 className="hero-fs-title" aria-label={`${TITLE_HEAD} ${TITLE_ACCENT}`}>
-            <span aria-hidden="true">
-              {headShown}
-              {!titleDone && !accentShown && <span className="hero-fs-caret" aria-hidden="true" />}
-            </span>
-            <br />
-            <span className="accent" aria-hidden="true">
-              {accentShown}
-              {!titleDone && !!accentShown && <span className="hero-fs-caret" aria-hidden="true" />}
-            </span>
-          </h1>
-          <p className="hero-fs-subtitle" aria-label={SUBTITLE}>
-            <span aria-hidden="true">{typed}</span>
-            {!done && titleDone && <span className="hero-fs-caret" aria-hidden="true" />}
+        <div className="hero-copy">
+          <h1 className="hero-title">Od první výplaty po první opci</h1>
+          <p className="hero-lead">
+            Akademie, kalkulačky, grafy skutečných trhů a AI mentor, který ti vysvětlí cokoli z toho.
+            Česky, bez žargonu a bez toho, aby ti někdo něco prodával.
           </p>
-          <button className="hero-fs-cta" onClick={scrollDown}>
-            {CTA}
-            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <polyline points="19 12 12 19 5 12" />
-            </svg>
-          </button>
+          <div className="hero-paths">
+            <button type="button" className="hero-path hero-path--start" onClick={() => onChoose('start')}>
+              <span className="hero-path__text">
+                <strong>Začínám od nuly</strong>
+                <span>Rozpočet, brigáda, dluhy, první investice</span>
+              </span>
+              <span className="hero-path__go" aria-hidden="true"><Icon name="arrow-right" size={18} /></span>
+            </button>
+            <button type="button" className="hero-path hero-path--pro" onClick={() => onChoose('pro')}>
+              <span className="hero-path__text">
+                <strong>Už něco umím</strong>
+                <span>Opce, oceňování akcií, čtení grafů, simulace</span>
+              </span>
+              <span className="hero-path__go" aria-hidden="true"><Icon name="arrow-right" size={18} /></span>
+            </button>
+          </div>
         </div>
 
-        {/* scroll hint */}
-        <div
-          className="hero-fs-scroll-cue"
-          onClick={scrollDown}
-          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollDown(); } }}
-          role="button"
-          tabIndex={0}
-          aria-label="Přejít na obsah"
-        >
-          <span className="cue-text">posunout dolů</span>
-          <div className="cue-track" />
-        </div>
+        <GlobeCaption />
+        <MarketTape onOpen={onOpenMarket} />
       </div>
     </div>
   );

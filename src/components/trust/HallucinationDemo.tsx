@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { Icon } from '../Icon';
 import { NumberField } from '../NumberField';
 
 // Formátování čísel — české locale s mezerami jako oddělovači tisíců
@@ -23,8 +22,8 @@ export const HallucinationDemo: React.FC = () => {
       const annuity = r === 0 ? monthly * n : monthly * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
       const exact = initDeposit * Math.pow(1 + r, n) + annuity;
       const hallucinated = exact * 0.9904;
-      const hallucShown = Math.floor(hallucinated);  // přesně tak, jak halucinaci zobrazíme
-      const diff = exact - hallucShown;              // rozdíl ze ZOBRAZENÉ halucinace → tři čísla sedí
+      const hallucShown = Math.floor(hallucinated);  // přesně tak, jak odhad zobrazíme
+      const diff = exact - hallucShown;              // rozdíl ze ZOBRAZENÉHO odhadu → tři čísla sedí
       return {
         formattedExact: czFmt2(exact),
         formattedHallucinated: czFmt(hallucShown),
@@ -32,239 +31,75 @@ export const HallucinationDemo: React.FC = () => {
       };
     }, [initDeposit, monthly, rate, years]);
 
+  const rateText = String(rate).replace('.', ',');
+
   return (
-    <>
-      {/* ── Nadpis sekce ── */}
-      <div className="spacer-md" />
-      <span className="eyebrow eyebrow--cyan">Proč volání funkcí</span>
-      <p className="section-header">Jazykové modely bez „volání funkcí“ neumí spolehlivě počítat</p>
-      <p className="section-desc">
-        Nejslabší a nejnebezpečnější stránka AI? Odpovědi tvoří skládáním slov podle statistické
-        pravděpodobnosti,{' '}
-        <strong>ale přesnou matematiku sama o sobě nepočítá.</strong>{' '}
-        A právě ve financích je to obrovské riziko.
+    <section className="ui-sec">
+      <h2 className="ui-sec__title">Zkus si to na vlastních číslech</h2>
+      <p className="ui-sec__lead">
+        Nastav si spoření. Uvidíš, kolik vychází přesně, a vedle toho odhad, jaký by na stejnou
+        otázku mohl dát jazykový model, který si výsledek nenechal spočítat.
       </p>
 
-      <div className="spacer-md" />
+      <div className="ui-panel">
+        <div className="ui-split">
+          <div className="ui-stack tr-demo__inputs">
+            <NumberField label="Počáteční vklad" suffix="Kč" value={initDeposit} onChange={setInitDeposit}
+              min={1000} sliderMin={1000} sliderMax={500000} step={5000} />
+            <NumberField label="Měsíční vklad" suffix="Kč" value={monthly} onChange={setMonthly}
+              min={100} sliderMin={100} sliderMax={20000} step={500} />
+            <NumberField label="Roční úrok" suffix="%" value={rate} onChange={setRate}
+              min={1} max={100} sliderMin={1} sliderMax={15} step={0.1} decimals={2} />
+            <NumberField label="Počet let" value={years} onChange={setYears}
+              min={3} max={20} sliderMin={3} sliderMax={20} step={1} />
+          </div>
 
-      {/* ── Error banner ── */}
-      <div
-        className="glass-panel reveal"
-        style={{ borderLeft: '3px solid #EF4444', padding: '1rem 1.5rem' }}
-      >
-        <p
-          style={{
-            color: '#EF4444',
-            fontWeight: 600,
-            margin: 0,
-            fontSize: '0.95rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.6rem',
-          }}
-        >
-          <span style={{ display: 'inline-flex', color: '#EF4444', flexShrink: 0 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          </span>
-          <span>
-            Níže uvedený scénář ukazuje skutečnou halucinaci jazykového modelu, se kterou jsme se v praxi setkali.
-          </span>
-        </p>
-      </div>
-
-      <div className="spacer-lg" />
-
-      {/* ── Interaktivní intro panel ── */}
-      <div
-        className="glass-panel glass-panel--sunken reveal"
-        style={{ padding: '1.25rem', marginBottom: '1.5rem' }}
-      >
-        <p
-          style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '1rem',
-            fontWeight: 600,
-            color: '#E2E8F0',
-            marginBottom: '0.5rem',
-            marginTop: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}
-        >
-          <Icon name="sparkles" size={18} color="#3ab5e0" />
-          Vyzkoušej si to sám — změň parametry a sleduj rozdíl naživo
-        </p>
-        <p style={{ color: '#64748B', fontSize: '0.82rem', margin: 0 }}>
-          Zadej libovolné hodnoty a sleduj, jak se přesný výpočet liší od odpovědi, kterou by dal běžný jazykový model.
-        </p>
-      </div>
-
-      {/* ── 4 vstupy ── */}
-      <div className="calc-form reveal" style={{ marginBottom: '1.5rem' }}>
-        <NumberField label="Počáteční vklad" suffix="Kč" value={initDeposit} onChange={setInitDeposit}
-          min={1000} sliderMin={1000} sliderMax={500000} step={5000} />
-        <NumberField label="Měsíční splátka" suffix="Kč" value={monthly} onChange={setMonthly}
-          min={100} sliderMin={100} sliderMax={20000} step={500} />
-        <NumberField label="Úrok (% p.a.)" suffix="%" value={rate} onChange={setRate}
-          min={1} max={100} sliderMin={1} sliderMax={15} step={0.1} decimals={2} />
-        <NumberField label="Doba (roky)" suffix="let" value={years} onChange={setYears}
-          min={3} max={20} sliderMin={3} sliderMax={20} step={1} />
-      </div>
-
-      {/* ── Dva sloupce: Exaktní vs Halucinace ── */}
-      <div className="spacer-md" />
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.5rem',
-        }}
-      >
-        {/* VLEVO — Exaktní matematika */}
-        <div className="glass-panel glass-panel--elevated reveal" style={{ height: '100%', ['--reveal-i' as string]: 0 }}>
-          <p
-            className="section-header"
-            style={{
-              fontSize: '1.15rem',
-              color: '#10B981',
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <span style={{ display: 'inline-flex', color: '#10B981' }}>
-              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </span>
-            Přesný výpočet (Python)
-          </p>
-
-          <p style={{ color: '#94A3B8', fontSize: '0.85rem', lineHeight: 2, marginBottom: '1.5rem' }}>
-            • Počáteční vklad: <strong style={{ color: '#E2E8F0' }}>{czFmt(initDeposit)} Kč</strong><br />
-            • Měsíční splátka: <strong style={{ color: '#E2E8F0' }}>{czFmt(monthly)} Kč</strong><br />
-            • Úroková sazba: <strong style={{ color: '#E2E8F0' }}>{rate} % ročně (p.a.)</strong><br />
-            • Doba spoření: <strong style={{ color: '#E2E8F0' }}>{years} let</strong> (úročeno měsíčně)
-          </p>
-
-          <div
-            style={{
-              background: 'rgba(16,185,129,0.08)',
-              border: '1px solid rgba(16,185,129,0.2)',
-              borderRadius: '12px',
-              padding: '1.75rem',
-              textAlign: 'center',
-            }}
-          >
-            <p style={{ color: '#64748B', fontSize: '0.75rem', margin: '0 0 0.5rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Přesný výpočet (Python)
-            </p>
+          <div className="tr-demo__result">
             <p
+              className="ui-hero-num"
               aria-live="polite"
               aria-label={`Přesný výpočet: ${formattedExact} korun`}
-              style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: '1.9rem',
-                fontWeight: 700,
-                color: '#10B981',
-                margin: 0,
-              }}
             >
+              <span className="ui-hero-num__label">Přesný výpočet</span>
               {formattedExact} Kč
             </p>
-          </div>
-        </div>
-
-        {/* VPRAVO — LLM Halucinace */}
-        <div className="glass-panel glass-panel--elevated reveal" style={{ height: '100%', ['--reveal-i' as string]: 1 }}>
-          <p
-            className="section-header"
-            style={{
-              fontSize: '1.15rem',
-              color: '#EF4444',
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <span style={{ display: 'inline-flex', color: '#EF4444' }}>
-              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </span>
-            LLM Halucinace
-          </p>
-
-          {/* Dotaz pro AI */}
-          <div
-            style={{
-              background: 'rgba(239,68,68,0.06)',
-              border: '1px solid rgba(239,68,68,0.15)',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              marginBottom: '1.5rem',
-            }}
-          >
-            <p style={{ color: '#64748B', fontSize: '0.8rem', margin: '0 0 0.4rem' }}>Dotaz pro AI:</p>
-            <p style={{ color: '#94A3B8', fontSize: '0.82rem', fontStyle: 'italic', margin: 0, lineHeight: 1.7 }}>
-              &quot;Spočítej, kolik budu mít naspořeno po {years} letech při počátečním vkladu {czFmt(initDeposit)} Kč,
-              měsíčním spoření {czFmt(monthly)} Kč a úroku {rate} % ročně…&quot;
+            <p className="ui-small tr-demo__method">
+              Složené úročení po měsících, vklad vždy na začátku měsíce.
             </p>
-          </div>
 
-          {/* Halucinovaná částka */}
-          <div
-            style={{
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.2)',
-              borderRadius: '12px',
-              padding: '1rem',
-              textAlign: 'center',
-              marginBottom: '1.5rem',
-            }}
-          >
-            <p style={{ color: '#64748B', fontSize: '0.75rem', margin: '0 0 0.25rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              AI sebevědomě odpoví:
-            </p>
-            <p
-              aria-live="polite"
-              aria-label={`Halucinovaná odpověď AI: ${formattedHallucinated} korun`}
-              style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: '1.9rem',
-                fontWeight: 700,
-                color: '#EF4444',
-                margin: 0,
-              }}
-            >
-              ~{formattedHallucinated} Kč
-            </p>
-          </div>
+            <hr className="ui-divide" />
 
-          {/* Chyba + vysvětlení */}
-          <div style={{ background: 'rgba(239,68,68,0.05)', borderRadius: '12px', padding: '1rem' }}>
-            <p style={{ color: '#EF4444', fontWeight: 700, fontSize: '1.05rem', margin: '0 0 0.5rem' }}>
-              Chyba: o {formattedDiff} Kč méně, než je správně
+            <p className="tr-demo__ask">
+              „Kolik budu mít po {years} letech, když začnu s {czFmt(initDeposit)} Kč, každý měsíc
+              přidám {czFmt(monthly)} Kč a úrok bude {rateText} % ročně?“
             </p>
-            <p style={{ color: '#94A3B8', fontSize: '0.8rem', lineHeight: 1.7, margin: 0 }}>
-              Model sice správně popíše postup výpočtu, ale ve skutečnosti čísla nepočítá — pouze odhaduje,
-              jaké slovo (nebo číslici) má napsat jako další. Výsledná částka je proto vymyšlená.
-              Dokud jazykový model nepoužívá volání funkcí (function calling) — jako to dělá náš mentor
-              v Nachytej AI —, nelze jeho finančním výpočtům věřit.
+            <dl className="ui-kpis">
+              <div>
+                <dt>Odhad jazykového modelu</dt>
+                <dd
+                  aria-live="polite"
+                  aria-label={`Odhad jazykového modelu: přibližně ${formattedHallucinated} korun`}
+                >
+                  ≈ {formattedHallucinated} Kč
+                </dd>
+              </div>
+              <div>
+                <dt>Chybí</dt>
+                <dd className="is-down">{formattedDiff} Kč</dd>
+              </div>
+            </dl>
+            <p className="ui-note ui-note--danger tr-demo__verdict">
+              Model by ti řekl o <strong>{formattedDiff} Kč</strong> méně, než kolik opravdu vychází.
+              Postup přitom popíše správně a částka vypadá věrohodně — chyby si proto nevšimneš.
             </p>
           </div>
         </div>
       </div>
-    </>
+
+      <p className="ui-small tr-demo__foot">
+        Odhad modelu je ilustrace: bereme přesný výsledek a snižujeme ho o necelé 1 %. Skutečný
+        model se může splést víc, míň, nebo vůbec — předem to nepoznáš.
+      </p>
+    </section>
   );
 };

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { Icon } from './Icon';
 import { TOPICS } from '../data/topics';
 import { GLOSSARY } from '../data/knowledge';
+import { TOOLS } from './tools/registry';
+import { ALL_INSTRUMENTS } from '../utils/market';
 
 /* ════════════════════════════════════════════════════════════
    CommandPalette — globální Cmd/Ctrl+K vyhledávání (Vercel/Linear styl).
@@ -20,17 +22,19 @@ interface CmdItem {
   run: () => void;
 }
 
-const GROUP_ORDER = ['Akce', 'Navigace', 'Témata', 'Slovníček'];
+const GROUP_ORDER = ['Akce', 'Navigace', 'Témata', 'Nástroje', 'Trhy', 'Slovníček'];
 
 interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
   onSelectTab: (tab: string) => void;
   onOpenTopic: (id: string) => void;
+  onOpenTool: (id: string) => void;
+  onOpenMarket: (ticker: string) => void;
   onAskMentor: (prompt: string) => void;
 }
 
-export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, onSelectTab, onOpenTopic, onAskMentor }) => {
+export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, onSelectTab, onOpenTopic, onOpenTool, onOpenMarket, onAskMentor }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
@@ -39,13 +43,24 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, o
 
   const items = useMemo<CmdItem[]>(() => {
     const actions: CmdItem[] = [
-      { id: 'act-ask', label: 'Zeptat se AI Mentora…', hint: 'Otevřít chat', icon: 'message-circle', group: 'Akce', run: () => { onSelectTab('mentor'); onClose(); } },
+      { id: 'act-ask', label: 'Zeptat se AI mentora', hint: 'Otevřít chat', icon: 'message-circle', group: 'Akce', run: () => { onSelectTab('mentor'); onClose(); } },
     ];
     const tabs: CmdItem[] = [
-      { id: 'tab-mentor', label: 'AI Mentor', hint: 'Chat', icon: 'message-circle', group: 'Navigace', run: () => { onSelectTab('mentor'); onClose(); } },
-      { id: 'tab-temata', label: 'Témata', hint: 'Vzdělávací moduly', icon: 'book-open', group: 'Navigace', run: () => { onSelectTab('temata'); onClose(); } },
-      { id: 'tab-presnost', label: 'Můžeš tomu věřit?', hint: 'Odkud bereme čísla', icon: 'shield-check', group: 'Navigace', run: () => { onSelectTab('presnost'); onClose(); } },
+      { id: 'tab-prehled', label: 'Přehled', hint: 'Úvodní stránka', icon: 'home', group: 'Navigace', run: () => { onSelectTab('prehled'); onClose(); } },
+      { id: 'tab-akademie', label: 'Akademie', hint: 'Témata, slovníček, kvízy', icon: 'graduation-cap', group: 'Navigace', run: () => { onSelectTab('akademie'); onClose(); } },
+      { id: 'tab-trhy', label: 'Trhy', hint: 'Grafy akcií, indexů a krypta', icon: 'candlestick', group: 'Navigace', run: () => { onSelectTab('trhy'); onClose(); } },
+      { id: 'tab-nastroje', label: 'Nástroje', hint: 'Kalkulačky a simulace', icon: 'calculator', group: 'Navigace', run: () => { onSelectTab('nastroje'); onClose(); } },
+      { id: 'tab-mentor', label: 'AI mentor', hint: 'Chat', icon: 'message-circle', group: 'Navigace', run: () => { onSelectTab('mentor'); onClose(); } },
+      { id: 'tab-presnost', label: 'Přesnost a zdroje', hint: 'Odkud bereme čísla', icon: 'shield-check', group: 'Navigace', run: () => { onSelectTab('presnost'); onClose(); } },
     ];
+    const tools: CmdItem[] = TOOLS.map(t => ({
+      id: 'tool-' + t.id, label: t.name, hint: t.lead, icon: t.icon, group: 'Nástroje',
+      run: () => { onOpenTool(t.id); onClose(); },
+    }));
+    const markets: CmdItem[] = ALL_INSTRUMENTS.map(i => ({
+      id: 'mk-' + i.ticker, label: i.name, hint: `Graf ${i.ticker}`, icon: 'candlestick', group: 'Trhy',
+      run: () => { onOpenMarket(i.ticker); onClose(); },
+    }));
     const topics: CmdItem[] = TOPICS.map(t => ({
       id: 'topic-' + t.id, label: t.title, hint: t.summary, icon: t.icon || 'book-open', group: 'Témata',
       run: () => { onOpenTopic(t.id); onClose(); },
@@ -54,8 +69,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, o
       id: 'term-' + g.term, label: g.term, hint: 'Zeptat se mentora', icon: 'sparkles', group: 'Slovníček',
       run: () => { onAskMentor(`Vysvětli mi prosím pojem „${g.term}“.`); onClose(); },
     }));
-    return [...actions, ...tabs, ...topics, ...terms];
-  }, [onSelectTab, onOpenTopic, onAskMentor, onClose]);
+    return [...actions, ...tabs, ...topics, ...tools, ...markets, ...terms];
+  }, [onSelectTab, onOpenTopic, onOpenTool, onOpenMarket, onAskMentor, onClose]);
 
   const filtered = useMemo(() => {
     const q = norm(query.trim());
@@ -101,30 +116,38 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, o
   };
 
   return (
-    <dialog ref={dialogRef} className="cmdk" aria-label="Rychlé hledání">
-      <div className="cmdk__box" onKeyDown={onKeyDown}>
-        <div className="cmdk__search">
-          <span className="cmdk__search-icon"><Icon name="sparkles" size={16} /></span>
+    <dialog ref={dialogRef} className="cmdk sh-dlg" aria-label="Hledání">
+      <div className="cmdk__box sh-dlg__box sh-find" onKeyDown={onKeyDown}>
+        <div className="sh-find__bar">
+          <span className="sh-find__icon" aria-hidden="true"><Icon name="search" size={18} /></span>
           <input
             ref={inputRef}
-            className="cmdk__input"
-            placeholder="Hledat téma, pojem nebo sekci…"
+            className="sh-find__input"
+            placeholder="Hledej téma, pojem, nástroj nebo titul"
             value={query}
             onChange={e => { setQuery(e.target.value); setActive(0); }}
             aria-label="Hledat"
+            autoComplete="off" autoCapitalize="none" spellCheck={false} enterKeyHint="go"
           />
-          <kbd className="cmdk__esc">ESC</kbd>
+          <button type="button" className="sh-dlg__close" onClick={onClose} aria-label="Zavřít hledání">
+            <Icon name="x" size={18} aria-hidden />
+          </button>
         </div>
-        <div className="cmdk__list">
+        <div className="sh-find__list">
           {filtered.length === 0 ? (
-            <div className="cmdk__empty">Nic nenalezeno.</div>
+            <div className="sh-find__empty">
+              <p>Na „{query.trim()}“ tu nic není. Zkus kratší nebo jiné slovo, nebo se na to zeptej mentora.</p>
+              <button type="button" className="btn" onClick={() => { onAskMentor(query.trim()); onClose(); }}>
+                Zeptat se mentora
+              </button>
+            </div>
           ) : (
             GROUP_ORDER.map(group => {
               const groupItems = filtered.filter(it => it.group === group);
               if (!groupItems.length) return null;
               return (
-                <div key={group} className="cmdk__section">
-                  <div className="cmdk__group">{group}</div>
+                <div key={group} className="sh-find__group" role="group" aria-label={group}>
+                  <div className="sh-find__heading" aria-hidden="true">{group}</div>
                   {groupItems.map(it => {
                     const i = filtered.indexOf(it);
                     const isActive = i === active;
@@ -133,13 +156,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose, o
                         key={it.id}
                         ref={isActive ? activeRef : null}
                         type="button"
-                        className={`cmdk__item${isActive ? ' is-active' : ''}`}
+                        className={`sh-find__item${isActive ? ' is-active' : ''}`}
                         onClick={it.run}
                         onMouseMove={() => setActive(i)}
                       >
-                        <span className="cmdk__item-icon"><Icon name={it.icon} size={16} /></span>
-                        <span className="cmdk__item-label">{it.label}</span>
-                        {it.hint && <span className="cmdk__item-hint">{it.hint}</span>}
+                        <span className="sh-find__item-icon" aria-hidden="true"><Icon name={it.icon} size={18} /></span>
+                        <span className="sh-find__label">{it.label}</span>
+                        {it.hint && <span className="sh-find__hint">{it.hint}</span>}
+                        {isActive && <kbd className="sh-find__enter" aria-hidden="true">Enter</kbd>}
                       </button>
                     );
                   })}

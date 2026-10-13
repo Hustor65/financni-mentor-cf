@@ -1,0 +1,274 @@
+/* Styly obrazovky: tools. Staví na styles/system.css.
+   Předpona tl- = nástroje; nf = NumberField; chart-skel = ChartSkeleton.
+   Kalkulačky se vkládají i do Akademie, proto se jejich rozložení řídí
+   šířkou vlastního kontejneru (container query), ne šířkou okna. */
+
+/* ── Rozcestník nástrojů ────────────────────────────────── */
+
+.tl-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.tl-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 17rem) minmax(0, 1fr) auto 20px;
+  align-items: center;
+  gap: var(--s-2) var(--s-4);
+  width: 100%;
+  min-height: 68px;
+  padding: var(--s-3) var(--s-2);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.tl-row__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-m);
+  background: var(--fill-1);
+  color: var(--text-3);
+  transition: background-color var(--dur-1) var(--ease-std), color var(--dur-1) var(--ease-std);
+}
+.tl-group.is-own .tl-row__icon { background: var(--accent-soft); color: var(--accent); }
+.tl-row__name { color: var(--text-1); font-size: var(--fs-l); font-weight: 650; line-height: 1.3; }
+.tl-row__lead { color: var(--text-3); font-size: var(--fs-s); line-height: 1.5; }
+.tl-row__kind { color: var(--text-4); font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; }
+.tl-row__go { color: var(--text-4); transition: transform var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-std); }
+.tl-row:hover { background: var(--fill-1); }
+.tl-row:hover .tl-row__icon { background: var(--accent-soft); color: var(--accent); }
+.tl-row:hover .tl-row__go,
+.tl-row:focus-visible .tl-row__go { color: var(--accent); transform: translateX(3px); }
+.tl-row:active { background: var(--fill-2); }
+
+@media (max-width: 760px) {
+  .tl-row {
+    grid-template-columns: 40px minmax(0, 1fr) 20px;
+    grid-template-areas: 'icon name go' 'icon lead go' 'icon kind go';
+    row-gap: 2px;
+    padding-block: var(--s-4);
+  }
+  .tl-row__icon { grid-area: icon; align-self: start; }
+  .tl-row__name { grid-area: name; font-size: var(--fs-m); }
+  .tl-row__lead { grid-area: lead; }
+  .tl-row__kind { grid-area: kind; margin-top: 2px; }
+  .tl-row__go { grid-area: go; }
+}
+
+/* ── Stránka jednoho nástroje ───────────────────────────── */
+
+.tl-back-icon { transform: rotate(180deg); }
+.tl-page__title { font-size: clamp(2rem, 4.6vw, 3rem); line-height: 1.05; }
+.tl-related { max-width: var(--measure-text); margin: var(--s-5) 0 0; color: var(--text-3); line-height: 1.6; }
+/* na stránce nástroje už název říká nadpis stránky */
+.tl-tool .tl-calc__title { display: none; }
+
+/* ── Kalkulačka: zadání vlevo, výsledek vpravo ──────────── */
+
+.tl-calc { container-type: inline-size; }
+.tl-calc + .tl-calc,
+.tl-calc + .spacer-lg + .tl-calc { margin-top: var(--s-6); padding-top: var(--s-6); border-top: 1px solid var(--line); }
+.tl-calc__title { margin-bottom: var(--s-5); }
+.tl-calc__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); align-items: start; }
+.tl-calc__grid > * { min-width: 0; }
+@container (min-width: 720px) {
+  .tl-calc__grid { grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); gap: clamp(28px, 5cqw, 56px); }
+}
+.tl-inputs { display: flex; flex-direction: column; gap: var(--s-5); max-width: 420px; }
+.tl-calc input[type='radio'],
+.tl-calc input[type='checkbox'] {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 2px solid var(--text-3);
+  background: transparent center / 14px 14px no-repeat;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color var(--dur-1) var(--ease-std), background-color var(--dur-1) var(--ease-std), box-shadow var(--dur-1) var(--ease-std);
+}
+.tl-calc input[type='radio'] { border-radius: 50%; }
+.tl-calc input[type='checkbox'] { border-radius: 5px; }
+.tl-calc input[type='radio']:checked { border-color: var(--accent); box-shadow: inset 0 0 0 4px var(--bg-deep, #0b1a30), inset 0 0 0 10px var(--accent); }
+.tl-calc input[type='checkbox']:checked {
+  border-color: var(--accent);
+  background-color: var(--accent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%2306141c' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7.4l2.7 2.7L11 4.6'/%3E%3C/svg%3E");
+}
+.tl-out { display: flex; flex-direction: column; gap: var(--s-5); }
+.tl-hero { overflow-wrap: anywhere; }
+.tl-chart { min-width: 0; }
+.tl-chart__cap { margin: 0 0 var(--s-2); color: var(--text-3); font-size: var(--fs-s); font-weight: 600; }
+.tl-read { max-width: var(--measure-text); }
+.tl-read p { margin: 0; color: var(--text-2); line-height: 1.65; }
+.tl-read p + p { margin-top: var(--s-3); }
+.tl-read .ui-small { color: var(--text-4); line-height: 1.55; }
+.tl-out > .ui-small { max-width: var(--measure-text); margin: 0; }
+
+/* části uvnitř jedné kalkulačky (daň z prodeje / DIP) */
+.tl-part__title { margin-bottom: var(--s-2); }
+.tl-part__lead { max-width: var(--measure-text); margin: 0 0 var(--s-5); color: var(--text-3); line-height: 1.6; }
+
+/* ukazatel čerpání stropu */
+.tl-cap__head { display: flex; justify-content: space-between; gap: var(--s-3); color: var(--text-3); font-size: var(--fs-s); font-variant-numeric: tabular-nums; }
+.tl-cap__bar { display: flex; height: 10px; margin-top: var(--s-2); border-radius: 5px; background: var(--fill-2); overflow: hidden; }
+.tl-cap__seg { display: block; height: 100%; transition: width var(--dur-2) var(--ease-out); }
+.tl-cap__seg--other, .tl-cap__sw--other { background: var(--text-4); }
+.tl-cap__seg--dip, .tl-cap__sw--dip { background: var(--accent); }
+.tl-cap__legend { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-5); margin: var(--s-3) 0 0; padding: 0; list-style: none; color: var(--text-3); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+.tl-cap__legend li { display: inline-flex; align-items: center; gap: var(--s-2); }
+.tl-cap__sw { flex: none; width: 10px; height: 10px; border-radius: 2px; }
+
+/* rozložení portfolia (rizikový profil) */
+.tl-fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.tl-fieldset__legend { margin-bottom: var(--s-3); padding: 0; color: var(--text-1); font-weight: 650; }
+.tl-bars { display: flex; flex-direction: column; gap: var(--s-4); padding-block: var(--s-4); border-block: 1px solid var(--line); }
+.tl-bars__row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px var(--s-3); }
+.tl-bars__label { color: var(--text-2); }
+.tl-bars__val { color: var(--text-1); font-weight: 650; font-variant-numeric: tabular-nums; }
+.tl-bars__track { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--fill-2); overflow: hidden; }
+.tl-bars__fill { display: block; height: 100%; border-radius: 4px; transition: width var(--dur-2) var(--ease-out); }
+.tl-bars__fill--stocks { background: var(--accent); }
+.tl-bars__fill--bonds { background: var(--text-3); }
+.tl-bars__fill--cash { background: var(--amber); }
+
+.tl-compare { margin-bottom: var(--s-5); }
+.tl-compare .ui-table th, .tl-compare .ui-table td { text-align: left; }
+
+/* ── Cvičení: kroky, volby, vyhodnocení ─────────────────── */
+
+.tl-ex { container-type: inline-size; }
+.tl-quiz { display: flex; flex-direction: column; gap: var(--s-5); }
+.tl-quiz--end { max-width: 720px; }
+.tl-quiz__side, .tl-quiz__main { display: flex; flex-direction: column; gap: var(--s-5); min-width: 0; }
+.tl-quiz .ui-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tl-quiz__head { display: flex; flex-direction: column; gap: var(--s-2); }
+@container (min-width: 860px) {
+  .tl-quiz--run { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: clamp(32px, 5cqw, 64px); align-items: start; }
+  .tl-quiz--run > .tl-quiz__side { grid-column: 2; grid-row: 1; }
+  .tl-quiz--run > .tl-quiz__main { grid-column: 1; grid-row: 1; }
+}
+.tl-quiz__prompt { margin: 0; color: var(--text-1); font-size: var(--fs-l); line-height: 1.55; }
+.tl-quiz__feedback { display: flex; flex-direction: column; gap: var(--s-4); animation: tlIn var(--dur-2) var(--ease-out) both; }
+.tl-quiz__actions { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.tl-quiz > .ui-steps { margin: 0; }
+.tl-quiz .ui-choice[aria-disabled='true'] { cursor: default; }
+.tl-choice__text { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.tl-choice__text strong { color: var(--text-1); font-weight: 650; }
+.tl-choice__text > span { color: var(--text-3); font-size: var(--fs-s); }
+.tl-choice__end { flex: none; color: var(--text-3); font-size: var(--fs-s); font-variant-numeric: tabular-nums; white-space: nowrap; }
+@keyframes tlIn { from { opacity: 0; transform: translateY(6px); } }
+
+/* ── NumberField: popisek + hodnota, pod nimi posuvník ──── */
+
+.nf {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9.5rem;
+  align-items: center;
+  gap: 0 var(--s-3);
+  min-width: 0;
+}
+.nf__label { color: var(--text-2); font-size: var(--fs-s); font-weight: 600; line-height: 1.3; }
+.nf__box {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-s);
+  background: rgba(8, 18, 34, 0.6);
+  transition: border-color var(--dur-1) var(--ease-std);
+}
+.nf__box:hover { border-color: var(--accent-line); }
+.nf__box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.nf__input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 0 0 12px;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--text-1);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.nf__input:only-child { padding-right: 12px; }
+.nf__suffix { flex: none; padding: 0 12px 0 6px; color: var(--text-3); font-size: var(--fs-s); pointer-events: none; }
+.nf__slider {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.nf__slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent) var(--nf-fill, 0%), var(--fill-2) var(--nf-fill, 0%));
+}
+.nf__slider::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(6, 15, 31, 0.9), 0 2px 6px rgba(0, 0, 0, 0.5);
+  -webkit-appearance: none;
+  appearance: none;
+  transition: box-shadow var(--dur-1) var(--ease-std);
+}
+.nf__slider::-moz-range-track { height: 4px; border-radius: 2px; background: var(--fill-2); }
+.nf__slider::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--accent); }
+.nf__slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(6, 15, 31, 0.9), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+.nf__slider:hover::-webkit-slider-thumb,
+.nf__slider:active::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(6, 15, 31, 0.9), 0 0 0 7px var(--accent-soft); }
+.nf__slider:focus-visible { outline: 0; }
+.nf__slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(6, 15, 31, 0.9), 0 0 0 5px #fff; }
+.nf__slider:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px rgba(6, 15, 31, 0.9), 0 0 0 5px #fff; }
+
+/* ── ChartSkeleton: zástupný obrys grafu ────────────────── */
+
+@keyframes chartSkelPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+.chart-skel {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  padding: var(--s-4);
+  border-radius: var(--r-m);
+  background: var(--fill-1);
+}
+.chart-skel--bare { padding: 0 0 var(--s-2); border-bottom: 1px solid var(--line); border-radius: 0; background: none; }
+.chart-skel__bars { display: flex; align-items: flex-end; gap: clamp(6px, 2%, 14px); width: 100%; height: 100%; }
+.chart-skel__bar {
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--r-s) var(--r-s) 0 0;
+  background: var(--fill-2);
+  animation: chartSkelPulse 1.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-skel__bar, .tl-quiz__feedback { animation: none; }
+}

@@ -377,6 +377,120 @@ export const TOPIC_THEORY: Record<string, TheoryCard[]> = {
       ],
     },
   ],
+  'riziko-v-cislech': [
+    {
+      h: 'Volatilita: jak moc to hází',
+      p: 'Volatilita je směrodatná odchylka výnosů, obvykle přepočtená na rok. Globální akcie mívají kolem 15 %, dluhopisy kolem 5 %, bitcoin i přes 60 %. Neříká nic o směru — jen o velikosti výkyvů.',
+      more: [
+        'Praktické čtení: při průměrném výnosu 7 % a volatilitě 15 % skončí zhruba dva roky ze tří mezi −8 % a +22 %. Ten třetí rok skončí mimo — a právě na něj je potřeba být připravený.',
+        'Volatilita se počítá z denních (nebo týdenních) výnosů a násobí odmocninou z počtu období v roce. Proto u denních dat násobíš √252, ne 252. Na obrazovce Trhy ji vidíš spočítanou pro každý titul.',
+        'Slabina: volatilita trestá stejně výkyvy nahoru i dolů a předpokládá „slušné“ normální rozdělení. Skutečné trhy mají tlusté konce — krachy přicházejí častěji, než by model čekal.',
+      ],
+    },
+    {
+      h: 'Největší propad a cesta zpátky',
+      p: 'Max drawdown je největší pokles z vrcholu na dno. Je to číslo, které opravdu rozhoduje, jestli investici ustojíš — a matematika návratu je nemilosrdná.',
+      more: [
+        'Po poklesu o 20 % potřebuješ +25 %, aby ses vrátil. Po −50 % už +100 %. Po −80 % dokonce +400 %. Proto je ochrana před velkými ztrátami důležitější než honba za nejvyšším výnosem.',
+        'Index S&P 500 spadl v letech 2007–2009 o víc než 50 % a na nový vrchol se dostal až po zhruba pěti letech. Kdo v té době peníze potřeboval, prodával se ztrátou. Horizont a rezerva nejsou teorie.',
+        'Zkus si to: v Trzích přepni období na „Vše“ a podívej se na největší propad u Nasdaqu, Tesly a bitcoinu.',
+      ],
+    },
+    {
+      h: 'Korelace a Sharpe: riziko celého portfolia',
+      p: 'Riziko portfolia není průměr rizik jeho částí. Záleží na korelaci — na tom, jestli se aktiva hýbou spolu. A Sharpeho poměr říká, kolik výnosu dostáváš za jednotku rizika.',
+      more: [
+        'Korelace jde od −1 (jdou přesně proti sobě) přes 0 (nezávisle) po +1 (jdou spolu). Dvě akcie ze stejného oboru mívají korelaci vysokou, akcie a státní dluhopisy historicky nízkou. Čím nižší korelace, tím víc diverzifikace opravdu pomáhá.',
+        'Sharpeho poměr = (výnos − bezriziková sazba) / volatilita. Portfolio s výnosem 8 % a volatilitou 16 % při sazbě 3 % má Sharpe 0,31. Dlouhodobě se za dobré považují hodnoty kolem 0,5 a výš.',
+        'Pozor: korelace nejsou stálé. V krizi mají tendenci růst k jedné — všechno padá najednou, zrovna když diverzifikaci potřebuješ nejvíc.',
+      ],
+    },
+  ],
+  'oceneni-akcii': [
+    {
+      h: 'Cena není hodnota',
+      p: 'Cena je to, co za akcii zaplatíš na burze. Hodnota je to, co za ni dostaneš — podíl na budoucích ziscích firmy. Investování je hledání rozdílu mezi nimi.',
+      more: [
+        'Akcie za 50 není „levnější“ než akcie za 500. Záleží na tom, kolik firmy za tu cenu kupuješ: kolik zisku, cash flow a majetku připadá na jednu akcii.',
+        'Trh většinu času oceňuje rozumně, protože se o cenu přetahují tisíce lidí se stejnými informacemi. Najít skutečně podhodnocenou akcii je těžké — i proto většina aktivních fondů dlouhodobě zaostává za indexem.',
+      ],
+    },
+    {
+      h: 'Poměrové ukazatele: P/E a spol.',
+      p: 'P/E říká, kolikanásobek ročního zisku platíš. P/E 20 znamená, že za korunu zisku dáváš 20 korun. Samo o sobě nic neznamená — srovnává se s růstem, oborem a historií.',
+      more: [
+        'Vysoké P/E není automaticky „drahé“: trh čeká, že zisky rychle porostou. Nízké P/E není automaticky „levné“: může to být firma, které zisky brzy spadnou (tzv. value trap).',
+        'Další užitečné poměry: P/S (cena k tržbám, pro firmy bez zisku), P/B (cena k účetní hodnotě, typicky u bank), EV/EBITDA (zohledňuje dluh) a dividendový výnos.',
+        'Zisk se dá účetně „vyladit“, hotovost hůř. Proto se zkušenější investoři dívají na volný cash flow — peníze, které firmě po všech výdajích a investicích opravdu zbudou.',
+      ],
+    },
+    {
+      h: 'DCF: budoucí peníze přepočtené na dnešek',
+      p: 'Model diskontovaných cash flow odhadne, kolik hotovosti firma v budoucnu vydělá, a přepočítá to na dnešní hodnotu. Je to nejpoctivější způsob ocenění — a zároveň nejcitlivější na předpoklady.',
+      more: [
+        'Diskontní sazba je výnos, který za podstoupené riziko požaduješ (často 8–10 %). Čím vyšší sazba, tím menší hodnotu má vzdálená budoucnost. Koruna za 10 let má při sazbě 9 % dnes hodnotu jen 42 haléřů.',
+        'Většinu výsledku typicky tvoří „pokračující hodnota“ — všechno po konci projekce. Stojí tedy na odhadu toho, co bude za deset a víc let. Vyzkoušej si v nástroji níž, jak s výsledkem pohne změna růstu o tři procentní body.',
+        'Proto se s DCF pracuje jako s rozmezím a s rezervou (margin of safety): kupovat jen tehdy, když cena vychází výrazně pod odhadem hodnoty, aby ses mohl splést.',
+      ],
+    },
+  ],
+  'technicka-analyza': [
+    {
+      h: 'Svíčkový graf',
+      p: 'Svíčka shrne jeden den do čtyř čísel: otevírací cena, maximum, minimum a zavírací cena. Čára ti ukáže jen zavírací ceny — svíčky ukážou i to, co se dělo mezi tím.',
+      more: [
+        'Tělo svíčky spojuje otevření a zavření. Zelená: zavřelo se výš, než se otevřelo. Červená: níž. Knoty (tenké čárky) ukazují denní maximum a minimum.',
+        'Dlouhý spodní knot znamená, že cena během dne spadla, ale kupci ji vytáhli zpět. Malé tělo s dlouhými knoty na obou stranách znamená nerozhodnost. Jsou to popisy toho, co se stalo — ne předpovědi.',
+      ],
+    },
+    {
+      h: 'Trend, klouzavé průměry a objem',
+      p: 'Klouzavý průměr vyhladí denní šum a ukáže směr. Nejčastěji se používá průměr 50 a 200 dní. Objem říká, kolik lidí za pohybem ceny stálo.',
+      more: [
+        'Cena nad 200denním průměrem se bere jako dlouhodobě rostoucí trend, pod ním jako klesající. Když 50denní průměr protne 200denní zdola, říká se tomu „zlatý kříž“, opačně „kříž smrti“. Zní to dramaticky, spolehlivost je průměrná.',
+        'Klouzavé průměry jsou vždy zpožděné — počítají se z minulých cen. Obrat trendu potvrdí až dlouho poté, co nastal.',
+        'Objem dává pohybu váhu: průraz na nové maximum při trojnásobném objemu je něco jiného než stejný pohyb v pátek odpoledne, kdy nikdo neobchoduje.',
+      ],
+    },
+    {
+      h: 'RSI a meze technické analýzy',
+      p: 'RSI (index relativní síly) měří tempo: jak rychle cena v posledních 14 dnech rostla oproti tomu, jak klesala. Nad 70 se mluví o překoupeném trhu, pod 30 o přeprodaném.',
+      more: [
+        '„Překoupeno“ neznamená „spadne“. V silném trendu vydrží RSI nad 70 celé týdny a kdo jen kvůli tomu prodal, o růst přišel.',
+        'Co výzkum říká: jednoduchá technická pravidla po započtení poplatků dlouhodobě trh nepřekonávají. Graf je užitečný k pochopení historie, rizika a kontextu — ne jako stroj na peníze.',
+        'Rozumné použití: podívat se, jak hluboké propady titul měl, jak dlouho trvaly a v jakém trendu je teď. To ti řekne víc o tom, co budeš muset vydržet, než jakýkoli „signál“.',
+      ],
+    },
+  ],
+  'opce': [
+    {
+      h: 'Co je opce',
+      p: 'Opce je smlouva, která ti dává právo — ne povinnost — koupit (call) nebo prodat (put) akcii za předem danou cenu do určitého data. Za to právo platíš prémii.',
+      more: [
+        'Čtyři pojmy, které potřebuješ: podklad (akcie, ke které se opce váže), strike (dohodnutá cena), expirace (do kdy právo platí) a prémie (cena opce).',
+        'Příklad: akcie stojí 100. Koupíš call se strikem 105 za prémii 3. Když akcie při expiraci stojí 120, uplatníš právo koupit za 105 a máš zisk 120 − 105 − 3 = 12. Když stojí 100, opce propadne a přišel jsi o 3.',
+        'Jeden skutečný opční kontrakt se obvykle váže ke 100 akciím, takže prémie 3 znamená výdaj 300.',
+      ],
+    },
+    {
+      h: 'Pojistka, nebo páka',
+      p: 'Stejný nástroj slouží dvěma opačným účelům. Put na akcii, kterou držíš, je pojistka proti propadu. Samotný koupený call je páka — malý vklad, velký pohyb, a taky vysoká šance přijít o všechno vložené.',
+      more: [
+        'Páka v číslech: akcie vyroste ze 100 na 110 (+10 %). Call se strikem 100 koupený za 4 má při expiraci hodnotu 10, tedy +150 %. Když ale akcie skončí na 99, akcionář ztratil 1 %, držitel opce 100 %.',
+        'Kupující opce riskuje jen prémii. Vypisovatel (prodávající) prémii inkasuje, ale nese závazek — u nekrytého callu je jeho možná ztráta neomezená. Proto brokeři vypisování povolují jen zkušeným klientům.',
+        'Většina koupených opcí vyprší bez hodnoty. Na druhé straně stojí profesionálové, kteří prémii inkasují dlouhodobě jako pojišťovna.',
+      ],
+    },
+    {
+      h: 'Co hýbe cenou opce',
+      p: 'Cenu opce určuje pět věcí: cena akcie, strike, čas do expirace, volatilita a úroková sazba. Citlivost na ně popisují „řecká písmena“.',
+      more: [
+        'Delta: o kolik se změní cena opce, když se akcie pohne o 1. Theta: kolik opce ztrácí každý den jen plynutím času. Vega: citlivost na volatilitu. Gamma: jak rychle se mění delta.',
+        'Volatilita je klíčová: čím víc trh čeká, že se akcie bude hýbat, tím dražší jsou call i put. Před výsledky firmy opce zdraží a po nich zlevní — i když se akcie pohne „správným“ směrem, můžeš na opci prodělat.',
+        'Vzorec, který to spojuje, se jmenuje Black–Scholes. V Opční laboratoři níž si můžeš sestavit strategii, hýbat vstupy a sledovat, co to dělá s výplatním diagramem.',
+      ],
+    },
+  ],
 };
 
 // Sekční label (ikona + text) pro každé téma — 1:1 s originálem
@@ -390,4 +504,8 @@ export const TOPIC_TOOL_LABEL: Record<string, { icon: string; label: string }> =
   'duchod': { icon: 'hourglass', label: 'Spočítej si důchod' },
   'dane-dip': { icon: 'scale', label: 'Daň z prodeje investic' },
   'riziko': { icon: 'shield-check', label: 'Zjisti svůj rizikový profil' },
+  'riziko-v-cislech': { icon: 'activity', label: 'Simulace 800 možných budoucností' },
+  'oceneni-akcii': { icon: 'calculator', label: 'Model DCF' },
+  'technicka-analyza': { icon: 'candlestick', label: 'Vyzkoušej si to na skutečných datech' },
+  'opce': { icon: 'git-branch', label: 'Opční laboratoř' },
 };

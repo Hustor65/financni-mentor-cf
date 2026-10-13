@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { Icon } from '../Icon';
 
 /**
- * DebtCheck — interaktivní „Vyplatí se ten dluh?" cvičení k tématu Dluhy.
+ * DebtCheck — interaktivní „Vyplatí se ten dluh?“ cvičení k tématu Dluhy.
  * Student dostane reálné situace a rozhoduje, jestli dluh/splátky dávají smysl.
  * Feedback + vysvětlení po každé volbě (research: rozhodnutí + reflexe učí líp
- * než pasivní text). Trénuje rozdíl mezi „dobrým" a „špatným" dluhem.
+ * než pasivní text). Trénuje rozdíl mezi „dobrým“ a „špatným“ dluhem.
  */
 
 interface Scenario {
-  icon: string;
   text: string;
   worth: boolean; // true = dluh tu dává rozumný smysl
   explain: string;
@@ -17,40 +15,34 @@ interface Scenario {
 
 const SCENARIOS: Scenario[] = [
   {
-    icon: 'message-circle',
     text: 'Nový telefon za 6 000 Kč. Na hotovost máš. Prodejce nabízí 24 splátek po 350 Kč (celkem 8 400 Kč).',
     worth: false,
     explain: 'Na splátky zaplatíš o 2 400 Kč víc za něco, na co máš. Když máš hotovost, skoro vždy se vyplatí zaplatit rovnou.',
   },
   {
-    icon: 'graduation-cap',
     text: 'Rekvalifikační kurz za 15 000 Kč, který ti reálně zvedne plat, na půjčku s nízkým RPSN, kterou v pohodě splatíš.',
     worth: true,
-    explain: 'Tohle je „dobrý dluh" — investice do sebe, co ti vydělá víc, než stojí. Pokud splátky utáhneš, dává smysl.',
+    explain: 'Tohle je „dobrý dluh“ — investice do sebe, co ti vydělá víc, než stojí. Pokud splátky utáhneš, dává smysl.',
   },
   {
-    icon: 'sparkles',
-    text: 'Boty za 2 000 Kč přes „kup teď, zaplať za 30 dní". Máš teď jiné výdaje a nejsi si jistý, že za měsíc peníze budeš mít.',
+    text: 'Boty za 2 000 Kč přes „kup teď, zaplať za 30 dní“. Máš teď jiné výdaje a nejsi si jistý, že za měsíc peníze budeš mít.',
     worth: false,
     explain: 'BNPL na zbytnou věc, k tomu nejistota, že zaplatíš včas = past. Při zpoždění přijdou poplatky. Co si nemůžeš dovolit teď, nekupuj na dluh.',
   },
   {
-    icon: 'coins',
     text: 'Na kreditce utratíš 4 000 Kč a celou částku splatíš do data splatnosti (v bezúročném období).',
     worth: true,
     explain: 'Když splatíš celou částku včas, je odklad zdarma — to je kreditka použitá správně. Past nastává, až když nesplatíš celé a naskočí úrok.',
   },
   {
-    icon: 'dollar-sign',
     text: 'Gauč za 15 000 Kč na splátky s RPSN 38 %, i když ten tvůj starý pořád funguje.',
     worth: false,
     explain: 'Drahý úvěr (RPSN 38 %) na zbytnou věc, kterou nutně nepotřebuješ. Radši našetři — ušetříš tisíce na úrocích.',
   },
   {
-    icon: 'heart',
     text: 'Rychlá půjčka s RPSN 80 % na dovolenou, na kterou teď nemáš.',
     worth: false,
-    explain: 'Drahý dluh na spotřebu, co za chvíli „není". RPSN 80 % je extrémní past. Dovolená počká, až si na ni našetříš.',
+    explain: 'Drahý dluh na spotřebu, co za chvíli „není“. RPSN 80 % je extrémní past. Dovolená počká, až si na ni našetříš.',
   },
 ];
 
@@ -75,75 +67,95 @@ export const DebtCheck: React.FC = () => {
   };
   const restart = () => { setI(0); setGuess(null); setScore(0); setDone(false); };
 
+  const answered = i + (guess !== null ? 1 : 0);
+  const options: { value: boolean; label: string }[] = [
+    { value: true, label: 'Dává smysl' },
+    { value: false, label: 'Radši ne' },
+  ];
+
+  const scoreboard = (
+    <dl className="ui-kpis">
+      <div>
+        <dt>Správně</dt>
+        <dd className={score > 0 ? 'is-up' : undefined}>{score}</dd>
+      </div>
+      <div>
+        <dt>Vedle</dt>
+        <dd>{answered - score}</dd>
+      </div>
+    </dl>
+  );
+
   if (done) {
     const pct = Math.round((score / SCENARIOS.length) * 100);
     const good = score >= Math.ceil(SCENARIOS.length * 0.6);
     return (
-      <div role="status" aria-live="polite" style={{ textAlign: 'center', padding: 'var(--space-sm) 0' }}>
-        <Icon name={good ? 'check-circle' : 'alert-triangle'} size={40} color={good ? 'var(--lg-green-500, #10B981)' : '#F59E0B'} aria-hidden />
-        <p style={{ fontWeight: 700, fontSize: '1.15rem', margin: 'var(--space-sm) 0 0' }}>
-          {good ? 'Dobře! Dobrý dluh od pasti rozeznáš.' : 'Ještě trénuj — drahý dluh se umí dobře schovat.'}
+      <div className="tl-quiz tl-quiz--end" role="status" aria-live="polite">
+        <p className="ui-steps">Hotovo, {SCENARIOS.length} z {SCENARIOS.length}</p>
+        <p className="ui-hero-num tl-hero">
+          <span className="ui-hero-num__label">Tvůj výsledek</span>
+          {score} z {SCENARIOS.length}
         </p>
-        <p style={{ opacity: 0.75, margin: '0.3rem 0 var(--space-md)' }}>
-          Trefil/a jsi {score} z {SCENARIOS.length} ({pct} %).
+        <p className={`ui-note ${good ? 'ui-note--ok' : 'ui-note--warn'}`}>
+          <strong>{good ? 'Dobrý dluh od pasti rozeznáš.' : 'Ještě trénuj, drahý dluh se umí dobře schovat.'}</strong>{' '}
+          Správně máš {pct}{'\u00a0'}% odpovědí. {good ? 'Rozhoduje, co za dluh získáš a kolik tě stojí.' : 'Ptej se vždycky na dvě věci: co za dluh získáš a kolik přeplatíš (RPSN).'}
         </p>
-        <button type="button" className="btn btn--ghost" onClick={restart}>Zkusit znovu</button>
+        <div className="tl-quiz__actions">
+          <button type="button" className="btn btn--primary" onClick={restart}>Zkusit znovu</button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-sm)' }}>
-        <span className="eyebrow">Situace {i + 1} / {SCENARIOS.length}</span>
-        <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Skóre {score}</span>
-      </div>
-
-      <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-start', margin: '0 0 var(--space-md)' }}>
-        <Icon name={s.icon} size={26} color="var(--lg-cyan-2, #4cc4e6)" aria-hidden />
-        <p style={{ fontSize: '1.05rem', lineHeight: 1.55, margin: 0 }}>{s.text}</p>
-      </div>
-
-      {guess === null ? (
-        <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => answer(true)}
-            style={{ flex: 1, minWidth: 130, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(16,185,129,0.5)', background: 'rgba(16,185,129,0.12)', color: '#34d399', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
-          >
-            <Icon name="check-circle" size={18} aria-hidden /> Dává smysl
-          </button>
-          <button
-            type="button"
-            onClick={() => answer(false)}
-            style={{ flex: 1, minWidth: 130, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem 1rem', borderRadius: 'var(--radius-md, 10px)', border: '1px solid rgba(245,158,11,0.5)', background: 'rgba(245,158,11,0.12)', color: '#fbbf24', fontWeight: 700, font: 'inherit', cursor: 'pointer' }}
-          >
-            <Icon name="flag" size={18} aria-hidden /> Radši ne
-          </button>
-        </div>
-      ) : (
-        <div aria-live="polite">
-          <div
-            style={{
-              display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-start',
-              padding: 'var(--space-sm) var(--space-md)', borderRadius: 'var(--radius-md, 10px)',
-              background: correct ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
-              border: `1px solid ${correct ? 'rgba(16,185,129,0.4)' : 'rgba(245,158,11,0.4)'}`,
-            }}
-          >
-            <Icon name={correct ? 'check-circle' : 'alert-triangle'} size={22} color={correct ? 'var(--lg-green-500, #10B981)' : '#F59E0B'} aria-hidden />
-            <div>
-              <p style={{ fontWeight: 700, margin: 0 }}>
-                {correct ? 'Správně!' : 'Pozor!'} {s.worth ? 'Tady dluh dává smysl.' : 'Tady je dluh spíš past.'}
-              </p>
-              <p style={{ margin: '0.3rem 0 0', fontSize: '0.92rem', lineHeight: 1.5, opacity: 0.85 }}>{s.explain}</p>
-            </div>
+    <div className="tl-ex">
+      <div className="tl-quiz tl-quiz--run">
+        <div className="tl-quiz__side">
+          <div className="tl-quiz__head">
+            <span className="ui-steps">Situace {i + 1} z {SCENARIOS.length}</span>
+            <div className="ui-progress" aria-hidden="true"><span style={{ width: `${(answered / SCENARIOS.length) * 100}%` }} /></div>
           </div>
-          <button type="button" className="btn btn--primary" onClick={next} style={{ marginTop: 'var(--space-md)' }}>
-            {i + 1 >= SCENARIOS.length ? 'Zobrazit výsledek' : 'Další situace →'}
-          </button>
+          {scoreboard}
         </div>
-      )}
+        <div className="tl-quiz__main">
+          <p className="tl-quiz__prompt">{s.text}</p>
+
+          <ul className="ui-choices">
+            {options.map(o => {
+              const isAnswer = guess !== null && o.value === s.worth;
+              const isMiss = guess !== null && guess === o.value && !isAnswer;
+              return (
+                <li key={o.label}>
+                  <button
+                    type="button"
+                    className={`ui-choice${isAnswer ? ' is-correct' : ''}${isMiss ? ' is-wrong' : ''}`}
+                    aria-disabled={guess !== null}
+                    onClick={() => answer(o.value)}
+                  >
+                    <span className="tl-choice__text">{o.label}</span>
+                    {guess === o.value && <span className="tl-choice__end">tvoje odpověď</span>}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          {guess !== null && (
+            <div className="tl-quiz__feedback" aria-live="polite">
+              <p className={`ui-note ${correct ? 'ui-note--ok' : 'ui-note--danger'}`}>
+                <strong>{correct ? 'Správně.' : 'Vedle.'} {s.worth ? 'Tady dluh dává smysl.' : 'Tady je dluh spíš past.'}</strong>{' '}
+                {s.explain}
+              </p>
+              <div className="tl-quiz__actions">
+                <button type="button" className="btn btn--primary" onClick={next}>
+                  {i + 1 >= SCENARIOS.length ? 'Zobrazit výsledek' : 'Další situace'}
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
     </div>
   );
 };

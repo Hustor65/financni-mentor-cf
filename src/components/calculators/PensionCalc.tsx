@@ -1,9 +1,16 @@
 import React, { useState, useMemo, lazy, Suspense } from 'react';
 const ReactECharts = lazy(() => import('echarts-for-react'));
 import { ChartSkeleton } from '../ChartSkeleton';
-import { czStatePension, czRetirementAgeMonths, czNum } from '../../utils/calculators';
+import { czStatePension, czRetirementAgeMonths } from '../../utils/calculators';
 import { PENSION_AVG_WAGE_2026 } from '../../data/constants';
+import { CHART } from '../../utils/chartTheme';
 import { NumberField } from '../NumberField';
+import { kc, pct, moneyLineChart, CHART_HEIGHT, CHART_STYLE } from './shared';
+
+const PROJ_YEARS = 15;
+const PROJ_START = 2026;
+const PROJ_GROWTH = 0.04;   // roční valorizace důchodu
+const PROJ_INFLATION = 0.03;
 
 export const PensionCalc: React.FC = () => {
   const [salary, setSalary] = useState(PENSION_AVG_WAGE_2026);
@@ -20,101 +27,78 @@ export const PensionCalc: React.FC = () => {
   const replacementRatio = salary >= 10000 ? Math.round((result.total / salary) * 100) : null;
 
   const projOption = useMemo(() => {
-    const startYear = 2026;
-    const projYears = 15;
-    const inflRate = 0.03;
-    const growthRate = 0.04;
-    const years = Array.from({ length: projYears + 1 }, (_, i) => startYear + i);
-    const nominal = years.map((_, i) => Math.round(result.total * Math.pow(1 + growthRate, i)));
-    const real = years.map((_, i) => Math.round(result.total * Math.pow(1 + growthRate, i) * Math.pow(1 / (1 + inflRate), i)));
-
-    return {
-      aria: { enabled: true }, // textový popis grafu pro čtečky (canvas je jinak neviditelný)
-      animationDuration: 1400, animationEasing: 'cubicOut',
-      grid: { left: 10, right: 24, top: 30, bottom: 50, containLabel: true },
-      tooltip: {
-        trigger: 'axis',
-        backgroundColor: 'rgba(11, 22, 41, 0.92)',
-        borderColor: 'rgba(58,181,224,0.35)', borderWidth: 1,
-        textStyle: { color: '#e2e8f0', fontFamily: 'Inter, sans-serif' },
-      },
-      legend: {
-        data: ['Důchod nominálně', 'Důchod dnešními penězi'],
-        bottom: 6, left: 'center', icon: 'roundRect',
-        textStyle: { color: '#94a3b8', fontSize: 11 },
-      },
-      xAxis: {
-        type: 'category', data: years.map(String), boundaryGap: false,
-        axisLabel: { color: '#64748b', fontSize: 10 },
-        axisLine: { lineStyle: { color: 'rgba(148,163,184,0.25)' } },
-      },
-      yAxis: {
-        type: 'value', axisLine: { show: false },
-        axisLabel: { color: '#64748b', fontSize: 10 },
-        splitLine: { lineStyle: { color: 'rgba(148,163,184,0.08)', type: 'dashed' } },
-      },
-      series: [
-        {
-          name: 'Důchod dnešními penězi', type: 'line', smooth: true, showSymbol: false, data: real, z: 2,
-          lineStyle: { color: '#3ab5e0', width: 1.8, type: 'dashed' }, itemStyle: { color: '#3ab5e0' },
-          areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(58,181,224,0.12)' }, { offset: 1, color: 'rgba(58,181,224,0.0)' }] } },
-          markPoint: {
-            symbol: 'circle', symbolSize: 8,
-            itemStyle: { color: '#3ab5e0', borderColor: '#ffffff', borderWidth: 1.5 },
-            label: { show: true, position: 'left', distance: 10, fontFamily: 'Space Grotesk', fontSize: 10, fontWeight: 700, color: '#3ab5e0', backgroundColor: 'rgba(8,28,46,0.85)', padding: [3, 6], borderRadius: 5, formatter: `reálně ${czNum(real[real.length - 1] || 0)} Kč` },
-            data: [{ type: 'max' }],
-          },
-        },
-        {
-          name: 'Důchod nominálně', type: 'line', smooth: true, showSymbol: false, data: nominal, z: 3,
-          lineStyle: { color: '#10b981', width: 2.6, shadowColor: 'rgba(16,185,129,0.55)', shadowBlur: 14 },
-          itemStyle: { color: '#10b981' },
-          areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(16,185,129,0.55)' }, { offset: 0.55, color: 'rgba(16,185,129,0.15)' }, { offset: 1, color: 'rgba(16,185,129,0.0)' }] } },
-          markPoint: {
-            symbol: 'circle', symbolSize: 9,
-            itemStyle: { color: '#10b981', borderColor: '#ffffff', borderWidth: 2, shadowColor: 'rgba(16,185,129,0.7)', shadowBlur: 14 },
-            label: { show: true, position: 'left', distance: 10, fontFamily: 'Space Grotesk', fontSize: 10, fontWeight: 700, color: '#10b981', backgroundColor: 'rgba(2,44,34,0.85)', padding: [3, 6], borderRadius: 5, formatter: `nominálně ${czNum(nominal[nominal.length - 1] || 0)} Kč` },
-            data: [{ type: 'max' }],
-          },
-        },
+    const years = Array.from({ length: PROJ_YEARS + 1 }, (_, i) => PROJ_START + i);
+    const nominal = years.map((_, i) => Math.round(result.total * Math.pow(1 + PROJ_GROWTH, i)));
+    const real = years.map((_, i) => Math.round(result.total * Math.pow(1 + PROJ_GROWTH, i) * Math.pow(1 / (1 + PROJ_INFLATION), i)));
+    return moneyLineChart({
+      labels: years.map(String),
+      lines: [
+        { name: 'Důchod v korunách', data: nominal, color: CHART.up, main: true },
+        { name: 'V dnešních cenách', data: real, color: CHART.cyan, dashed: true },
       ],
-    };
+    });
   }, [result.total]);
 
   return (
-    <div>
-      <div className="calc-form">
-        <NumberField label="Hrubá měsíční mzda" suffix="Kč" value={salary} onChange={setSalary}
-          min={0} sliderMin={10000} sliderMax={150000} step={1000} />
-        <NumberField label="Doba pojištění" suffix="let" value={yearsIns} onChange={setYearsIns}
-          min={0} max={60} sliderMin={15} sliderMax={50} step={1} />
-        <NumberField label="Ročník narození" value={birthYear} onChange={setBirthYear}
-          min={1940} max={2010} sliderMin={1960} sliderMax={2010} step={1} />
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', margin: '1rem 0' }}>
-        <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Odhad důchodu</div>
-          <div className="grad-text--green" style={{ fontSize: '1.3rem', fontWeight: 700 }}>{czNum(result.total)} Kč</div>
+    <div className="tl-calc">
+      <div className="tl-calc__grid">
+        <div className="tl-inputs">
+          <NumberField label="Hrubá měsíční mzda" suffix="Kč" value={salary} onChange={setSalary}
+            min={0} max={1000000} sliderMin={10000} sliderMax={150000} step={1000} />
+          <NumberField label="Doba pojištění" suffix="let" value={yearsIns} onChange={setYearsIns}
+            min={0} max={60} sliderMin={15} sliderMax={50} step={1} />
+          <NumberField label="Ročník narození" plain value={birthYear} onChange={setBirthYear}
+            min={1940} max={2010} sliderMin={1960} sliderMax={2010} step={1} />
         </div>
-        <div className="glass-panel" title="Jaká část tvojí dnešní mzdy ti zůstane v podobě státního důchodu." style={{ padding: '1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Náhradový poměr</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: replacementRatio !== null && replacementRatio >= 50 ? 'var(--lg-green-500)' : 'var(--lg-cyan-400)' }}>{replacementRatio !== null ? `${replacementRatio} %` : '—'}</div>
+
+        <div className="tl-out">
+          <p className="ui-hero-num tl-hero">
+            <span className="ui-hero-num__label">Odhad státního důchodu měsíčně</span>
+            {kc(result.total)}
+          </p>
+          <dl className="ui-kpis">
+            <div>
+              <dt>Náhradový poměr</dt>
+              <dd className={replacementRatio !== null && replacementRatio >= 50 ? 'is-up' : undefined}>
+                {replacementRatio !== null ? pct(replacementRatio, 0) : '—'}
+                <small>tolik z dnešní mzdy ti zůstane</small>
+              </dd>
+            </div>
+            <div>
+              <dt>Důchodový věk</dt>
+              <dd>{retYears} let{retMonths > 0 ? ` a ${retMonths} měs.` : ''}</dd>
+            </div>
+            <div>
+              <dt>Základní výměra</dt>
+              <dd>{kc(result.baseAmount)}</dd>
+            </div>
+            <div>
+              <dt>Procentní výměra</dt>
+              <dd>{kc(result.percentAmount)}</dd>
+            </div>
+          </dl>
+          <div className="tl-chart">
+            <p className="tl-chart__cap">Jak by důchod rostl v prvních {PROJ_YEARS} letech</p>
+            <Suspense fallback={<ChartSkeleton height={CHART_HEIGHT} bare />}>
+              <ReactECharts option={projOption} style={CHART_STYLE} opts={{ renderer: 'canvas' }} />
+            </Suspense>
+          </div>
+          <div className="tl-read">
+            <p>
+              Důchod se skládá ze základní výměry, kterou dostane každý, a z procentní výměry podle výdělku a
+              odpracovaných let.{' '}
+              {replacementRatio !== null
+                ? <>Ze mzdy {kc(salary)} ti stát nahradí zhruba {pct(replacementRatio, 0)}. Zbytek je na tobě.</>
+                : <>Zadej mzdu aspoň 10 000 Kč a ukážeme, jakou její část ti důchod nahradí.</>}
+            </p>
+            <p className="ui-small">
+              Zjednodušený odhad podle pravidel ČSSZ pro rok 2026. Jako osobní vyměřovací základ bereme tvoji dnešní
+              hrubou mzdu, bez indexace dřívějších výdělků. Graf počítá s valorizací {pct(PROJ_GROWTH * 100, 0)} a
+              inflací {pct(PROJ_INFLATION * 100, 0)} ročně. Skutečný důchod se může lišit.
+            </p>
+          </div>
         </div>
-        <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Důchodový věk</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)' }}>{retYears} let{retMonths > 0 ? ` a ${retMonths} měs.` : ''}</div>
-        </div>
       </div>
-      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-        Základní výměra: {czNum(result.baseAmount)} Kč • Procentní výměra: {czNum(result.percentAmount)} Kč
-      </div>
-      <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: '0.75rem' }}>
-        Zjednodušený odhad podle pravidel ČSSZ 2026 — jako osobní vyměřovací základ bereme tvoji
-        dnešní hrubou mzdu (bez indexace dřívějších výdělků). Skutečný důchod z ČSSZ se může lišit.
-      </div>
-      <Suspense fallback={<ChartSkeleton height={280} />}>
-        <ReactECharts option={projOption} style={{ height: 280 }} opts={{ renderer: 'canvas' }} />
-      </Suspense>
     </div>
   );
 };

@@ -1,6 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { GLOSSARY } from '../../data/knowledge';
-import { Icon } from '../Icon';
 
 function removeDiacritics(s: string): string {
   return s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -13,8 +12,14 @@ function plural(n: number, forms: [string, string, string]): string {
   return forms[2];
 }
 
+/** kolik pojmů je vidět, dokud návštěvník nehledá ani si nerozbalí celý seznam */
+const PREVIEW = 6;
+
 export const Glossary: React.FC = () => {
   const [search, setSearch] = useState('');
+  const [showAll, setShowAll] = useState(false);
+  const inputId = useId();
+  const listId = useId();
 
   const filtered = useMemo(() => {
     const base = !search.trim()
@@ -27,63 +32,63 @@ export const Glossary: React.FC = () => {
     return [...base].sort((a, b) => a.term.localeCompare(b.term, 'cs'));
   }, [search]);
 
-  // (reveal karet řeší jediná instance useScrollReveal v App.tsx přes MutationObserver — M36)
+  const searching = search.trim().length > 0;
+  const visible = searching || showAll ? filtered : filtered.slice(0, PREVIEW);
 
   return (
-    <div>
-      <span className="eyebrow">Finanční pojmy</span>
-      <p className="section-header" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-        <Icon name="book-open" size={24} color="#3ab5e0" />
-        Finanční slovníček
-      </p>
-      <p className="section-desc">
-        Rychlé a srozumitelné definice nejdůležitějších finančních pojmů. Hledat můžeš podle názvu i podle obsahu definice.
+    <section className="ui-sec ak-gloss">
+      <h2 className="ui-sec__title">Slovníček</h2>
+      <p className="ui-sec__lead">
+        Krátké definice pojmů, na které v tématech narazíš. Hledat můžeš v názvu i v textu definice.
       </p>
 
-      {/* Search s ikonou lupy + počítadlo (vyplní řádek do plné šířky) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-        <div style={{ position: 'relative', flex: '1 1 320px', maxWidth: '480px' }}>
-          <span style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </span>
+      <div className="ak-gloss__bar">
+        <div className="ui-field ak-gloss__search">
+          <label htmlFor={inputId}>Hledat pojem</label>
           <input
-            className="form-input"
-            style={{ width: '100%', paddingLeft: '2.5rem' }}
-            type="text"
-            placeholder="Hledat pojem… (např. ETF, inflace, dividenda)"
+            id={inputId}
+            type="search"
+            placeholder="např. ETF, inflace, dividenda"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            aria-label="Hledat ve slovníčku"
+            autoComplete="off"
           />
         </div>
-        <span aria-live="polite" style={{ color: 'var(--text-muted)', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
-          {search.trim()
+        <span className="ak-gloss__count num" aria-live="polite">
+          {searching
             ? `${filtered.length} ${plural(filtered.length, ['výsledek', 'výsledky', 'výsledků'])}`
-            : `Celkem ${GLOSSARY.length} ${plural(GLOSSARY.length, ['pojem', 'pojmy', 'pojmů'])} ve slovníčku`}
+            : `${GLOSSARY.length} ${plural(GLOSSARY.length, ['pojem', 'pojmy', 'pojmů'])}`}
         </span>
       </div>
 
-      {/* 2-sloupcová mřížka karet */}
-      <div className="glossary-grid">
-        {filtered.map((g, i) => (
-          <div key={g.term} className="glossary-card glass-panel glass-panel--sunken reveal" style={{ ['--reveal-i' as string]: i % 4 }}>
-            <div className="glossary-card__term">
-              <span className="glossary-card__dot" />
-              {g.term}
+      {visible.length > 0 && (
+        <dl className="ak-gloss__list" id={listId}>
+          {visible.map(g => (
+            <div key={g.term} className="ak-gloss__item">
+              <dt>{g.term}</dt>
+              <dd>{g.def}</dd>
             </div>
-            <div className="glossary-card__def">{g.def}</div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </dl>
+      )}
+
+      {!searching && GLOSSARY.length > PREVIEW && (
+        <button
+          type="button"
+          className="btn ak-gloss__toggle"
+          aria-expanded={showAll}
+          aria-controls={listId}
+          onClick={() => setShowAll(v => !v)}
+        >
+          {showAll ? 'Zobrazit jen začátek' : `Zobrazit všech ${GLOSSARY.length} ${plural(GLOSSARY.length, ['pojem', 'pojmy', 'pojmů'])}`}
+        </button>
+      )}
 
       {filtered.length === 0 && (
-        <div role="status" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem', fontSize: '0.88rem' }}>
-          Tomuto hledání neodpovídá žádný pojem. Zkus jiné nebo kratší slovo — anebo se rovnou zeptej AI Mentora.
-        </div>
+        <p className="ui-note ak-gloss__empty" role="status">
+          Tomuhle hledání neodpovídá žádný pojem. Zkus kratší slovo, nebo se zeptej mentora.
+        </p>
       )}
-    </div>
+    </section>
   );
 };

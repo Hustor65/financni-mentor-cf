@@ -3,85 +3,81 @@ import { DATA_SOURCES, CONTENT_LAST_UPDATED } from '../../data/constants';
 import { HallucinationDemo } from './HallucinationDemo';
 
 export const TrustCenter: React.FC = () => (
-  <div>
-    {/* ── ČÁST 1: Interaktivní demo halucinace ── */}
+  <div className="tr">
+    <header className="page-head">
+      <h1 className="page-title">Přesnost</h1>
+      <p className="page-lead">Jazykové modely čísla odhadují. Tenhle web je počítá.</p>
+    </header>
+
+    <section className="ui-sec">
+      <div className="ui-prose">
+        <p>
+          Jazykový model skládá odpověď slovo za slovem podle toho, co nejpravděpodobněji následuje.
+          U textu to funguje dobře. U čísel to znamená, že výsledek nevypočítá, ale odhadne —
+          a napíše ho stejně sebejistě, ať je správně, nebo ne.
+        </p>
+        <p>
+          U peněz je to potíž. Částka, která vypadá věrohodně a je o pár tisíc vedle, projde bez
+          povšimnutí.
+        </p>
+      </div>
+    </section>
+
     <HallucinationDemo />
 
-    {/* ── ČÁST 2: Centrum důvěry ── */}
-    <div style={{ height: 'var(--section-gap)' }} />
+    <section className="ui-sec">
+      <h2 className="ui-sec__title">Jak to děláme my</h2>
+      <div className="ui-prose">
+        <p>
+          <strong>Čísla počítá kód webu.</strong> Kalkulačky počítají podle vzorců přímo ve tvém
+          prohlížeči, ne přes umělou inteligenci.
+        </p>
+        <p>
+          <strong>Mentor nepočítá zpaměti.</strong> Aktuální ceny akcií, fondů a kryptoměn si načítá
+          z tržních dat. Když chceš propočet vlastních čísel, má tě poslat do kalkulačky.
+        </p>
+        <p>
+          <strong>Výklad se opírá o Akademii.</strong> K otázce dostane mentor související texty
+          z Akademie a slovníčku. Když z nich čerpá, vypíše je pod odpovědí jako zdroje.
+        </p>
+        <p>
+          <strong>I tak se může splést.</strong> Mentor je jazykový model. Důležité věci si ověř
+          ve zdrojích níže.
+        </p>
+        <p>
+          <strong>Nic neprodáváme.</strong> Web není napojený na žádného brokera ani fond a nebere
+          provize. Když zmíní konkrétní produkt, je to příklad, ne doporučení.
+        </p>
+      </div>
+    </section>
 
-    <span className="eyebrow eyebrow--cyan">Přesnost a důvěra</span>
-    <p className="section-header">Důvěra a metodika — bereme ji vážně</p>
-    <p className="section-desc">
-      Ve financích jsou přesnost a transparentnost základ.
-      Tady jasně uvidíš, odkud bereme čísla a proč jsme nezávislí.
-    </p>
-
-    {/* Právní upozornění a rizika jsou v zápatí stránky — zde je už neopakujeme. */}
-
-    {/* Nezávislost — editorial fact-box (levý zelený okraj) */}
-    <div className="fact-box fact-box--green reveal" style={{ marginBottom: '1rem', ['--reveal-i' as string]: 0 }}>
-      <p className="fact-box__title fact-box__title--green">
-        <span style={{ display: 'inline-flex' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-        </span>
-        Nezávislost — vzděláváme, neprodáváme
+    <section className="ui-sec">
+      <h2 className="ui-sec__title">Zdroje a metodika</h2>
+      <p className="ui-sec__lead">
+        Parametry daní a důchodů platí pro rok 2026. Obsah jsme naposledy aktualizovali{' '}
+        {CONTENT_LAST_UPDATED}.
       </p>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.7, margin: 0 }}>
-        Nejsme napojení na žádného brokera ani fond a obsah nepíšeme proto, abychom ti prodali konkrétní produkt.
-        (Broker = firma, přes kterou nakupuješ a prodáváš cenné papíry.)
-        Cílem je <strong style={{ color: '#FFFFFF' }}>nezávislé vzdělávání</strong> — žádné skryté provize za to,
-        kam tě nasměrujeme. Když zmíníme konkrétní produkt, je to jen pro ilustraci, ne jako reklama.
-      </p>
-    </div>
-
-    {/* Zdroje a metodika — editorial fact-box (levý azurový okraj) */}
-    <div
-      className="fact-box fact-box--cyan reveal"
-      style={{ marginTop: '1rem', ['--reveal-i' as string]: 1 }}
-    >
-      <p className="fact-box__title fact-box__title--cyan">
-        <span style={{ display: 'inline-flex' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-          </svg>
-        </span>
-        Zdroje a metodika
-      </p>
-
-      <ul style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.6, margin: '0 0 0.9rem', paddingLeft: '1.1rem' }}>
-        {DATA_SOURCES.map((ds) => (
-          <li key={ds.name} style={{ marginBottom: '0.45rem' }}>
-            <a
-              href={ds.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: 'var(--lg-cyan-400)', textDecoration: 'none', fontWeight: 600 }}
-            >
+      <ul className="ui-rows tr-sources">
+        {DATA_SOURCES.map(ds => (
+          <li key={ds.name}>
+            <a className="text-link" href={ds.url} target="_blank" rel="noopener noreferrer">
               {ds.name}
             </a>
-            <span style={{ color: 'var(--text-muted)' }}> — {ds.use}</span>
+            <span>{ds.use}</span>
           </li>
         ))}
+        <li>
+          <a className="text-link" href="https://finance.yahoo.com/" target="_blank" rel="noopener noreferrer">
+            Yahoo Finance
+          </a>
+          <span>Ceny akcií, fondů, indexů a kryptoměn; mohou být o několik minut zpožděné</span>
+        </li>
       </ul>
-
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7, margin: '0 0 0.6rem' }}>
-        Číselné výpočty stojí na <strong style={{ color: '#FFFFFF' }}>přesné matematice</strong> (počítané v Pythonu){' '}
-        a na oficiálních parametrech (ČNB, ČSSZ, ČSÚ) — žádné „tipování“ ze strany jazykového modelu.
-        Vzdělávací obsah pravidelně kontrolujeme a aktualizujeme.
+      <p className="tr-contact">
+        Našel jsi chybu? Napiš na{' '}
+        <a className="text-link" href="mailto:jakub.simon65@gmail.com">jakub.simon65@gmail.com</a>{' '}
+        a opravíme ji.
       </p>
-
-      <p className="data-note" style={{ margin: 0 }}>
-        Našel jsi nepřesnost? Napiš nám na{' '}
-        <a href="mailto:jakub.simon65@gmail.com" style={{ color: 'var(--lg-cyan-400)', textDecoration: 'none' }}>
-          jakub.simon65@gmail.com
-        </a>{' '}
-        — opravíme to a opravu zveřejníme. (Obsah naposledy aktualizován:{' '}
-        <strong>{CONTENT_LAST_UPDATED}</strong>.)
-      </p>
-    </div>
+    </section>
   </div>
 );

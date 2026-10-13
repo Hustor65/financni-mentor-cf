@@ -1,16 +1,10 @@
-import { Icon } from '../Icon';
-
 export const TypingIndicator: React.FC = () => (
-  <div className="chat-message">
-    <div className="chat-message__avatar">
-      <Icon name="avatar-assistant" size={36} />
-    </div>
-    <div className="chat-message__content">
-      <div className="typing-indicator">
-        <span className="typing-indicator__dot" />
-        <span className="typing-indicator__dot" />
-        <span className="typing-indicator__dot" />
-      </div>
+  <div className="mn-msg mn-msg--assistant" role="status">
+    <span className="sr-only">Mentor píše odpověď…</span>
+    <div className="mn-typing" aria-hidden="true">
+      <span />
+      <span />
+      <span />
     </div>
   </div>
 );

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useId, useLayoutEffect, useState } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { TypingIndicator } from './TypingIndicator';
 import { ChatEmptyState, type ChatSuggestion } from './ChatEmptyState';
@@ -7,6 +7,13 @@ import { Icon } from '../Icon';
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
+  /** místo odpovědi přišla hláška o chybě nebo limitu */
+  error?: boolean;
+}
+
+export interface ChatTopic {
+  title: string;
+  desc: string;
 }
 
 interface ChatPanelProps {
@@ -26,6 +33,10 @@ interface ChatPanelProps {
   onToggleFullscreen: (trigger: HTMLButtonElement) => void;
   /** návrhové dotazy do uvítací obrazovky (empty state) */
   suggestions: ChatSuggestion[];
+  /** okruhy, se kterými mentor pomůže (rozbalovací nápověda v hlavičce) */
+  topics: ChatTopic[];
+  /** smaže konverzaci a začne novou */
+  onReset: () => void;
   /** akce na POSLEDNÍ odpovědi mentora */
   onRetry?: () => void;
   onSimplify?: () => void;
@@ -34,9 +45,9 @@ interface ChatPanelProps {
 }
 
 /**
- * ChatPanel — jeden ucelený skleněný panel: scrollující zprávy nahoře +
- * "doku" composer dole (vzor ChatGPT/Claude). Použitý 1:1 inline v gridu
- * i uvnitř fullscreen <dialog> — žádná duplikace logiky odesílání.
+ * ChatPanel — jedna plocha chatu: lišta, scrollující zprávy a pole pro psaní.
+ * Použitý 1:1 na stránce i uvnitř fullscreen <dialog> — žádná duplikace
+ * logiky odesílání.
  */
 export const ChatPanel: React.FC<ChatPanelProps> = ({
   messages,
@@ -50,12 +61,17 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   isFullscreen,
   onToggleFullscreen,
   suggestions,
+  topics,
+  onReset,
   onRetry,
   onSimplify,
   followUps,
 }) => {
+  const [helpOpen, setHelpOpen] = useState(false);
+  const helpId = useId();
+
   // Dokud uživatel nenapsal první zprávu (v poli je jen uvítací zpráva), ukaž
-  // bohatý empty state místo holé bubliny v prázdné ploše.
+  // úvod s návrhy otázek místo osamocené zprávy v prázdné ploše.
   const showEmptyState = messages.length <= 1 && !isLoading;
 
   // čekáme na první kus streamované odpovědi (poslední zpráva je prázdný assistant)
@@ -65,7 +81,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   // navazující chipy ukaž jen pod DOKONČENOU poslední odpovědí mentora
   const showFollowUps =
     !showEmptyState && !isLoading && !!followUps?.length &&
-    last?.role === 'assistant' && last.content !== '';
+    last?.role === 'assistant' && last.content !== '' && !last.error;
 
   // Auto-grow textarey podle obsahu — spolehlivé i tam, kde CSS field-sizing není
   // podporované (uživatel pak nemusí scrollovat uvnitř malého pole).
@@ -77,19 +93,63 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   }, [input, textareaRef]);
 
   return (
-    <div className={`chat-panel${showEmptyState ? ' chat-panel--empty' : ''}`}>
+    <div className={`ui-panel mn-chat${showEmptyState ? ' mn-chat--empty' : ''}${isFullscreen ? ' mn-chat--full' : ''}`}>
+      {/* ── Lišta ── */}
+      <div className="mn-chat__bar">
+        {isFullscreen && <h2 className="mn-chat__name">AI mentor</h2>}
+        <button
+          type="button"
+          className="mn-bar-btn"
+          aria-expanded={helpOpen}
+          aria-controls={helpId}
+          onClick={() => setHelpOpen(o => !o)}
+        >
+          S čím pomůžu
+          <Icon name="chevron-down" size={16} className="mn-bar-btn__chev" aria-hidden />
+        </button>
+        <span className="mn-chat__gap" />
+        {!showEmptyState && (
+          <button type="button" className="mn-bar-btn" onClick={onReset} disabled={isLoading}>
+            Nová konverzace
+          </button>
+        )}
+        <button
+          type="button"
+          className="mn-bar-btn mn-bar-btn--icon"
+          onClick={e => onToggleFullscreen(e.currentTarget)}
+          aria-label={isFullscreen ? 'Zavřít celou obrazovku' : 'Rozšířit na celou obrazovku'}
+          title={isFullscreen ? 'Zavřít celou obrazovku' : 'Celá obrazovka'}
+        >
+          <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={18} aria-hidden />
+          {isFullscreen && <span>Zavřít</span>}
+        </button>
+      </div>
+
+      <div id={helpId} className="mn-help" hidden={!helpOpen}>
+        <div className="mn-help__inner">
+          <ul className="mn-help__list">
+            {topics.map(t => (
+              <li key={t.title}>
+                <strong>{t.title}</strong>
+                <span>{t.desc}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mn-help__note">
+            Mentor vysvětluje, jak věci fungují, a ukazuje souvislosti. Tvoje konkrétní peníze neřeší —
+            s větším rozhodnutím se poraď s někým, kdo má licenci ČNB.
+          </p>
+        </div>
+      </div>
+
       {/* ── Scrollující zprávy ── */}
-      <div
-        className="chat-messages"
-        role="region"
-        aria-label="Konverzace"
-      >
-        <div className="chat-messages__inner">
+      <div className="mn-list" role="region" aria-label="Konverzace">
+        <div className="mn-list__inner">
           {showEmptyState ? (
             <ChatEmptyState suggestions={suggestions} onPick={onSend} disabled={isLoading} />
           ) : (
             messages.map((msg, i) => {
-              // poslední, zatím prázdnou odpověď nevykresluj jako bublinu —
+              // poslední, zatím prázdnou odpověď nevykresluj —
               // místo ní je níže typing indikátor (dokud nepřijde první text)
               if (i === messages.length - 1 && waitingFirstChunk) return null;
               const isLastAnswer =
@@ -99,23 +159,24 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                   key={i}
                   role={msg.role}
                   content={msg.content}
+                  isError={msg.error}
+                  bare={i === 0 && msg.role === 'assistant'}
                   onRetry={isLastAnswer ? onRetry : undefined}
-                  onSimplify={isLastAnswer ? onSimplify : undefined}
+                  onSimplify={isLastAnswer && !msg.error ? onSimplify : undefined}
                 />
               );
             })
           )}
           {showFollowUps && (
-            <div className="chat-followups">
-              {followUps!.map((f, i) => (
+            <div className="mn-follow">
+              {followUps!.map(f => (
                 <button
-                  key={i}
+                  key={f.label}
                   type="button"
-                  className="chat-followup"
+                  className="mn-follow__btn"
                   onClick={() => onSend(f.prompt)}
                   disabled={isLoading}
                 >
-                  <Icon name={f.icon} size={14} />
                   {f.label}
                 </button>
               ))}
@@ -126,47 +187,35 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </div>
 
-      {/* ── Doku composer ── */}
-      <div className="chat-composer">
-        <div className="chat-composer__row">
-          <div className="chat-composer__field">
+      {/* ── Pole pro psaní ── */}
+      <div className="mn-chat__foot">
+        <div className="mn-chat__foot-inner">
+          <div className="mn-composer">
             <textarea
               ref={textareaRef}
-              className="chat-input"
+              className="mn-composer__input"
               value={input}
               onChange={e => onInputChange(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Zeptej se na cokoli o penězích…"
+              placeholder="Napiš otázku…"
               rows={1}
               readOnly={isLoading}
               aria-label="Napiš zprávu"
             />
-            <div className="chat-composer__actions">
-              <button
-                type="button"
-                className="composer-icon-btn"
-                onClick={e => onToggleFullscreen(e.currentTarget)}
-                aria-label={isFullscreen ? 'Zavřít celou obrazovku' : 'Rozšířit na celou obrazovku'}
-                title={isFullscreen ? 'Zavřít' : 'Celá obrazovka'}
-              >
-                <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={18} />
-              </button>
-              <button
-                type="button"
-                className="btn composer-send-btn"
-                onClick={() => onSend(input)}
-                disabled={isLoading || !input.trim()}
-                aria-label="Odeslat zprávu"
-              >
-                <Icon name="arrow-right" size={18} />
-              </button>
-            </div>
+            <button
+              type="button"
+              className="btn btn--primary mn-composer__send"
+              onClick={() => onSend(input)}
+              disabled={isLoading || !input.trim()}
+              aria-label="Odeslat zprávu"
+            >
+              Odeslat
+            </button>
           </div>
+          <p className="mn-chat__note">
+            Mentor vysvětluje, není to finanční poradce. Může se splést, důležité věci si ověř.
+          </p>
         </div>
-        <p className="chat-composer__hint">
-          <Icon name="info" size={12} color="#64748B" />
-          Vzdělávací nástroj, nikoli investiční doporučení. AI se může mýlit — důležité informace si radši ověř.
-        </p>
       </div>
     </div>
   );
