@@ -501,3 +501,30 @@
   .gg-chart__plot, .gg-chart__move, .gg-chart__hidden.is-shown { transition: none; }
   .gg-say__reveal, .gg-next .btn, .tb__msg .ui-note, .mx-rail__body.is-open { animation: none; }
 }
+
+/* ── Jak si vedou sektory ── */
+.mx-sectors.ui-sec { margin-top: var(--s-7); }
+.mx-sectors__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--s-3) var(--s-6); margin-bottom: var(--s-4); }
+.mx-sectors__head .ui-sec__lead { margin-bottom: 0; }
+.mx-bars { list-style: none; margin: 0; padding: 0; display: grid; }
+.mx-bar {
+  display: grid; grid-template-columns: minmax(0, 13rem) 1fr 4.5rem; align-items: center; gap: var(--s-4);
+  width: 100%; padding: var(--s-2) var(--s-2); border: 0; border-bottom: 1px solid var(--line);
+  background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer;
+}
+.mx-bar:hover, .mx-bar.is-active { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.mx-bar.is-active .mx-bar__name { color: var(--accent); }
+.mx-bar__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.mx-bar__track { position: relative; height: 10px; }
+.mx-bar__track::before { content: ''; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 1px; background: var(--line); }
+.mx-bar__fill { position: absolute; top: 0; bottom: 0; border-radius: 2px; transition: width .4s ease; }
+.mx-bar__fill.is-up { background: var(--up); }
+.mx-bar__fill.is-down { background: var(--down); }
+.mx-bar__val { text-align: right; font-weight: 600; }
+.mx-sectors__note { margin-top: var(--s-5); max-width: var(--measure-text); }
+.mx-sectors__off { margin: var(--s-3) 0 0; }
+@media (max-width: 560px) {
+  .mx-bar { grid-template-columns: minmax(0, 1fr) 4.2rem; row-gap: var(--s-1); }
+  .mx-bar__track { grid-column: 1 / -1; grid-row: 2; }
+}
+@media (prefers-reduced-motion: reduce) { .mx-bar__fill { transition: none; } }

@@ -11,6 +11,8 @@ import './styles/screens/academy.css'
 import './styles/screens/tools.css'
 import './styles/screens/markets.css'
 import './styles/screens/mentor.css'
+// postup přenesený ze stánku (?postup=…) se musí načíst dřív, než se vykreslí web
+import './utils/transfer'
 import App from './App'
 import { KIOSK } from './utils/kiosk'
 

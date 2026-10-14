@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { TOPICS } from '../../data/topics';
 import { TOOLS } from '../tools/registry';
 import { ALL_INSTRUMENTS, fetchQuotes, fetchSeries, fmtPrice, fmtPct } from '../../utils/market';
@@ -6,7 +6,7 @@ import type { Quote, Series } from '../../utils/market';
 import type { Level } from '../../data/levels';
 import type { TabId } from '../../data/nav';
 // QR kód je potřeba jen na stánku → vlastní chunk
-const QrCode = lazy(() => import('../kiosk/QrCode').then(m => ({ default: m.QrCode })));
+import { TakeHome } from '../kiosk/TakeHome';
 import { useAccount } from '../../utils/account';
 import { KIOSK } from '../../utils/kiosk';
 import { START_CASH, totalPoints, useUserData } from '../../utils/store';
@@ -397,19 +397,7 @@ export const Home: React.FC<Props> = ({ level, completed, onNavigate, onOpenTopi
 
       {/* ── Stánek: web do kapsy. Jinde: nabídka účtu, dokud ho návštěvník nemá. ── */}
       {KIOSK ? (
-        <section className="hm-take hm-take--qr" aria-labelledby="hm-take">
-          <Suspense fallback={<div className="hm-take__qr" aria-hidden="true" />}>
-            <QrCode value={window.location.origin + '/'} label="QR kód s adresou tohoto webu" />
-          </Suspense>
-          <div className="hm-take__text">
-            <h2 id="hm-take">Vezmi si to s sebou</h2>
-            <p>
-              Namiř na kód foťák telefonu a pokračuj v klidu doma. Když si tam vytvoříš účet,
-              hotová témata i portfolio na zkoušku ti zůstanou.
-            </p>
-            <p className="hm-take__url">{window.location.host}</p>
-          </div>
-        </section>
+        <TakeHome />
       ) : !user && (
         <section className="hm-take" aria-labelledby="hm-take">
           <div className="hm-take__text">

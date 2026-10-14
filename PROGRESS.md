@@ -106,7 +106,7 @@
 - **Postup návštěvníka** je v jednom úložišti `src/utils/store.ts` (localStorage `fm-data`; úroveň, hotová témata, portfolio, rekord). Přihlášenému se synchronizuje do účtu; odhlášení lokální data maže.
 - **Portfolio na zkoušku:** `components/lab/PaperPortfolio.tsx` + `TradeBox.tsx` (i u grafu v Trzích), ceny v Kč přes `src/utils/portfolio.ts`.
 - **Odhadni graf:** `components/lab/GuessGame.tsx`, bere data ze snímků (funguje offline).
-- **Režim stánku:** otevřít web s `?stanek=1` (vypnout `?stanek=0`). Po 75 s nečinnosti výzva, po dalších 15 s reset (odhlášení, smazání postupu a chatu, návrat na úvod). Na Přehledu QR kód, odkazy ven jsou vypnuté.
+- **Režim stánku:** otevřít web s `?stanek=<kód>`, kód je v `.dev.vars` jako `KIOSK_CODE` a v kódu webu je jen jeho otisk (vypnout `?stanek=0`). Po 75 s nečinnosti výzva, po dalších 15 s reset (odhlášení, smazání postupu a chatu, návrat na úvod). Na Přehledu QR kód, odkazy ven jsou vypnuté.
 - **Offline:** `dist/sw.js` generuje plugin ve `vite.config.ts` ze `scripts/sw.template.js`. Kostra se ukládá hned, glóbus a snímky trhů až v režimu stánku (nebo při prvním použití). Bez sítě nejede jen mentor a ukládání do účtu.
 - **Hero:** three.js se stahuje až po načtení stránky (idle), na telefonu poloviční počet částic.
 - **Lokální test s DB:** `npx wrangler d1 execute financni-mentor --local --file db/schema.sql`, pak `npx wrangler pages dev dist --port 8788`.
@@ -141,3 +141,16 @@
 - **Obsah her:** `src/data/play.ts` pro všech 11 začátečnických témat. Čísla jsou spočitatelná ze zadání nebo převzatá z teorie — při změně teorie (sleva na poplatníka, limity DIP, časový test) upravit i tam. Pokročilá témata mají jen kvíz.
 - **Body:** `scores` v `utils/store.ts` (nejlepší pokus za hru a téma, opakováním nepřibývají, slučují se s účtem přes maximum). Na stránce tématu ukazatel „x z 100“, na kartách témat, na Přehledu a v Akademii úroveň (pět stupňů v `RANKS`) a odznaky (`Badges.tsx`, dřív nepoužité).
 - **Stav:** commitnuto a nasazeno 13. 10. 2026.
+
+## 34. Přenos postupu ze stánku a bezpečnost před veletrhem (14. 10. 2026)
+
+- **Vezmi si body s sebou (`utils/transfer.ts`, `components/kiosk/TakeHome.tsx`):** na stánku QR kód na Přehledu i v Akademii nese adresu `?postup=<kód>` s úrovní, hotovými tématy a body (bez portfolia, aby byl kód malý). Telefon postup při načtení přičte ke svému (`mergeData`, platí maximum), parametr z adresy smaže a v Akademii ukáže hlášení s nabídkou účtu.
+- **Režim stánku jen s kódem (`utils/kiosk.ts`):** `?stanek=1` už nefunguje, platí `?stanek=<KIOSK_CODE z .dev.vars>`. V kódu webu je jen SHA-256 otisk. Cizí odkaz tak nikomu nezapne mazání postupu na jeho telefonu.
+- **Přihlášení (`functions/api/account.ts`):** k limitu 8 pokusů za 10 minut na IP a účet přibyl strop 40 pokusů za hodinu na účet z libovolných IP.
+- **Tržní data (`functions/api/market.ts`):** odstraněny nepoužívané typy `stock`, `crypto`, `summary`, `history` (bez cache a bez kontroly vstupu). Kotace se cachují po jednotlivých symbolech, takže přeházený seznam nespustí nové dotazy na Yahoo. Chyby už nevrací text výjimky.
+
+## 35. Sektory na obrazovce Trhy (14. 10. 2026)
+
+- **Sektorová ETF (`utils/market.ts`, skupina `Sektory`, export `SECTORS`):** 11 odvětví S&P 500 přes SPDR ETF (XLK, XLV, XLF, XLE, XLY, XLP, XLI, XLU, XLB, XLRE, XLC) s popisem pro začátečníky. Jsou v seznamu titulů, v hledání i v portfoliu na zkoušku.
+- **Jak si vedou sektory (`components/market/SectorBoard.tsx`):** pod grafem pruhy seřazené od nejlepšího za den (kotace), měsíc nebo rok (roční řada, načte se až po přepnutí), shrnutí nejlepšího a nejhoršího a vysvětlení, proč diverzifikovat. Klik na řádek otevře graf sektoru.
+- **Limit kotací** v `functions/api/market.ts` zvýšen na 30 symbolů (seznam má 26). Offline snímky sektorů a nový `quotes.json` v `public/snapshot`.

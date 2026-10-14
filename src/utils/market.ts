@@ -48,6 +48,22 @@ export const WATCHLIST: { group: string; items: Instrument[] }[] = [
     ],
   },
   {
+    group: 'Sektory',
+    items: [
+      { ticker: 'XLK', name: 'Technologie', about: 'ETF na americké technologické firmy (Apple, Microsoft, Nvidia). Roste rychle, ale umí i prudce padat.' },
+      { ticker: 'XLV', name: 'Zdravotnictví', about: 'ETF na americké farmaceutické firmy, nemocnice a výrobce zdravotnické techniky. Léky lidé potřebují i v krizi, proto kolísá méně.' },
+      { ticker: 'XLF', name: 'Finance', about: 'ETF na americké banky, pojišťovny a burzy. Daří se jim hlavně při zdravé ekonomice a vyšších úrocích.' },
+      { ticker: 'XLE', name: 'Energie', about: 'ETF na americké ropné a plynárenské firmy. Jde nahoru a dolů hlavně s cenou ropy.' },
+      { ticker: 'XLY', name: 'Zbytné spotřební zboží', about: 'ETF na firmy, za které lidé utrácejí, když mají peníze navíc: Amazon, Tesla, restaurace, oblečení.' },
+      { ticker: 'XLP', name: 'Základní spotřeba', about: 'ETF na výrobce jídla, drogerie a nápojů. Tyhle věci se kupují vždycky, proto patří k nejklidnějším sektorům.' },
+      { ticker: 'XLI', name: 'Průmysl', about: 'ETF na americké výrobce strojů, letadel, dopravu a stavebnictví. Kopíruje, jak se daří ekonomice.' },
+      { ticker: 'XLU', name: 'Energetika a vodárny', about: 'ETF na americké dodavatele elektřiny, plynu a vody. Stabilní tržby a dividendy, citlivé na úrokové sazby.' },
+      { ticker: 'XLB', name: 'Suroviny', about: 'ETF na americké chemičky, těžaře a výrobce materiálů. Závisí na cenách surovin a průmyslové výrobě.' },
+      { ticker: 'XLRE', name: 'Nemovitosti', about: 'ETF na americké nemovitostní fondy (kanceláře, sklady, byty). Hodně ho ovlivňují úrokové sazby.' },
+      { ticker: 'XLC', name: 'Komunikace a média', about: 'ETF na Google, Metu, Netflix a telekomunikační firmy.' },
+    ],
+  },
+  {
     group: 'Krypto',
     items: [
       { ticker: 'BTC-USD', name: 'Bitcoin', about: 'Největší kryptoměna. Extrémně kolísavá — propady o desítky procent jsou běžné.' },
@@ -65,6 +81,9 @@ export const WATCHLIST: { group: string; items: Instrument[] }[] = [
 ];
 
 export const ALL_INSTRUMENTS: Instrument[] = WATCHLIST.flatMap(g => g.items);
+
+/** Sektorová ETF (SPDR) — celý americký trh S&P 500 rozdělený do 11 odvětví. */
+export const SECTORS: Instrument[] = WATCHLIST.find(g => g.group === 'Sektory')!.items;
 
 /** [čas ms, open, high, low, close, objem] */
 export type Candle = [number, number, number, number, number, number];

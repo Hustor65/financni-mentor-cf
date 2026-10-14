@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 const ReactECharts = lazy(() => import('echarts-for-react'));
+import { SectorBoard } from './SectorBoard';
 import { ChartSkeleton } from '../ChartSkeleton';
 import { Segmented } from '../Segmented';
 import { Icon } from '../Icon';
@@ -621,6 +622,11 @@ export const MarketScreen: React.FC<Props> = ({ level, initialTicker, onAskMento
               )}
             </section>
           )}
+
+          <SectorBoard
+            quotes={quotes} active={ticker}
+            onPick={t => { pick(t); document.querySelector('.mx-main')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+          />
 
           <p className="ui-small mx-source">
             Data: Yahoo Finance, zpožděná. Slouží k výuce, nejde o investiční doporučení.

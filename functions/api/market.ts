@@ -1,6 +1,9 @@
 /**
  * Cloudflare Pages Function — Market Data API
  * Replaces yfinance with Yahoo Finance REST API
+ *
+ *   GET /api/market?type=series&ticker=AAPL&period=1y  → svíčky pro obrazovku Trhy
+ *   GET /api/market?type=quotes&symbols=AAPL,MSFT      → ceny pro pásek trhů
  */
 
 // Yahoo Finance blokuje requesty bez browser User-Agent (vrací 429).
@@ -81,52 +84,10 @@ export const onRequestGet: PagesFunction = async (context) => {
   const ticker = url.searchParams.get('ticker') || '';
   const period = url.searchParams.get('period') || '1y';
 
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'max-age=300' };
+  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
 
   try {
     switch (type) {
-      case 'stock':
-      case 'crypto': {
-        const symbol = type === 'crypto' ? `${ticker.toUpperCase()}-USD` : ticker.toUpperCase();
-        const resp = await fetch(`https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=5d`, { headers: YF_HEADERS });
-        if (!resp.ok) return new Response(JSON.stringify({ error: `Ticker ${ticker} not found` }), { status: 404, headers });
-        const data = await resp.json() as { chart?: { result?: Array<{ meta?: Record<string, unknown> }> } };
-        const meta = data.chart?.result?.[0]?.meta;
-        return new Response(JSON.stringify({
-          ticker: symbol, price: meta?.regularMarketPrice,
-          currency: meta?.currency, timestamp: new Date().toISOString(),
-        }), { headers });
-      }
-
-      case 'summary': {
-        const symbols = ['^GSPC', '^IXIC', '^DJI', 'BTC-USD', 'ETH-USD', 'GC=F', 'EURCZK=X'];
-        const results: Record<string, unknown> = {};
-        for (const sym of symbols) {
-          try {
-            const resp = await fetch(`https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`, { headers: YF_HEADERS });
-            if (resp.ok) {
-              const data = await resp.json() as { chart?: { result?: Array<{ meta?: { regularMarketPrice?: number } }> } };
-              results[sym] = { price: data.chart?.result?.[0]?.meta?.regularMarketPrice };
-            }
-          } catch { /* skip failed symbols */ }
-        }
-        return new Response(JSON.stringify({ summary: results, timestamp: new Date().toISOString() }), { headers });
-      }
-
-      case 'history': {
-        const symbol = ticker.toUpperCase();
-        const resp = await fetch(`https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=${period}`, { headers: YF_HEADERS });
-        if (!resp.ok) return new Response(JSON.stringify({ error: `No data for ${ticker}` }), { status: 404, headers });
-        const data = await resp.json() as { chart?: { result?: Array<{ indicators?: { quote?: Array<{ close?: number[] }> } }> } };
-        const closes = data.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(Boolean) || [];
-        if (closes.length < 2) return new Response(JSON.stringify({ error: 'Insufficient data' }), { status: 404, headers });
-        const perf = ((closes[closes.length - 1]! - closes[0]!) / closes[0]!) * 100;
-        return new Response(JSON.stringify({
-          ticker: symbol, period, performance_percent: Math.round(perf * 100) / 100,
-          start_price: closes[0], end_price: closes[closes.length - 1], data_points: closes.length,
-        }), { headers });
-      }
-
       // ── Časová řada OHLCV pro obrazovku Trhy (svíčky, objem, indikátory) ──
       case 'series': {
         const symbol = ticker.toUpperCase().trim();
@@ -167,26 +128,33 @@ export const onRequestGet: PagesFunction = async (context) => {
 
       // ── Rychlé kotace (cena + denní změna) pro pásek trhů ──
       case 'quotes': {
-        const symbols = (url.searchParams.get('symbols') || '')
+        const symbols = [...new Set((url.searchParams.get('symbols') || '')
           .split(',').map(s => s.trim().toUpperCase())
-          .filter(s => /^[A-Z0-9.^=-]{1,14}$/.test(s)).slice(0, 20);
+          .filter(s => /^[A-Z0-9.^=-]{1,14}$/.test(s)))].slice(0, 30);
         if (!symbols.length) return new Response(JSON.stringify({ quotes: [] }), { headers });
-        const sorted = [...symbols].sort();
-        return edgeCached(context, `quotes/${encodeURIComponent(sorted.join(','))}`, 60, async () => {
-          const quotes = await Promise.all(sorted.map(async sym => {
-            try {
+        // každý symbol má vlastní záznam v cache: přeházený nebo jinak poskládaný
+        // seznam tak nevyvolá nové dotazy na Yahoo
+        const quotes = await Promise.all(symbols.map(async sym => {
+          try {
+            const resp = await edgeCached(context, `quote/${encodeURIComponent(sym)}`, 60, async () => {
               const data = await fetchYahoo(sym, '5d', '1d');
               const r = data?.chart?.result?.[0];
               const closes = (r?.indicators?.quote?.[0]?.close ?? []).filter((v): v is number => v != null);
               const price = r?.meta?.regularMarketPrice ?? closes[closes.length - 1];
               // předchozí denní zavíračka = předposlední svíčka (poslední je dnešek)
               const prev = closes.length >= 2 ? closes[closes.length - 2] : r?.meta?.chartPreviousClose;
-              if (price == null || prev == null) return null;
-              return { ticker: sym, price, change_percent: ((price - prev) / prev) * 100, currency: r?.meta?.currency ?? '' };
-            } catch { return null; }
-          }));
-          const ok = quotes.filter(Boolean);
-          return { body: { quotes: ok, timestamp: new Date().toISOString() }, complete: ok.length === sorted.length };
+              if (price == null || prev == null) return { body: null, complete: false };
+              return {
+                body: { ticker: sym, price, change_percent: ((price - prev) / prev) * 100, currency: r?.meta?.currency ?? '' },
+                complete: true,
+              };
+            });
+            return await resp.json() as Record<string, unknown> | null;
+          } catch { return null; }
+        }));
+        const ok = quotes.filter(Boolean);
+        return new Response(JSON.stringify({ quotes: ok, timestamp: new Date().toISOString() }), {
+          headers: { ...headers, 'Cache-Control': ok.length === symbols.length ? 'public, max-age=60' : 'no-store' },
         });
       }
 
@@ -194,6 +162,7 @@ export const onRequestGet: PagesFunction = async (context) => {
         return new Response(JSON.stringify({ error: 'Invalid type parameter' }), { status: 400, headers });
     }
   } catch (error) {
-    return new Response(JSON.stringify({ error: String(error) }), { status: 500, headers });
+    console.error('market error', error);
+    return new Response(JSON.stringify({ error: 'Tržní data teď nejsou dostupná.' }), { status: 500, headers });
   }
 };

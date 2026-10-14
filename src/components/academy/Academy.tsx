@@ -9,6 +9,9 @@ import { ProductComparison } from './ProductComparison';
 import { Badges } from './Badges';
 import { body, rankOf, RANKS, topicMax } from '../../data/play';
 import { topicPoints, totalPoints, useUserData } from '../../utils/store';
+import { KIOSK } from '../../utils/kiosk';
+import { IMPORTED } from '../../utils/transfer';
+import { TakeHome } from '../kiosk/TakeHome';
 
 interface Props {
   level: Level;
@@ -58,6 +61,11 @@ Každé téma má krátkou teorii, hry na vyzkoušení a tři otázky na konec. 
         </div>
       </header>
 
+      {IMPORTED && (
+        <p className="ui-note ui-note--ok ak-imported" role="status">
+          Postup ze stánku je v tomhle telefonu. Aby ti zůstal i po smazání dat prohlížeče, vytvoř si účet.
+        </p>
+      )}
       <section className="ak-rank" aria-label="Tvoje úroveň a body">
         <div className="ak-rank__main">
           <p className="ui-hero-num num">
@@ -80,6 +88,8 @@ Každé téma má krátkou teorii, hry na vyzkoušení a tři otázky na konec. 
         </div>
         <Badges completed={completed.size} />
       </section>
+
+      {KIOSK && points > 0 && <TakeHome />}
 
       {level === 'start' && <StartPath onOpenTopic={onOpenTopic} completed={completed} />}
 

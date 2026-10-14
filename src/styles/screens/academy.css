@@ -359,3 +359,5 @@
   .ak-more, .ak-more.is-open, .ak-more__chevron, .ak-foot__next-title svg { transition: none; }
   .ak-play__feedback .ui-note, .ak-play__result, .ak-tip__kpis, .ak-sort__card, .ak-quiz__question { animation: none; }
 }
+.ak-imported { margin: 0 0 var(--s-6); }
+.ak-rank + .hm-take { margin: 0 0 var(--s-6); padding-top: 0; border-top: 0; }

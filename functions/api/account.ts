@@ -197,6 +197,8 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       if (!name || !password) return fail(400, 'Vyplň přezdívku i heslo.');
       if (name.length > 24 || password.length > 200) return fail(401, 'Přezdívka nebo heslo nesedí.');
       if (await limited(db, `login:${ip}:${nameKey}`, 8, 600)) return fail(429, 'Příliš mnoho pokusů. Zkus to za 10 minut.');
+      // celkový strop na účet: kdo střídá IP adresy, nemůže hádat heslo jednoho účtu bez omezení
+      if (await limited(db, `login-acct:${nameKey}`, 40, 3600)) return fail(429, 'K tomuhle účtu přišlo příliš mnoho pokusů. Zkus to za hodinu.');
 
       const user = await db.prepare(
         'SELECT id, name, pass_hash, pass_salt, data, updated_at FROM users WHERE name_key = ?',
@@ -205,7 +207,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       const hash = await hashPassword(password, user?.pass_salt ?? '00000000000000000000000000000000');
       if (!user || !safeEqual(hash, user.pass_hash)) return fail(401, 'Přezdívka nebo heslo nesedí.');
 
-      await db.prepare('DELETE FROM attempts WHERE key = ?').bind(`login:${ip}:${nameKey}`).run();
+      await db.prepare('DELETE FROM attempts WHERE key IN (?, ?)').bind(`login:${ip}:${nameKey}`, `login-acct:${nameKey}`).run();
       return json(
         { user: { name: user.name }, data: parseData(user.data), updatedAt: user.updated_at },
         200, { 'Set-Cookie': await startSession(db, user.id) },
