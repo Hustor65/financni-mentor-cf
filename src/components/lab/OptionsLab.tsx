@@ -2,6 +2,7 @@ import { useMemo, useState, lazy, Suspense } from 'react';
 const ReactECharts = lazy(() => import('echarts-for-react'));
 import { ChartSkeleton } from '../ChartSkeleton';
 import { NumberField } from '../NumberField';
+import { Select } from '../Select';
 import { CHART, tooltipBase, axisLabel } from '../../utils/chartTheme';
 import { blackScholes, legPayoff } from '../../utils/finance';
 import type { OptionLeg } from '../../utils/finance';
@@ -202,9 +203,10 @@ export const OptionsLab: React.FC = () => {
         <div className="ui-stack lab-inputs">
           <div className="ui-field">
             <label htmlFor="opt-strategy">Strategie</label>
-            <select id="opt-strategy" value={strategyId} onChange={e => setStrategyId(e.target.value)}>
-              {STRATEGIES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+            <Select
+              id="opt-strategy" value={strategyId} onChange={setStrategyId}
+              options={STRATEGIES.map(s => ({ value: s.id, label: s.name }))}
+            />
             <small>Hodí se, když: {strategy.view.charAt(0).toLowerCase() + strategy.view.slice(1)}.</small>
           </div>
 

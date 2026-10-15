@@ -153,6 +153,46 @@
 .ui-field input:focus-visible,
 .ui-field select:focus-visible { border-color: var(--accent); outline-offset: 0; }
 .ui-field small { color: var(--text-4); font-size: var(--fs-xs); }
+
+/* ── Vlastní rozbalovací seznam (components/Select.tsx) ── */
+.ui-select { position: relative; min-width: 0; }
+.ui-select__btn {
+  display: flex; align-items: center; gap: var(--s-3);
+  width: 100%; height: 44px; padding: 0 10px 0 12px;
+  border: 1px solid var(--border-default); border-radius: var(--r-s);
+  background: rgba(8, 18, 34, 0.6); color: var(--text-1);
+  font: inherit; font-size: 1rem; text-align: left; cursor: pointer;
+  transition: border-color .15s ease;
+}
+.ui-select__btn:hover { border-color: var(--border-strong); }
+.ui-select__btn:focus-visible, .ui-select.is-open .ui-select__btn { border-color: var(--accent); outline-offset: 0; }
+.ui-select__value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ui-select__hint { flex: none; color: var(--text-4); font-size: var(--fs-xs); font-weight: 600; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.ui-select__chev { flex: none; color: var(--text-3); transition: transform .15s ease; }
+.ui-select.is-open .ui-select__chev { transform: rotate(180deg); }
+.ui-select__list {
+  position: absolute; z-index: 40; left: 0; right: 0; top: calc(100% + 6px);
+  margin: 0; padding: 6px; list-style: none; overflow-y: auto; overscroll-behavior: contain;
+  border: 1px solid var(--border-default); border-radius: var(--r-m);
+  background: var(--surface-1); box-shadow: var(--shadow-elevation-3);
+  outline: none;
+}
+.ui-select__list.is-up { top: auto; bottom: calc(100% + 6px); }
+.ui-select__group {
+  display: block; padding: 10px 10px 4px; color: var(--text-4);
+  font-size: var(--fs-xs); font-weight: 700;
+}
+.ui-select__list > li:first-child .ui-select__group { padding-top: 4px; }
+.ui-select__opt {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 10px 0 6px; border-radius: var(--r-s);
+  color: var(--text-2); cursor: pointer;
+}
+.ui-select__opt.is-active { background: var(--surface-2); color: var(--text-1); }
+.ui-select__opt.is-selected { color: var(--text-1); font-weight: 600; }
+.ui-select__check { flex: none; display: grid; place-items: center; width: 18px; color: var(--accent); }
+.ui-select__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .ui-select__btn, .ui-select__chev { transition: none; } }
 /* pole vedle sebe; nikdy širší než ~320 px */
 .ui-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 320px)); gap: var(--s-4); }
 .ui-check { display: flex; align-items: center; gap: var(--s-3); min-height: 44px; color: var(--text-2); cursor: pointer; }

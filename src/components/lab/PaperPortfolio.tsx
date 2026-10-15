@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { TradeBox } from './TradeBox';
+import { Select } from '../Select';
 import { START_CASH, resetPortfolio, trade, useUserData } from '../../utils/store';
 import { TRADABLE, fmtCzk, fmtQty, instrumentName, usePrices, valuePortfolio } from '../../utils/portfolio';
-import { fmtPct } from '../../utils/market';
+import { WATCHLIST, fmtPct } from '../../utils/market';
 import { useAccount } from '../../utils/account';
 import { CHART } from '../../utils/chartTheme';
 
@@ -14,6 +15,10 @@ import { CHART } from '../../utils/chartTheme';
 
 // barvy dílků jen z palety grafů; hotovost má vlastní tlumenou (viz .pp-alloc)
 const SHADES = [CHART.cyan, CHART.up, CHART.amber, CHART.violet, CHART.cyanDeep, CHART.text, CHART.down, CHART.axis];
+// nabídka nákupu po skupinách z obrazovky Trhy (indexy a kurzy koupit nejde)
+const PICK_OPTIONS = WATCHLIST.flatMap(g =>
+  g.items.filter(i => TRADABLE.includes(i)).map(i => ({ value: i.ticker, label: i.name, hint: i.ticker, group: g.group })),
+);
 const dateFmt = new Intl.DateTimeFormat('cs-CZ', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 export const PaperPortfolio: React.FC = () => {
@@ -73,9 +78,7 @@ export const PaperPortfolio: React.FC = () => {
         <section className="pp-buy" aria-label="Nákup">
           <div className="ui-field">
             <label htmlFor="pp-pick">Co chceš koupit</label>
-            <select id="pp-pick" value={pick} onChange={e => setPick(e.target.value)}>
-              {TRADABLE.map(i => <option key={i.ticker} value={i.ticker}>{i.name}</option>)}
-            </select>
+            <Select id="pp-pick" value={pick} onChange={setPick} options={PICK_OPTIONS} />
           </div>
           <TradeBox ticker={pick} />
         </section>

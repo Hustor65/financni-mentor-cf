@@ -154,3 +154,8 @@
 - **Sektorová ETF (`utils/market.ts`, skupina `Sektory`, export `SECTORS`):** 11 odvětví S&P 500 přes SPDR ETF (XLK, XLV, XLF, XLE, XLY, XLP, XLI, XLU, XLB, XLRE, XLC) s popisem pro začátečníky. Jsou v seznamu titulů, v hledání i v portfoliu na zkoušku.
 - **Jak si vedou sektory (`components/market/SectorBoard.tsx`):** pod grafem pruhy seřazené od nejlepšího za den (kotace), měsíc nebo rok (roční řada, načte se až po přepnutí), shrnutí nejlepšího a nejhoršího a vysvětlení, proč diverzifikovat. Klik na řádek otevře graf sektoru.
 - **Limit kotací** v `functions/api/market.ts` zvýšen na 30 symbolů (seznam má 26). Offline snímky sektorů a nový `quotes.json` v `public/snapshot`.
+
+## 36. Vlastní rozbalovací seznam (15. 10. 2026)
+
+- **`components/Select.tsx`** místo systémového `<select>`: styl webu, skupiny, doplněk vpravo (ticker), ovládání šipkami, Home/End, Enter, Esc a psaním, zavření klikem mimo, otevření nahoru při nedostatku místa. Styly `.ui-select*` v `styles/system.css`, nová ikona `icons/check.svg`.
+- Použito v Portfoliu na zkoušku (tituly po skupinách z Trhů) a v Opční laboratoři (strategie).
