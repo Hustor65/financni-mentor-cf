@@ -353,18 +353,59 @@ interface GeoFeature {
   geometry: { type: string; coordinates: unknown };
 }
 
-/** Načti countries.geojson jednou; při chybě se glóbus vykreslí bez pevnin. */
-function useCountries(): GeoFeature[] {
-  const [features, setFeatures] = useState<GeoFeature[]>([]);
+/** Hrubý odhad práce s jednou zemí (počet h3 buněk ~ plocha jejího obdélníku). */
+function featureCost(f: GeoFeature): number {
+  let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+  const walk = (c: unknown): void => {
+    if (typeof (c as number[])[0] === 'number') {
+      const [lng, lat] = c as number[];
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+    } else (c as unknown[]).forEach(walk);
+  };
+  walk(f.geometry.coordinates);
+  const midLat = (minLat + maxLat) / 2;
+  return 1 + (maxLat - minLat) * (maxLng - minLng) * Math.cos((midLat * Math.PI) / 180);
+}
+
+/** Dávka zemí, kterou glóbus zvládne mezi dvěma snímky bez sekání. */
+const BATCH_COST = 110;
+
+/**
+ * Načti countries.geojson jednou a země předávej glóbu po dávkách. Knihovna počítá tečky
+ * pevnin synchronně a všechny najednou by zablokovaly stránku na celé vteřiny. Hotové země
+ * se při další dávce nepřepočítávají. `done` = už jsou všechny (pak se pustí úvodní pohyb).
+ * Při chybě se glóbus vykreslí bez pevnin.
+ */
+function useCountries(): { features: GeoFeature[]; done: boolean } {
+  const [state, setState] = useState<{ features: GeoFeature[]; done: boolean }>({ features: [], done: false });
   useEffect(() => {
     let alive = true;
+    const nextTick = () => new Promise<void>(res => requestAnimationFrame(() => setTimeout(res, 0)));
     fetch('/countries.geojson')
       .then(r => (r.ok ? r.json() : Promise.reject(new Error('geojson'))))
-      .then((json: { features?: GeoFeature[] }) => { if (alive && Array.isArray(json.features)) setFeatures(json.features); })
+      .then(async (json: { features?: GeoFeature[] }) => {
+        if (!alive || !Array.isArray(json.features)) return;
+        const all = json.features;
+        let upto = 0;
+        while (alive && upto < all.length) {
+          let cost = 0;
+          const from = upto;
+          while (upto < all.length && (upto === from || cost + featureCost(all[upto]) <= BATCH_COST)) {
+            cost += featureCost(all[upto]);
+            upto++;
+          }
+          const features = all.slice(0, upto);
+          setState({ features, done: upto >= all.length });
+          if (upto < all.length) await nextTick();
+        }
+      })
       .catch(() => { /* bez pevnin */ });
     return () => { alive = false; };
   }, []);
-  return features;
+  return state;
 }
 
 /* ── kompozice podle velikosti okna ──────────────────────────────────────── */
@@ -663,7 +704,7 @@ function GlobeBody({ still, paused, detail }: { still: boolean; paused: boolean;
   const tiltRef = useRef<THREE.Group>(null);
   const spinRef = useRef<THREE.Group>(null);
   const motion = useRef({ yaw: REST_YAW, intro: still ? 1 : 0, ready: still, dragging: false, pitch: 0, yawVel: 0, sway: 0 });
-  const features = useCountries();
+  const { features, done: countriesDone } = useCountries();
   const size = useThree(s => s.size);
   const gl = useThree(s => s.gl);
   const pointer = useThree(s => s.pointer);
@@ -716,13 +757,13 @@ function GlobeBody({ still, paused, detail }: { still: boolean; paused: boolean;
         mesh.renderOrder = 1;
         found++;
       });
-      if (features.length > 0 && found > 0) { motion.current.ready = true; return; }
+      if (countriesDone && features.length > 0 && found > 0) { motion.current.ready = true; return; }
       if (tries++ < 60) timer = setTimeout(apply, 50);
       else motion.current.ready = true; // bez pevnin (geojson selhal) — úvod pustíme i tak
     };
     apply();
     return () => { if (timer) clearTimeout(timer); };
-  }, [features]);
+  }, [features, countriesDone]);
 
   useFrame((_, rawDelta) => {
     const m = motion.current;
