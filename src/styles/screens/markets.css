@@ -265,6 +265,26 @@
 }
 .pp-profit__pct { font-size: var(--fs-l); }
 .pp-profit__label { color: var(--text-3); font-family: var(--font-body); font-size: var(--fs-s); font-weight: 500; }
+.pp-stats { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-6); margin: 0 0 4px; }
+.pp-stats > div { min-width: 0; }
+.pp-stats dt { color: var(--text-3); font-size: var(--fs-s); }
+.pp-stats dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s-2); margin: 2px 0 0; font-family: var(--font-display); font-size: var(--fs-l); font-weight: 700; line-height: 1.2; }
+.pp-stats dd span { font-family: var(--font-body); font-size: var(--fs-s); font-weight: 600; }
+.pp-find { display: flex; flex-direction: column; gap: var(--s-3); }
+.pp-find__row { display: flex; gap: var(--s-2); }
+.pp-find__row input { flex: 1 1 auto; min-width: 0; text-transform: none; }
+.pp-find__row .btn { margin: 0; min-height: 44px; }
+.pp-find__quick { display: flex; flex-wrap: wrap; gap: 6px; }
+.pp-name { display: block; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.pp-name:hover { text-decoration: underline; }
+.pp-name small { display: block; color: var(--text-4); font-size: var(--fs-xs, 13px); font-weight: 500; }
+.pp-table td small { display: block; font-size: 13px; opacity: 0.85; }
+.pp-actions { display: flex; gap: var(--s-1); }
+.mx-tabs { margin-top: var(--s-4); }
+.tb__quote { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--s-2) var(--s-4); }
+.tb__price { margin: 4px 0 0; font-family: var(--font-display); font-size: var(--fs-l); font-weight: 700; }
+.tb__price span { font-family: var(--font-body); font-size: var(--fs-s); font-weight: 600; }
+.tb__mode { display: flex; gap: 6px; flex: 1 1 100%; }
 .pp-alloc { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; }
 .pp-alloc span { min-width: 3px; transition: flex-grow var(--dur-3) var(--ease-out); }
 .pp-legend { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-5); margin: var(--s-3) 0 0; padding: 0; list-style: none; color: var(--text-3); font-size: var(--fs-s); }
@@ -272,7 +292,7 @@
 .pp-legend .num { margin-left: 2px; color: var(--text-1); font-weight: 600; }
 .pp-body { margin-top: var(--s-3); }
 .pp-buy .tb { margin-top: var(--s-5); }
-.pp-table { min-width: 500px; }
+.pp-table { min-width: 720px; }
 .pp-table th, .pp-table td { white-space: nowrap; }
 .pp-table td:last-child { width: 1%; padding-right: 0; }
 .pp-table .btn { margin: 0; }
@@ -468,6 +488,8 @@
   .tb__actions { flex: 1 1 100%; }
   .tb__actions .btn { flex: 1; }
   .pp-trades li { grid-template-columns: minmax(0, 1fr) auto; gap: 0 var(--s-3); }
+  .pp-find__row { flex-wrap: wrap; }
+  .pp-find__row .btn { flex: 1 1 100%; }
   .pp-trades__when { grid-column: 1 / -1; }
   .gg-bar strong { font-size: var(--fs-l); }
   .gg-dots { gap: 4px; }

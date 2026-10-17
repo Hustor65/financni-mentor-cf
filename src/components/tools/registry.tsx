@@ -12,7 +12,6 @@ import { OptionsLab } from '../lab/OptionsLab';
 import { MonteCarloSim } from '../lab/MonteCarloSim';
 import { DcfCalc } from '../lab/DcfCalc';
 import { GuessGame } from '../lab/GuessGame';
-import { PaperPortfolio } from '../lab/PaperPortfolio';
 
 export interface Tool {
   id: string;
@@ -37,7 +36,6 @@ export const TOOLS: Tool[] = [
   { id: 'rizikovy-profil', level: 'start', icon: 'shield-check', name: 'Rizikový profil', lead: 'Kolik kolísání sneseš a co z toho plyne.', topic: 'riziko', render: () => <RiskProfile /> },
   { id: 'dane', level: 'start', icon: 'scale', name: 'Daň z investic a DIP', lead: 'Časový test, limit 100 000 Kč a úspora přes DIP.', topic: 'dane-dip', render: () => <TaxCalc /> },
   { id: 'duchod', level: 'start', icon: 'hourglass', name: 'Odhad státního důchodu', lead: 'Kolik zhruba dostaneš podle pravidel roku 2026.', topic: 'duchod', render: () => <PensionCalc /> },
-  { id: 'portfolio', level: 'pro', icon: 'pie-chart', name: 'Portfolio na zkoušku', lead: 'Virtuálních 100 000 Kč a skutečné ceny. Nakupuj, prodávej a sleduj, jak si vedeš.', topic: 'riziko-v-cislech', render: () => <PaperPortfolio /> },
   { id: 'opce', level: 'pro', icon: 'git-branch', name: 'Opční laboratoř', lead: 'Výplatní diagram sedmi strategií, cena podle Black–Scholese a řecká písmena.', topic: 'opce', render: () => <OptionsLab /> },
   { id: 'monte-carlo', level: 'pro', icon: 'activity', name: 'Monte Carlo simulace', lead: '800 možných průběhů tvého portfolia a šance, že dosáhneš cíle.', topic: 'riziko-v-cislech', render: () => <MonteCarloSim /> },
   { id: 'dcf', level: 'pro', icon: 'calculator', name: 'Ocenění akcie (DCF)', lead: 'Vnitřní hodnota z budoucích cash flow a její citlivost na předpoklady.', topic: 'oceneni-akcii', render: () => <DcfCalc /> },

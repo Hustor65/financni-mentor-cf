@@ -13,6 +13,8 @@ export interface Position {
   qty: number;
   /** kolik korun pozice celkem stála */
   cost: number;
+  /** název titulu mimo náš seznam (u ostatních ho známe podle tickeru) */
+  name?: string;
 }
 
 export interface Trade {
@@ -84,7 +86,9 @@ export function sanitize(raw: unknown): UserData {
     if (p.positions && typeof p.positions === 'object') {
       for (const [ticker, pos] of Object.entries(p.positions as Record<string, Record<string, unknown>>)) {
         const qty = num(pos?.qty, 0);
-        if (qty > 0) d.portfolio.positions[ticker] = { qty, cost: Math.max(0, num(pos?.cost, 0)) };
+        if (qty <= 0) continue;
+        const name = typeof pos?.name === 'string' ? pos.name.slice(0, 60) : undefined;
+        d.portfolio.positions[ticker] = { qty, cost: Math.max(0, num(pos?.cost, 0)), ...(name ? { name } : {}) };
       }
     }
     if (Array.isArray(p.trades)) {
@@ -186,7 +190,7 @@ export const totalPoints = (scores: Record<string, TopicScore>): number =>
 /* ── Portfolio na zkoušku ─────────────────────────────────── */
 
 /** Koupí/prodá `qty` kusů za `priceCzk` Kč za kus. Vrací text chyby, nebo null. */
-export function trade(ticker: string, side: 'buy' | 'sell', qty: number, priceCzk: number): string | null {
+export function trade(ticker: string, side: 'buy' | 'sell', qty: number, priceCzk: number, name?: string): string | null {
   if (!(qty > 0) || !(priceCzk > 0)) return 'Zadej kladnou částku.';
   const p = state.portfolio;
   const total = qty * priceCzk;
@@ -197,13 +201,13 @@ export function trade(ticker: string, side: 'buy' | 'sell', qty: number, priceCz
   if (side === 'buy') {
     if (total > cash + 0.005) return 'Na tenhle nákup nemáš dost hotovosti.';
     cash -= total;
-    positions[ticker] = { qty: (pos?.qty ?? 0) + qty, cost: (pos?.cost ?? 0) + total };
+    positions[ticker] = { qty: (pos?.qty ?? 0) + qty, cost: (pos?.cost ?? 0) + total, ...(pos?.name ?? name ? { name: pos?.name ?? name } : {}) };
   } else {
     if (!pos || qty > pos.qty + 1e-9) return 'Tolik kusů nedržíš.';
     const left = pos.qty - qty;
     cash += total;
     if (left < 1e-9) delete positions[ticker];
-    else positions[ticker] = { qty: left, cost: pos.cost * (left / pos.qty) };
+    else positions[ticker] = { ...pos, qty: left, cost: pos.cost * (left / pos.qty) };
   }
 
   const trades = [...p.trades, { t: Date.now(), ticker, side, qty, price: priceCzk }].slice(-MAX_TRADES);

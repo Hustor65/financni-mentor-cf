@@ -159,3 +159,11 @@
 
 - **`components/Select.tsx`** místo systémového `<select>`: styl webu, skupiny, doplněk vpravo (ticker), ovládání šipkami, Home/End, Enter, Esc a psaním, zavření klikem mimo, otevření nahoru při nedostatku místa. Styly `.ui-select*` v `styles/system.css`, nová ikona `icons/check.svg`.
 - Použito v Portfoliu na zkoušku (tituly po skupinách z Trhů) a v Opční laboratoři (strategie).
+
+## 37. Portfolio na zkoušku v Trzích a vlastní tickery (18. 10. 2026)
+
+- **Přesun:** portfolio je hlavní záložka obrazovky Trhy (`components/market/PortfolioView.tsx`), druhá záložka je Grafy a ceny. Adresa `#trhy/portfolio` (a prázdné `#trhy`), starý odkaz `#nastroje/portfolio` se přesměruje. Nástroj z `tools/registry.tsx` zmizel, `lab/PaperPortfolio.tsx` smazán.
+- **Libovolný ticker:** `usePrices(extra)` v `utils/portfolio.ts` dohledá cenu a měnu i mimo náš seznam a přepočítá ji na Kč (kurz `<MĚNA>CZK=X`, londýnské pence jako libry). Kotace z `/api/market` mají nově `name`; název cizího titulu se ukládá do pozice (`Position.name`).
+- **Nákupní formulář (`lab/TradeBox.tsx`):** cena a denní změna, zadání částkou nebo počtem kusů, hláška pro neznámý ticker.
+- **Přehled pozic:** průměrná nákupní cena, cena, dnešní změna, hodnota a výsledek v Kč i %, souhrn s hodnotou Dnes a Od začátku.
+- **Nasazení:** změněná je i Function `functions/api/market.ts` (název v kotaci).

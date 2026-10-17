@@ -12,6 +12,7 @@ import {
 import type { RangeId, Series, Quote } from '../../utils/market';
 import type { Level } from '../../data/levels';
 import { TradeBox } from '../lab/TradeBox';
+import { PortfolioView } from './PortfolioView';
 
 /* ════════════════════════════════════════════════════════════
    Trhy — graf skutečných cen s vysvětlením toho, co na něm je.
@@ -89,8 +90,11 @@ interface Props {
   onPick?: (ticker: string) => void;
 }
 
-export const MarketScreen: React.FC<Props> = ({ level, initialTicker, onAskMentor, onPick }) => {
+export const MarketScreen: React.FC<Props> = ({ level, initialTicker: routeSub, onAskMentor, onPick }) => {
   const pro = level === 'pro';
+  // v adrese je buď titul (grafy), nebo „portfolio“ / nic (portfolio na zkoušku — hlavní záložka)
+  const onPortfolio = !routeSub || routeSub === 'portfolio';
+  const initialTicker = routeSub === 'portfolio' ? undefined : routeSub;
   const [ticker, setTicker] = useState(initialTicker ?? '^GSPC');
   const [range, setRange] = useState<RangeId>('1y');
   const [mode, setMode] = useState<'line' | 'candle'>(pro ? 'candle' : 'line');
@@ -413,12 +417,24 @@ export const MarketScreen: React.FC<Props> = ({ level, initialTicker, onAskMento
       <header className="page-head">
         <h1 className="page-title">Trhy</h1>
         <p className="page-lead">
-          Skutečné ceny akcií, indexů, kryptoměn a měn. {pro
-            ? 'Zapni si svíčky, klouzavé průměry, objem nebo RSI a porovnej víc titulů v procentech.'
-            : 'Vyber si ze seznamu, co tě zajímá, a pod grafem si přečti, co na něm vlastně vidíš.'}
+          {onPortfolio
+            ? 'Nakupuj skutečné tituly za skutečné ceny, ale s virtuálními penězi. Zjistíš, jak trh kolísá, dřív než půjde o tvoje peníze.'
+            : <>Skutečné ceny akcií, indexů, kryptoměn a měn. {pro
+              ? 'Zapni si svíčky, klouzavé průměry, objem nebo RSI a porovnej víc titulů v procentech.'
+              : 'Vyber si ze seznamu, co tě zajímá, a pod grafem si přečti, co na něm vlastně vidíš.'}</>}
         </p>
+        <div className="mx-tabs">
+          <Segmented
+            label="Co chceš vidět" size="md" value={onPortfolio ? 'portfolio' : 'grafy'}
+            options={[{ value: 'portfolio', label: 'Portfolio na zkoušku' }, { value: 'grafy', label: 'Grafy a ceny' }]}
+            onChange={v => onPick?.(v === 'portfolio' ? 'portfolio' : ticker)}
+          />
+        </div>
       </header>
 
+      {onPortfolio ? (
+        <PortfolioView onOpenChart={pick} />
+      ) : (
       <div className="mx-layout">
         {/* ── seznam titulů ── */}
         <aside className="mx-rail" aria-label="Seznam titulů">
@@ -633,6 +649,7 @@ export const MarketScreen: React.FC<Props> = ({ level, initialTicker, onAskMento
           </p>
         </section>
       </div>
+      )}
     </div>
   );
 };

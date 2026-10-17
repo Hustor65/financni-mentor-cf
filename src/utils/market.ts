@@ -105,6 +105,8 @@ export interface Quote {
   price: number;
   change_percent: number;
   currency: string;
+  /** název firmy z burzy; chybí u uložených snímků */
+  name?: string;
 }
 
 const snapshotName = (ticker: string, range: string) =>

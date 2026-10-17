@@ -346,7 +346,7 @@ export const Home: React.FC<Props> = ({ level, completed, onNavigate, onOpenTopi
           </header>
 
           {level === 'pro'
-            ? <PortfolioFeature onOpen={() => onOpenTool(featured)} />
+            ? <PortfolioFeature onOpen={() => onOpenMarket('portfolio')} />
             : <GuessFeature closes={closes} onOpen={() => onOpenTool(featured)} />}
 
           <ul className="hm-rows hm-rows--pair hm-cell__end" aria-label="Další nástroje">

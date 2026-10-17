@@ -145,7 +145,10 @@ export const onRequestGet: PagesFunction = async (context) => {
               const prev = closes.length >= 2 ? closes[closes.length - 2] : r?.meta?.chartPreviousClose;
               if (price == null || prev == null) return { body: null, complete: false };
               return {
-                body: { ticker: sym, price, change_percent: ((price - prev) / prev) * 100, currency: r?.meta?.currency ?? '' },
+                body: {
+                  ticker: sym, price, change_percent: ((price - prev) / prev) * 100, currency: r?.meta?.currency ?? '',
+                  name: r?.meta?.longName || r?.meta?.shortName || sym,
+                },
                 complete: true,
               };
             });

@@ -41,9 +41,11 @@ function parseHash(): Route {
   const tab = (head === 'temata' ? 'akademie' : head) as TabId;
   if (!TABS.has(tab)) return { tab: 'prehled', sub: null };
   const sub = rest.join('/');
+  // portfolio na zkoušku se přestěhovalo z Nástrojů do Trhů (staré odkazy a záložky)
+  if (tab === 'nastroje' && sub === 'portfolio') return { tab: 'trhy', sub: 'portfolio' };
   if (tab === 'akademie') return { tab, sub: TOPICS.some(t => t.id === sub) ? sub : null };
   if (tab === 'nastroje') return { tab, sub: TOOLS.some(t => t.id === sub) ? sub : null };
-  if (tab === 'trhy') return { tab, sub: TICKER_RE.test(sub) ? sub : null };
+  if (tab === 'trhy') return { tab, sub: sub === 'portfolio' || TICKER_RE.test(sub) ? sub : null };
   return { tab, sub: null };
 }
 
