@@ -640,8 +640,12 @@ async function streamConversation(
   return { ok: true, status: 200, streamed };
 }
 
-/** Omezení vstupu (viz onRequestPost): délka zprávy, počet a délka položek historie. */
-const MAX_MESSAGE_CHARS = 2000;
+/**
+ * Omezení vstupu (viz onRequestPost): délka zprávy, počet a délka položek historie.
+ * Zpráva z webu obsahuje i ověřený kontext z databáze (až několik tisíc znaků, viz utils/api.ts),
+ * proto ne menší strop než 8000 — jinak se odmítnou i běžné dotazy.
+ */
+const MAX_MESSAGE_CHARS = 8000;
 const MAX_HISTORY_ITEMS = 20;
 const MAX_HISTORY_CHARS = 6000;
 
