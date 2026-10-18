@@ -9,7 +9,8 @@ pages_build_output_dir = "dist"
 # Non-secret environment variables go here
 
 # Secret variables (set via dashboard or CLI):
-# wrangler pages secret put GEMINI_API_KEY
+# wrangler pages secret put OPENAI_API_KEY   (hlavní poskytovatel mentora; volitelně OPENAI_MODEL=gpt-5.4-mini,gpt-5.4-nano)
+# wrangler pages secret put GEMINI_API_KEY   (záloha, když OpenAI selže nebo klíč chybí)
 
 # Účty návštěvníků (přezdívka + heslo, uložený postup). Schéma: db/schema.sql
 [[d1_databases]]

@@ -6,12 +6,16 @@
  *  - kompletní systémové instrukce (10 guardrails) jako v core.py
  *  - Function Calling nad živými daty z Yahoo Finance
  *    (get_stock_price, get_crypto_price, get_market_summary, get_historical_performance)
- *  - řetěz modelů (MODEL_CHAIN): nejnovější flash → 2.5-flash → 2.5-flash-lite
+ *  - poskytovatelé: OpenAI (OPENAI_API_KEY, hlavní) → řetěz Gemini modelů (MODEL_CHAIN, záloha)
+ *    Když OpenAI selže nebo klíč chybí, odpoví Gemini; chybí-li klíč Gemini, jede jen OpenAI.
  */
 
 interface Env {
   GEMINI_API_KEY?: string;
   GOOGLE_API_KEY?: string;
+  OPENAI_API_KEY?: string;
+  /** modely OpenAI oddělené čárkou, zkouší se popořadě (výchozí OPENAI_MODELS níže) */
+  OPENAI_MODEL?: string;
 }
 
 type Role = 'user' | 'model';
@@ -417,6 +421,138 @@ async function callGeminiStream(
   }
 }
 
+// ── OpenAI Chat Completions (SSE) ─────────────────────────────────────
+// Rychlý a levný model; s nástroji (ceny, grafy) vyžaduje u řady gpt-5 reasoning_effort "none".
+const OPENAI_MODELS = ['gpt-5.4-mini', 'gpt-5.4-nano'];
+
+/** Deklarace nástrojů ve formátu Gemini (typy velkými písmeny) → JSON Schema pro OpenAI. */
+function toJsonSchema(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(toJsonSchema);
+  if (node && typeof node === 'object') {
+    return Object.fromEntries(
+      Object.entries(node as Record<string, unknown>).map(([k, v]) => [
+        k,
+        k === 'type' && typeof v === 'string' ? v.toLowerCase() : toJsonSchema(v),
+      ]),
+    );
+  }
+  return node;
+}
+
+const OPENAI_TOOLS = TOOLS[0].functionDeclarations.map((f) => ({
+  type: 'function',
+  function: { name: f.name, description: f.description, parameters: toJsonSchema(f.parameters) },
+}));
+
+type OpenAIMessage =
+  | { role: 'system' | 'user' | 'assistant'; content: string | null; tool_calls?: unknown[] }
+  | { role: 'tool'; tool_call_id: string; content: string };
+
+async function streamConversationOpenAI(
+  model: string,
+  apiKey: string,
+  messages: OpenAIMessage[],
+  write: (text: string) => void | Promise<void>,
+  connectTimeoutMs = 30000,
+): Promise<{ ok: boolean; status: number; streamed: boolean }> {
+  const maxIterations = 5;
+  let streamed = false;
+
+  for (let i = 0; i < maxIterations; i++) {
+    // timeout jen na navázání spojení, tělo se pak streamuje bez limitu (jako u Gemini)
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), connectTimeoutMs);
+    let resp: Response;
+    try {
+      resp = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model,
+          messages,
+          tools: OPENAI_TOOLS,
+          stream: true,
+          max_completion_tokens: 4000,
+          ...(model.startsWith('gpt-5') ? { reasoning_effort: 'none' } : {}),
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!resp.ok || !resp.body) {
+      console.error(`OpenAI ${model}: HTTP ${resp.status}`);
+      return { ok: false, status: resp.status, streamed };
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let text = '';
+    const calls: { id: string; name: string; args: string }[] = [];
+    let finishReason: string | undefined;
+
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data:')) continue;
+        const payload = trimmed.slice(5).trim();
+        if (!payload || payload === '[DONE]') continue;
+        let json: {
+          choices?: Array<{
+            delta?: { content?: string | null; tool_calls?: Array<{ index: number; id?: string; function?: { name?: string; arguments?: string } }> };
+            finish_reason?: string | null;
+          }>;
+        };
+        try { json = JSON.parse(payload); } catch { continue; }
+        const choice = json.choices?.[0];
+        if (!choice) continue;
+        if (choice.finish_reason) finishReason = choice.finish_reason;
+        const delta = choice.delta;
+        if (delta?.content) {
+          await write(delta.content);
+          streamed = true;
+          text += delta.content;
+        }
+        for (const tc of delta?.tool_calls ?? []) {
+          const slot = (calls[tc.index] ??= { id: '', name: '', args: '' });
+          if (tc.id) slot.id = tc.id;
+          if (tc.function?.name) slot.name += tc.function.name;
+          if (tc.function?.arguments) slot.args += tc.function.arguments;
+        }
+      }
+    }
+
+    const toolCalls = calls.filter(Boolean);
+    if (toolCalls.length === 0) {
+      if (finishReason === 'length' && streamed) {
+        await write('\n\n_(Odpověď byla zkrácena — došel limit délky. Zkus dotaz rozdělit na menší části.)_');
+      }
+      return { ok: true, status: 200, streamed };
+    }
+
+    messages.push({
+      role: 'assistant',
+      content: text || null,
+      tool_calls: toolCalls.map((c) => ({ id: c.id, type: 'function', function: { name: c.name, arguments: c.args || '{}' } })),
+    });
+    for (const c of toolCalls) {
+      let args: Record<string, unknown> = {};
+      try { args = JSON.parse(c.args || '{}'); } catch { /* prázdné argumenty */ }
+      const result = await executeTool(c.name, args);
+      messages.push({ role: 'tool', tool_call_id: c.id, content: JSON.stringify(result) });
+    }
+  }
+
+  await write('\n\n_(Odpověď se nepodařilo dokončit — dotaz vyžadoval příliš mnoho kroků. Zkus ho prosím položit jednodušeji.)_');
+  return { ok: true, status: 200, streamed };
+}
+
 // hlavní smyčka pro streaming: streamuje finální text klientovi přes `write`,
 // vyřídí případná volání funkcí (ta se NEstreamují) a pokračuje, dokud nepřijde
 // finální textová odpověď. Vrací {ok, status, streamed}; streamed=false + !ok
@@ -525,8 +661,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   if (!message?.trim()) return json({ error: 'Empty message' }, 400);
 
-  const apiKey = env.GEMINI_API_KEY || env.GOOGLE_API_KEY;
-  if (!apiKey) return json({ error: 'API key not configured' }, 500);
+  const geminiKey = env.GEMINI_API_KEY || env.GOOGLE_API_KEY;
+  const openaiKey = env.OPENAI_API_KEY;
+  if (!geminiKey && !openaiKey) return json({ error: 'API key not configured' }, 500);
 
   const systemInstruction = buildSystemInstruction();
 
@@ -536,6 +673,36 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     parts: [{ text: m.content }],
   }));
   contents.push({ role: 'user', parts: [{ text: message }] });
+
+  // totéž pro OpenAI (system + střídání user/assistant)
+  const openaiMessages: OpenAIMessage[] = [
+    { role: 'system', content: systemInstruction },
+    ...(history ?? []).map((m): OpenAIMessage => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
+    { role: 'user', content: message },
+  ];
+
+  // Pořadí pokusů: modely OpenAI (je-li klíč), potom řetěz Gemini. Další přijde na řadu,
+  // když předchozí nic neodeslal. Model, za kterým je ještě záloha, má na navázání spojení 8 s.
+  type Attempt = { label: string; run: (write: (t: string) => void, last: boolean) => Promise<{ ok: boolean; status: number; streamed: boolean }> };
+  const attempts: Attempt[] = [];
+  if (openaiKey) {
+    const models = (env.OPENAI_MODEL ? env.OPENAI_MODEL.split(',').map(m => m.trim()).filter(Boolean) : OPENAI_MODELS);
+    for (const model of models) {
+      attempts.push({
+        label: `openai:${model}`,
+        // čistá kopie konverzace pro každý pokus
+        run: (write, last) => streamConversationOpenAI(model, openaiKey, openaiMessages.map(m => ({ ...m })), write, last ? 30000 : 8000),
+      });
+    }
+  }
+  if (geminiKey) {
+    for (const model of MODEL_CHAIN) {
+      attempts.push({
+        label: `gemini:${model}`,
+        run: (write, last) => streamConversation(model, geminiKey, contents.map(c => ({ ...c, parts: [...c.parts] })), systemInstruction, write, last ? 30000 : 8000),
+      });
+    }
+  }
 
   // Streamuj odpověď klientovi jako text/plain. Tool-calling kola se nestreamují
   // (potřebujeme z nich celá volání funkcí); streamuje se až finální text modelu.
@@ -552,16 +719,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           if (result.status !== 429 && result.status !== 503) break;
           await new Promise(resolve => setTimeout(resolve, 3500));
         }
-        for (let i = 0; i < MODEL_CHAIN.length && !result.streamed; i++) {
-          const last = i === MODEL_CHAIN.length - 1;
-          // Každý pokus dostane čistou kopii konverzace (neúspěšný pokus do ní mohl
-          // připsat rozpracovaná volání funkcí). Model, za kterým je ještě záloha,
-          // má na navázání spojení jen 8 s — zaseknutý model nesmí zdržet odpověď.
-          const attempt = contents.map(c => ({ ...c, parts: [...c.parts] }));
+        for (let i = 0; i < attempts.length && !result.streamed; i++) {
+          const last = i === attempts.length - 1;
           try {
-            result = await streamConversation(MODEL_CHAIN[i], apiKey, attempt, systemInstruction, write, last ? 30000 : 8000);
+            result = await attempts[i].run(write, last);
+            if (result.streamed) console.log(`Chat: odpověděl ${attempts[i].label}`);
           } catch (error) {
-            console.error(`Chat: model ${MODEL_CHAIN[i]} selhal`, error);
+            console.error(`Chat: ${attempts[i].label} selhal`, error);
             // text už odešel → nezačínej jiným modelem znovu, jen přiznej nedokončenou odpověď
             result = { ok: false, status: 0, streamed: result.streamed };
             if (last && round === 1) throw error;

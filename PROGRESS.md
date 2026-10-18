@@ -174,3 +174,9 @@
 - **Databáze:** tabulka `users` má sloupce `points`, `pf_pct`, `board`. Server při ukládání postupu (`PUT`/registrace v `account.ts`) sám spočítá body ze skóre (se stropy za hru); výkon portfolia (`UserData.pfPct`) hlásí web. **Před nasazením jednou spustit** `npx wrangler d1 execute financni-mentor --remote --file db/migrations/001-zebricek.sql`. Starší účty se v žebříčku objeví po prvním uložení postupu.
 - **Graf vývoje (`utils/portfolioHistory.ts`, `HistoryChart` v `PortfolioView.tsx`):** hodnota portfolia od prvního obchodu, dopočtená z obchodů a ročních denních cen; dnešní kurz koruny, takže jen orientačně. Dokud portfolio nemá aspoň dva dny, ukáže se vysvětlení místo grafu.
 - **Férová hodnota:** Yahoo chart API nedává zisky ani cash flow, takže vlastní „fair value“ model nejde poctivě udělat. U jednotlivé akcie v Trzích je tlačítko „Spočítat férovou hodnotu“, které otevře DCF nástroj s předvyplněnou cenou a názvem (`sessionStorage` klíč `fm-dcf`).
+
+## 39. Mentor přes OpenAI s Gemini jako zálohou (18. 10. 2026)
+
+- **`functions/api/chat.ts`:** když je nastavený `OPENAI_API_KEY`, odpovídá nejdřív OpenAI Chat Completions (výchozí `gpt-5.4-mini`, pak `gpt-5.4-nano`; přepsat jde proměnnou `OPENAI_MODEL`, čárkami oddělený seznam). Když OpenAI selže nebo nic neodešle, pokračuje řetěz Gemini jako dřív. Chybí-li jeden z klíčů, jede ten druhý. Nástroje (ceny, výkonnost) jsou stejné pro oba poskytovatele; u řady gpt-5 se s nástroji musí posílat `reasoning_effort: "none"`. V logu je řádek `Chat: odpověděl <poskytovatel>:<model>`.
+- **Klíč:** lokálně v `.dev.vars` (mimo git), na produkci jako secret: `pbpaste | npx wrangler pages secret put OPENAI_API_KEY --project-name financni-mentor-cf`.
+- **Neřešeno:** limity na návštěvníka a denní strop spotřeby tokenů (mentor je pořád bez omezení na uživatele).
