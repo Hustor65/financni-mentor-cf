@@ -209,3 +209,9 @@
 ## 45. Odhadni graf: portfolio 1 000 000 Kč (18. 10. 2026)
 
 - **`GuessGame.tsx`:** v obou režimech hráč začíná s virtuálním portfoliem 1 000 000 Kč (`START_VALUE`). Každý tip vsadí celé portfolio: „výš“ = nákup (výdělek z růstu), „níž“ = sázka na pokles (výdělek z propadu); hodnota se násobí `1 ± změna` za 30 dní, nejméně 0. V liště je průběžná hodnota, po odhalení kola změna v Kč, na konci výsledek v Kč a %, srovnání „vždy tipnout výš“ a „kdyby ses vždy trefil“. Zajímavé ponaučení: úspěšnost 6 z 10 může skončit ve ztrátě, protože záleží i na velikosti pohybů. Nápověda k pravidlům pod hrou, „hra na zkoušku, ne investiční rada“.
+
+## 46. Historie konverzací s mentorem u účtu (18. 10. 2026)
+
+- **Databáze:** nová tabulka `chats` (id, user_id, title, messages JSON, časy). **Před nasazením jednou spustit** `npx wrangler d1 execute financni-mentor --remote --file db/migrations/002-historie-chatu.sql` (účet se bez ní nedá smazat, protože `DELETE` v `account.ts` sahá i na `chats`).
+- **API `functions/api/chats.ts`** (jen přihlášení, cookie relace přes `src/server/session.ts`): seznam, jedna konverzace, uložení (PUT), smazání jedné nebo všech. Každý dotaz filtruje podle `user_id`, takže cizí konverzaci nejde přečíst (404), přepsat (403) ani smazat. Limity: 30 konverzací na účet (nejstarší se mažou), 60 zpráv, 8000 znaků na zprávu, 150 kB celkem, jen role user/assistant.
+- **Web (`ChatInterface.tsx`, `ChatPanel.tsx`, `utils/chatHistory.ts`):** přihlášenému se po každé dokončené odpovědi (s 0,8 s prodlevou) uloží konverzace; v liště chatu je „Historie (n)“ se seznamem, otevřením a smazáním. „Nová konverzace“ přihlášeného už nic nemaže ani nepotvrzuje, stará zůstává v historii. Bez účtu se nic neukládá a tlačítko Historie není. Odhlášení (i reset stánku) paměť s historií zahodí.

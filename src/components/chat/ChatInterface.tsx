@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChatPanel, type ChatTopic, type Message } from './ChatPanel';
 import type { ChatSuggestion } from './ChatEmptyState';
 import { ChatLimitError, streamChatMessage } from '../../utils/api';
+import { useAccount } from '../../utils/account';
+import { deleteChat, listChats, loadChat, newChatId, saveChat, type ChatSummary } from '../../utils/chatHistory';
 
 interface ChatInterfaceProps {
   onMessageSent?: () => void;
@@ -64,6 +66,57 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // ── Historie konverzací (jen přihlášení; patří k účtu) ──
+  const { user } = useAccount();
+  const signedIn = !!user;
+  // id rozepsané konverzace; vzniká s první zprávou a stejné zůstává, dokud se nezačne nová
+  const chatIdRef = useRef<string | null>(null);
+  const [history, setHistory] = useState<ChatSummary[] | null>(null);
+  const [historyError, setHistoryError] = useState(false);
+
+  const refreshHistory = useCallback(() => {
+    listChats()
+      .then(list => { setHistory(list); setHistoryError(false); })
+      .catch(() => setHistoryError(true));
+  }, []);
+  // seznam se načte po přihlášení; po odhlášení se zahodí (nic z cizího účtu nezůstane v paměti)
+  useEffect(() => {
+    if (!signedIn) { setHistory(null); chatIdRef.current = null; return; }
+    refreshHistory();
+  }, [signedIn, refreshHistory]);
+
+  // Dokončená odpověď → ulož konverzaci (s malou prodlevou, ať se nepíše při každém znaku)
+  useEffect(() => {
+    if (!signedIn || isLoading) return;
+    const last = messages[messages.length - 1];
+    if (messages.length < 3 || last?.role !== 'assistant' || last.error || !last.content.trim()) return;
+    const stored = messages.filter(m => m !== WELCOME && !m.error).map(m => ({ role: m.role, content: m.content }));
+    const id = (chatIdRef.current ??= newChatId());
+    const timer = setTimeout(() => {
+      saveChat(id, stored).then(refreshHistory).catch(() => { /* ukládání je bonus, chat běží dál */ });
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [messages, isLoading, signedIn, refreshHistory]);
+
+  const openChat = useCallback(async (id: string) => {
+    if (isLoading) return;
+    try {
+      const loaded = await loadChat(id);
+      chatIdRef.current = id;
+      setMessages([WELCOME, ...loaded]);
+      setInput('');
+    } catch { setHistoryError(true); }
+  }, [isLoading]);
+
+  const removeChat = useCallback(async (id: string) => {
+    try {
+      await deleteChat(id);
+      // smazaná konverzace je právě rozepsaná → další zpráva založí novou, ne vzkříšenou
+      if (chatIdRef.current === id) { chatIdRef.current = null; setMessages([WELCOME]); }
+      refreshHistory();
+    } catch { setHistoryError(true); }
+  }, [refreshHistory]);
 
   // Inline panel a fullscreen panel mají vlastní <textarea>/kotvu — focus a
   // auto-scroll musí směřovat na ten právě viditelný.
@@ -241,7 +294,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     // tlačítko je sice disabled při isLoading, ale guard navíc → běžící stream nikdy
     // nezapíše osiřelý chunk do nového [WELCOME] (M24)
     if (isLoading) return;
-    if (messages.length > 1 && !window.confirm('Opravdu chceš smazat celou konverzaci? Nejde to vrátit zpět.')) return;
+    // přihlášenému konverzace zůstává v historii, takže se nemá co potvrzovat
+    if (!signedIn && messages.length > 1 && !window.confirm('Opravdu chceš smazat celou konverzaci? Nejde to vrátit zpět.')) return;
+    chatIdRef.current = null;
     setMessages([WELCOME]);
     setInput('');
   };
@@ -324,6 +379,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
     suggestions: QUICK_PROMPTS[level],
     topics: INFO_TOPICS,
     onReset: resetChat,
+    signedIn,
+    history,
+    historyError,
+    onOpenChat: openChat,
+    onDeleteChat: removeChat,
     onRetry: handleRetry,
     onSimplify: handleSimplify,
     followUps: FOLLOW_UPS,

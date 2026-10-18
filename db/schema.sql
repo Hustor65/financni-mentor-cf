@@ -2,7 +2,7 @@
 --   lokálně:    npx wrangler d1 execute financni-mentor --local  --file db/schema.sql
 --   produkce:   npx wrangler d1 execute financni-mentor --remote --file db/schema.sql
 -- Neukládáme e-mail ani nic osobního: jen přezdívku, otisk hesla a postup na webu.
--- Existující databázi doplň o sloupce žebříčku: db/migrations/001-zebricek.sql
+-- Existující databázi doplň migracemi z db/migrations/ (001 žebříček, 002 historie chatu).
 
 CREATE TABLE IF NOT EXISTS users (
   id         TEXT PRIMARY KEY,
@@ -19,6 +19,16 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE INDEX IF NOT EXISTS users_points ON users(points DESC);
+
+CREATE TABLE IF NOT EXISTS chats (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title      TEXT NOT NULL,           -- začátek první otázky
+  messages   TEXT NOT NULL,           -- JSON: [{role, content}]
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS chats_user ON chats(user_id, updated_at DESC);
 
 CREATE TABLE IF NOT EXISTS sessions (
   token_hash TEXT PRIMARY KEY,       -- SHA-256 tokenu z cookie; samotný token v DB není

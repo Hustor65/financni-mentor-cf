@@ -3,6 +3,7 @@ import { ChatMessage } from './ChatMessage';
 import { TypingIndicator } from './TypingIndicator';
 import { ChatEmptyState, type ChatSuggestion } from './ChatEmptyState';
 import { Icon } from '../Icon';
+import type { ChatSummary } from '../../utils/chatHistory';
 
 export interface Message {
   role: 'user' | 'assistant';
@@ -37,6 +38,13 @@ interface ChatPanelProps {
   topics: ChatTopic[];
   /** smaže konverzaci a začne novou */
   onReset: () => void;
+  /** přihlášený návštěvník má historii konverzací uloženou u účtu */
+  signedIn?: boolean;
+  /** uložené konverzace (null = ještě se nenačetly) */
+  history?: ChatSummary[] | null;
+  historyError?: boolean;
+  onOpenChat?: (id: string) => void;
+  onDeleteChat?: (id: string) => void;
   /** akce na POSLEDNÍ odpovědi mentora */
   onRetry?: () => void;
   onSimplify?: () => void;
@@ -63,12 +71,19 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   suggestions,
   topics,
   onReset,
+  signedIn,
+  history,
+  historyError,
+  onOpenChat,
+  onDeleteChat,
   onRetry,
   onSimplify,
   followUps,
 }) => {
   const [helpOpen, setHelpOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const helpId = useId();
+  const historyId = useId();
 
   // Dokud uživatel nenapsal první zprávu (v poli je jen uvítací zpráva), ukaž
   // úvod s návrhy otázek místo osamocené zprávy v prázdné ploše.
@@ -107,6 +122,15 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           S čím pomůžu
           <Icon name="chevron-down" size={16} className="mn-bar-btn__chev" aria-hidden />
         </button>
+        {signedIn && (
+          <button
+            type="button" className="mn-bar-btn" aria-expanded={historyOpen} aria-controls={historyId}
+            onClick={() => setHistoryOpen(o => !o)}
+          >
+            Historie{history?.length ? ` (${history.length})` : ''}
+            <Icon name="chevron-down" size={16} className="mn-bar-btn__chev" aria-hidden />
+          </button>
+        )}
         <span className="mn-chat__gap" />
         {!showEmptyState && (
           <button type="button" className="mn-bar-btn" onClick={onReset} disabled={isLoading}>
@@ -124,6 +148,36 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           {isFullscreen && <span>Zavřít</span>}
         </button>
       </div>
+
+      {signedIn && (
+        <div id={historyId} className="mn-help mn-history" hidden={!historyOpen}>
+          <div className="mn-help__inner">
+            {historyError && <p className="ui-small">Historii se teď nepodařilo načíst.</p>}
+            {history && history.length === 0 && !historyError && (
+              <p className="ui-small">Zatím tu nic není. Konverzace se ukládají k tvému účtu a najdeš je i na jiném zařízení.</p>
+            )}
+            <ul className="mn-history__list">
+              {(history ?? []).map(c => (
+                <li key={c.id}>
+                  <button
+                    type="button" className="mn-history__open" disabled={isLoading}
+                    onClick={() => { onOpenChat?.(c.id); setHistoryOpen(false); }}
+                  >
+                    <span className="mn-history__title">{c.title}</span>
+                    <span className="mn-history__when num">{new Date(c.updatedAt).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })}</span>
+                  </button>
+                  <button
+                    type="button" className="mn-history__del" aria-label={`Smazat konverzaci: ${c.title}`}
+                    onClick={() => onDeleteChat?.(c.id)}
+                  >
+                    <Icon name="x" size={16} aria-hidden />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       <div id={helpId} className="mn-help" hidden={!helpOpen}>
         <div className="mn-help__inner">

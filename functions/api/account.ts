@@ -151,6 +151,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       const user = await currentUser(db, request);
       if (!user) return fail(401, 'Nejsi přihlášený.');
       await db.batch([
+        db.prepare('DELETE FROM chats WHERE user_id = ?').bind(user.id),
         db.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
         db.prepare('DELETE FROM users WHERE id = ?').bind(user.id),
       ]);

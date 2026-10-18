@@ -406,3 +406,15 @@ pre.mn-figure--src { padding: var(--s-3) var(--s-4); color: var(--text-3); font-
   .mn-empty__title { margin-bottom: var(--s-3); }
   .mn-idea { min-height: 44px; }
 }
+
+
+/* Historie konverzací (jen přihlášení) */
+.mn-history__list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; max-height: 260px; overflow-y: auto; }
+.mn-history__list li { display: flex; align-items: center; gap: var(--s-1); border-bottom: 1px solid var(--line); }
+.mn-history__open { display: flex; flex: 1; min-width: 0; align-items: baseline; justify-content: space-between; gap: var(--s-3); padding: var(--s-2) var(--s-1); border: 0; background: none; color: var(--text-1); font: inherit; text-align: left; cursor: pointer; }
+.mn-history__open:hover:not(:disabled) { color: var(--accent); }
+.mn-history__open:disabled { opacity: 0.5; cursor: default; }
+.mn-history__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mn-history__when { flex: none; color: var(--text-4); font-size: var(--fs-xs); }
+.mn-history__del { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 0; border-radius: var(--r-s, 8px); background: none; color: var(--text-4); cursor: pointer; }
+.mn-history__del:hover { background: var(--fill-2); color: var(--down); }
