@@ -13,13 +13,25 @@ import { dcf } from '../../utils/finance';
 
 const fmt = (v: number, d = 0) => v.toLocaleString('cs-CZ', { minimumFractionDigits: d, maximumFractionDigits: d });
 
+/** Z Trhů přijde název a cena akcie (sessionStorage); platí jen pro tohle jedno otevření. */
+function fromMarket(): { name: string; price: number } | null {
+  try {
+    const raw = sessionStorage.getItem('fm-dcf');
+    if (!raw) return null;
+    sessionStorage.removeItem('fm-dcf');
+    const v = JSON.parse(raw) as { name?: unknown; price?: unknown };
+    return typeof v.name === 'string' && typeof v.price === 'number' && v.price > 0 ? { name: v.name, price: v.price } : null;
+  } catch { return null; }
+}
+
 export const DcfCalc: React.FC = () => {
+  const [imported] = useState(fromMarket);
   const [fcf, setFcf] = useState(6);
   const [growth, setGrowth] = useState(9);
   const [years, setYears] = useState(10);
   const [terminal, setTerminal] = useState(2.5);
   const [discount, setDiscount] = useState(9);
-  const [price, setPrice] = useState(150);
+  const [price, setPrice] = useState(() => (imported ? Math.round(imported.price * 100) / 100 : 150));
 
   const result = useMemo(() => dcf(fcf, growth, years, terminal, discount), [fcf, growth, years, terminal, discount]);
   const margin = price > 0 && result.valid ? (result.value / price - 1) * 100 : null;
@@ -72,6 +84,12 @@ export const DcfCalc: React.FC = () => {
 
   return (
     <div className="lab">
+      {imported && (
+        <p className="ui-note" role="status">
+          Počítáš akcii <strong>{imported.name}</strong>. Cenu na burze jsem předvyplnil ({fmt(imported.price, 2)}).
+          Volný cash flow na akcii a očekávaný růst najdeš ve výsledcích firmy, tady jsou jen příklady, které si přepiš.
+        </p>
+      )}
       <div className="ui-split">
         <div className="ui-stack lab-inputs">
           <NumberField label="Volný cash flow na akcii (dnes)" value={fcf} onChange={setFcf} min={0} sliderMin={0} sliderMax={50} step={0.5} decimals={1} />

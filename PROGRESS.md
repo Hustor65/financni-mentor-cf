@@ -167,3 +167,10 @@
 - **Nákupní formulář (`lab/TradeBox.tsx`):** cena a denní změna, zadání částkou nebo počtem kusů, hláška pro neznámý ticker.
 - **Přehled pozic:** průměrná nákupní cena, cena, dnešní změna, hodnota a výsledek v Kč i %, souhrn s hodnotou Dnes a Od začátku.
 - **Nasazení:** změněná je i Function `functions/api/market.ts` (název v kotaci).
+
+## 38. Žebříček, graf vývoje portfolia a cesta k férové hodnotě (18. 10. 2026)
+
+- **Žebříček (`components/Leaderboard.tsx`, `functions/api/leaderboard.ts`):** top 10 podle bodů a podle výkonu portfolia, jen přezdívka a číslo. V Akademii a pod portfoliem v Trzích. Účet má volbu „Ukazovat moji přezdívku v žebříčku“ (`UserData.board`). Odpověď se drží 30 s v cache na okraji sítě.
+- **Databáze:** tabulka `users` má sloupce `points`, `pf_pct`, `board`. Server při ukládání postupu (`PUT`/registrace v `account.ts`) sám spočítá body ze skóre (se stropy za hru); výkon portfolia (`UserData.pfPct`) hlásí web. **Před nasazením jednou spustit** `npx wrangler d1 execute financni-mentor --remote --file db/migrations/001-zebricek.sql`. Starší účty se v žebříčku objeví po prvním uložení postupu.
+- **Graf vývoje (`utils/portfolioHistory.ts`, `HistoryChart` v `PortfolioView.tsx`):** hodnota portfolia od prvního obchodu, dopočtená z obchodů a ročních denních cen; dnešní kurz koruny, takže jen orientačně. Dokud portfolio nemá aspoň dva dny, ukáže se vysvětlení místo grafu.
+- **Férová hodnota:** Yahoo chart API nedává zisky ani cash flow, takže vlastní „fair value“ model nejde poctivě udělat. U jednotlivé akcie v Trzích je tlačítko „Spočítat férovou hodnotu“, které otevře DCF nástroj s předvyplněnou cenou a názvem (`sessionStorage` klíč `fm-dcf`).

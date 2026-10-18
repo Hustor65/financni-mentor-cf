@@ -96,6 +96,30 @@ function cleanData(value: unknown): string | null {
 
 const parseData = (text: string): unknown => { try { return JSON.parse(text); } catch { return {}; } };
 
+/** Strop bodů za jednu hru v tématu (stejné hodnoty jako PLAY_MAX na webu). */
+const PLAY_MAX: Record<string, number> = { tip: 20, sort: 30, quiz: 50 };
+
+/**
+ * Údaje pro žebříček z uloženého postupu. Body se počítají tady na serveru ze skóre
+ * (se stropy za hru), výkon portfolia hlásí web — je to hra, ne soutěž o peníze,
+ * proto jen ořezaný do rozumného rozsahu.
+ */
+function boardStats(raw: string): { points: number; pfPct: number | null; board: number } {
+  const d = parseData(raw) as Record<string, unknown>;
+  let points = 0;
+  const scores = d.scores && typeof d.scores === 'object' ? Object.values(d.scores as Record<string, Record<string, unknown>>).slice(0, 200) : [];
+  for (const topic of scores) {
+    if (!topic || typeof topic !== 'object') continue;
+    for (const [kind, max] of Object.entries(PLAY_MAX)) {
+      const v = Number(topic[kind]);
+      if (Number.isFinite(v) && v > 0) points += Math.min(max, Math.round(v));
+    }
+  }
+  const trades = (d.portfolio as { trades?: unknown[] } | undefined)?.trades;
+  const pct = typeof d.pfPct === 'number' && Number.isFinite(d.pfPct) ? Math.max(-100, Math.min(10_000, d.pfPct)) : null;
+  return { points, pfPct: Array.isArray(trades) && trades.length > 0 ? pct : null, board: d.board === false ? 0 : 1 };
+}
+
 async function currentUser(db: D1Database, request: Request): Promise<UserRow | null> {
   const token = readToken(request);
   if (!token) return null;
@@ -150,7 +174,9 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       const data = cleanData(body.data);
       if (!data) return fail(400, 'Data se nepodařilo uložit.');
       const now = Date.now();
-      await db.prepare('UPDATE users SET data = ?, updated_at = ? WHERE id = ?').bind(data, now, user.id).run();
+      const b = boardStats(data);
+      await db.prepare('UPDATE users SET data = ?, updated_at = ?, points = ?, pf_pct = ?, board = ? WHERE id = ?')
+        .bind(data, now, b.points, b.pfPct, b.board, user.id).run();
       return json({ ok: true, updatedAt: now });
     }
 
@@ -182,9 +208,10 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       const now = Date.now();
       const data = cleanData(body.data) ?? '{}';
       try {
+        const b = boardStats(data);
         await db.prepare(
-          'INSERT INTO users (id, name, name_key, pass_hash, pass_salt, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        ).bind(id, name, nameKey, await hashPassword(password, salt), salt, data, now, now).run();
+          'INSERT INTO users (id, name, name_key, pass_hash, pass_salt, data, points, pf_pct, board, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        ).bind(id, name, nameKey, await hashPassword(password, salt), salt, data, b.points, b.pfPct, b.board, now, now).run();
       } catch (err) {
         // dva lidé si ve stejnou chvíli vybrali stejnou přezdívku
         if (String(err).includes('UNIQUE')) return fail(409, 'Tahle přezdívka už je zabraná. Zkus jinou.');

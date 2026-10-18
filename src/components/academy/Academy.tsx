@@ -8,6 +8,7 @@ import { Glossary } from './Glossary';
 import { ProductComparison } from './ProductComparison';
 import { Badges } from './Badges';
 import { body, rankOf, RANKS, topicMax } from '../../data/play';
+import { Leaderboard } from '../Leaderboard';
 import { topicPoints, totalPoints, useUserData } from '../../utils/store';
 import { KIOSK } from '../../utils/kiosk';
 import { IMPORTED } from '../../utils/transfer';
@@ -115,6 +116,8 @@ Každé téma má krátkou teorii, hry na vyzkoušení a tři otázky na konec. 
           </section>
         );
       })}
+
+      <Leaderboard />
 
       <Glossary />
       {level === 'start' && <ProductComparison />}

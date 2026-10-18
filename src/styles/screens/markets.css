@@ -285,6 +285,9 @@
 .tb__price { margin: 4px 0 0; font-family: var(--font-display); font-size: var(--fs-l); font-weight: 700; }
 .tb__price span { font-family: var(--font-body); font-size: var(--fs-s); font-weight: 600; }
 .tb__mode { display: flex; gap: 6px; flex: 1 1 100%; }
+.mx-fair { margin-top: var(--s-3); }
+.pp-hist .ui-h3 { margin: 0 0 var(--s-2); }
+.pp-hist__empty { margin: 0; max-width: var(--measure-text); color: var(--text-3); line-height: 1.6; }
 .pp-alloc { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; }
 .pp-alloc span { min-width: 3px; transition: flex-grow var(--dur-3) var(--ease-out); }
 .pp-legend { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-5); margin: var(--s-3) 0 0; padding: 0; list-style: none; color: var(--text-3); font-size: var(--fs-s); }

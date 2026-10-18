@@ -49,6 +49,10 @@ export interface UserData {
   guessBest: number;
   /** nejlepší výsledky her v Akademii podle tématu */
   scores: Record<string, TopicScore>;
+  /** výkon portfolia na zkoušku v % od začátku — web ho hlásí do žebříčku */
+  pfPct: number | null;
+  /** false = návštěvník nechce být v žebříčku */
+  board: boolean;
 }
 
 const KEY = 'fm-data';
@@ -56,7 +60,7 @@ const MAX_TRADES = 200;
 
 export const emptyPortfolio = (): Portfolio => ({ cash: START_CASH, positions: {}, trades: [] });
 
-const defaults = (): UserData => ({ level: 'start', completed: [], portfolio: emptyPortfolio(), guessBest: 0, scores: {} });
+const defaults = (): UserData => ({ level: 'start', completed: [], portfolio: emptyPortfolio(), guessBest: 0, scores: {}, pfPct: null, board: true });
 
 const num = (v: unknown, fallback: number) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
 
@@ -68,6 +72,8 @@ export function sanitize(raw: unknown): UserData {
   if (r.level === 'pro') d.level = 'pro';
   if (Array.isArray(r.completed)) d.completed = [...new Set(r.completed.filter((x): x is string => typeof x === 'string'))].slice(0, 200);
   d.guessBest = Math.min(10, Math.max(0, Math.round(num(r.guessBest, 0))));
+  d.pfPct = typeof r.pfPct === 'number' && Number.isFinite(r.pfPct) ? Math.max(-100, Math.min(10_000, r.pfPct)) : null;
+  d.board = r.board !== false;
   if (r.scores && typeof r.scores === 'object') {
     for (const [topic, raw] of Object.entries(r.scores as Record<string, Record<string, unknown>>).slice(0, 200)) {
       if (!raw || typeof raw !== 'object') continue;
@@ -154,6 +160,8 @@ export function mergeData(local: UserData, remote: UserData): UserData {
     completed: [...new Set([...remote.completed, ...local.completed])],
     // portfolia sčítat nejde; platí to z účtu, pokud se v něm už obchodovalo
     portfolio: remote.portfolio.trades.length ? remote.portfolio : local.portfolio,
+    pfPct: remote.portfolio.trades.length ? remote.pfPct : local.pfPct,
+    board: isPristine(local) ? remote.board : local.board,
     guessBest: Math.max(local.guessBest, remote.guessBest),
     scores: mergeScores(local.scores, remote.scores),
   };
@@ -215,4 +223,4 @@ export function trade(ticker: string, side: 'buy' | 'sell', qty: number, priceCz
   return null;
 }
 
-export const resetPortfolio = () => updateData({ portfolio: emptyPortfolio() });
+export const resetPortfolio = () => updateData({ portfolio: emptyPortfolio(), pfPct: null });

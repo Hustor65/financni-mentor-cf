@@ -1,10 +1,14 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useMemo, useState, lazy, Suspense } from 'react';
+const ReactECharts = lazy(() => import('echarts-for-react'));
 import { TradeBox } from '../lab/TradeBox';
-import { START_CASH, resetPortfolio, trade, useUserData } from '../../utils/store';
+import { START_CASH, getData, resetPortfolio, trade, updateData, useUserData } from '../../utils/store';
+import { Leaderboard } from '../Leaderboard';
 import { TRADABLE, fmtCzk, fmtQty, instrumentName, usePrices, valuePortfolio } from '../../utils/portfolio';
 import { fmtPct } from '../../utils/market';
 import { useAccount } from '../../utils/account';
-import { CHART } from '../../utils/chartTheme';
+import { CHART, axisLabel, tooltipBase } from '../../utils/chartTheme';
+import { ChartSkeleton } from '../ChartSkeleton';
+import { usePortfolioHistory } from '../../utils/portfolioHistory';
 
 /* ════════════════════════════════════════════════════════════
    Portfolio na zkoušku — 100 000 virtuálních korun a skutečné
@@ -29,6 +33,52 @@ function resolveTicker(text: string): string | null {
   return TICKER_RE.test(up) ? up : null;
 }
 
+
+/** Čára hodnoty portfolia od prvního obchodu; bez dvou dnů historie ukáže jen vysvětlení. */
+function HistoryChart({ points }: { points: { t: number; value: number }[] | null }) {
+  const option = useMemo(() => {
+    if (!points || points.length < 3) return null;
+    const up = points[points.length - 1].value >= START_CASH;
+    const color = up ? CHART.up : CHART.down;
+    return {
+      animationDuration: 400,
+      grid: { left: 8, right: 12, top: 16, bottom: 4, containLabel: true },
+      tooltip: {
+        ...tooltipBase, trigger: 'axis',
+        formatter: (p: { value: [number, number] }[]) => `${new Date(p[0].value[0]).toLocaleDateString('cs-CZ')}<br/><b>${fmtCzk(p[0].value[1])}</b>`,
+      },
+      xAxis: { type: 'time', axisLabel: { ...axisLabel, hideOverlap: true, formatter: (v: number) => new Date(v).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' }) }, axisLine: { lineStyle: { color: CHART.axisLine } }, splitLine: { show: false } },
+      yAxis: {
+        type: 'value', scale: true, axisLabel: { ...axisLabel, formatter: (v: number) => `${(v / 1000).toLocaleString('cs-CZ', { maximumFractionDigits: 1 })} tis.` },
+        splitLine: { lineStyle: { color: CHART.grid } },
+      },
+      series: [{
+        type: 'line', showSymbol: false, smooth: false, lineStyle: { color, width: 2 },
+        areaStyle: { color, opacity: 0.1 },
+        data: points.map(p => [p.t, Math.round(p.value)]),
+        markLine: {
+          symbol: 'none', silent: true, lineStyle: { color: CHART.axis, type: 'dashed' },
+          label: { color: CHART.axis, formatter: 'Start', fontFamily: CHART.font, position: 'insideEndTop' },
+          data: [{ yAxis: START_CASH }],
+        },
+      }],
+    };
+  }, [points]);
+
+  if (!option) {
+    return (
+      <p className="pp-hist__empty">
+        Graf vývoje hodnoty se objeví, jakmile budeš mít portfolio aspoň dva dny. Do té doby sleduj změnu „Dnes“ nahoře.
+      </p>
+    );
+  }
+  return (
+    <Suspense fallback={<ChartSkeleton height={220} bare />}>
+      <ReactECharts option={option} style={{ height: 220 }} opts={{ renderer: 'canvas' }} />
+    </Suspense>
+  );
+}
+
 interface Props {
   /** otevře graf titulu v záložce Grafy */
   onOpenChart: (ticker: string) => void;
@@ -47,6 +97,15 @@ export const PortfolioView: React.FC<Props> = ({ onOpenChart }) => {
   const { holdings, invested, total, day } = valuePortfolio(portfolio, prices.byTicker);
   const profit = total - START_CASH;
   const dayPct = total - day > 0 ? (day / (total - day)) * 100 : 0;
+  const history = usePortfolioHistory(portfolio.trades, prices.byTicker, total);
+  const allPriced = holdings.every(h => h.value !== null);
+  // výkon se hlásí do žebříčku (při přihlášení se uloží k účtu spolu s ostatním postupem)
+  useEffect(() => {
+    if (!portfolio.trades.length || prices.status !== 'ready' || !allPriced) return;
+    const pct = Math.round((total / START_CASH - 1) * 10_000) / 100;
+    const prev = getData().pfPct;
+    if (prev === null || Math.abs(prev - pct) >= 0.05) updateData({ pfPct: pct });
+  }, [total, portfolio.trades.length, prices.status, allPriced]);
   const parts = [
     ...holdings.map((h, i) => ({ key: h.ticker, label: h.name, value: h.value ?? h.cost, color: SHADES[i % SHADES.length] })),
     { key: 'cash', label: 'Hotovost', value: portfolio.cash, color: 'var(--pp-cash)' },
@@ -84,6 +143,13 @@ export const PortfolioView: React.FC<Props> = ({ onOpenChart }) => {
 
       {prices.status === 'error' && (
         <p className="ui-note ui-note--warn" role="status">Ceny se nepodařilo načíst, pozice ukazuju za nákupní cenu.</p>
+      )}
+
+      {portfolio.trades.length > 0 && (
+        <section className="pp-hist" aria-label="Vývoj hodnoty portfolia">
+          <h3 className="ui-h3">Vývoj hodnoty</h3>
+          <HistoryChart points={history} />
+        </section>
       )}
 
       <div className="pp-alloc-wrap">
@@ -215,6 +281,8 @@ export const PortfolioView: React.FC<Props> = ({ onOpenChart }) => {
           )}
         </div>
       </div>
+
+      <Leaderboard initial="portfolio" />
 
       <div className="pp-foot">
         <p className="ui-small">

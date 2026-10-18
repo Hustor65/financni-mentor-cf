@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Segmented } from '../Segmented';
 import { Icon } from '../Icon';
 import { deleteAccount, signIn, signOut, useAccount } from '../../utils/account';
-import { useUserData } from '../../utils/store';
+import { updateData, useUserData } from '../../utils/store';
 
 /* ════════════════════════════════════════════════════════════
    Účet — přezdívka a heslo, nic dalšího. Přihlášenému se postup
@@ -112,6 +112,10 @@ export const AccountDialog: React.FC<Props> = ({ open, onClose }) => {
               <div><dt>Pozice v portfoliu</dt><dd>{holdings}</dd></div>
               <div><dt>Rekord ve hře</dt><dd>{data.guessBest ? `${data.guessBest} z 10` : '—'}</dd></div>
             </dl>
+            <label className="sh-dlg__check">
+              <input type="checkbox" checked={data.board} onChange={e => updateData({ board: e.target.checked })} />
+              <span>Ukazovat moji přezdívku v žebříčku</span>
+            </label>
             {unsynced && (
               <p className="ui-note ui-note--warn sh-dlg__note" role="status">
                 Poslední změny se zatím nepodařilo uložit do účtu. Zkusím to znovu, až bude připojení.

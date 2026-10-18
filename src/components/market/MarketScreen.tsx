@@ -410,6 +410,14 @@ export const MarketScreen: React.FC<Props> = ({ level, initialTicker: routeSub, 
   const snapshotDate = offline ? new Date(main.timestamp).toLocaleDateString('cs-CZ') : null;
 
   const quote = quotes[ticker];
+  // férová hodnota jde spočítat jen u jednotlivé akcie (ne u indexu, ETF, krypta, měny, komodity)
+  const isStock = WATCHLIST.find(g => g.group === 'Akcie')?.items.some(i => i.ticker === ticker)
+    || (!instrument && /^[A-Z]{1,5}(\.[A-Z]{1,2})?$/.test(ticker));
+  const priceNow = quote?.price ?? (main && main !== 'error' ? main.points[main.points.length - 1][4] : 0);
+  const openDcf = () => {
+    try { sessionStorage.setItem('fm-dcf', JSON.stringify({ name: title, price: priceNow })); } catch { /* bez předvyplnění */ }
+    window.location.hash = '#nastroje/dcf';
+  };
   const compareFull = compare.length >= MAX_COMPARE;
 
   return (
@@ -538,6 +546,11 @@ export const MarketScreen: React.FC<Props> = ({ level, initialTicker: routeSub, 
                 )}
               </div>
               {instrument && <p className="mx-head__about">{instrument.about}</p>}
+              {isStock && priceNow > 0 && (
+                <button type="button" className="btn btn--ghost btn--small mx-fair" onClick={openDcf}>
+                  Spočítat férovou hodnotu
+                </button>
+              )}
             </div>
 
             <div className="mx-toolbar">

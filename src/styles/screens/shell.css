@@ -816,3 +816,21 @@ dialog.sh-dlg::backdrop {
 .sh-fail { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-4); min-height: 50vh; padding-block: clamp(40px, 10vh, 120px); }
 .sh-fail .page-lead { margin-top: 0; }
 .sh-fail .btn { margin-top: var(--s-2); }
+
+
+/* ═══ Žebříček (.lb*) ═══════════════════════════════════════ */
+
+.lb { display: flex; flex-direction: column; gap: var(--s-3); margin: var(--s-7) 0; }
+.lb__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.lb__head .ui-sec__title { margin: 0; }
+.lb__list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.lb__list li { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-1); border-bottom: 1px solid var(--line); }
+.lb__rank { color: var(--text-4); font-weight: 700; }
+.lb__list li:nth-child(-n + 3) .lb__rank { color: var(--accent); }
+.lb__name { overflow: hidden; color: var(--text-1); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.lb__value { color: var(--text-2); font-weight: 600; }
+.lb__list li.is-me { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: var(--r-s, 8px); }
+.lb__empty { margin: 0; color: var(--text-3); }
+.lb__note { margin: 0; }
+.sh-dlg__check { display: flex; align-items: center; gap: var(--s-2); margin: var(--s-3) 0; color: var(--text-2); font-size: var(--fs-s); cursor: pointer; }
+.sh-dlg__check input { width: 18px; height: 18px; accent-color: var(--accent); }
