@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchSeries, fetchSnapshot, fmtPct } from '../../utils/market';
-import { TRADABLE, instrumentName } from '../../utils/portfolio';
+import { TRADABLE, fmtCzk, instrumentName } from '../../utils/portfolio';
 import { updateData, useUserData } from '../../utils/store';
 
 /* ════════════════════════════════════════════════════════════
@@ -10,6 +10,8 @@ import { updateData, useUserData } from '../../utils/store';
    obchodních dnů. Pointa: z minulého průběhu se budoucí směr poznat nedá.
    ════════════════════════════════════════════════════════════ */
 
+/** Virtuální portfolio, se kterým hráč začíná; každý tip vsadí celé. */
+const START_VALUE = 1_000_000;
 const ROUNDS = 10;
 const SHOWN = 90;
 const HIDDEN = 30;
@@ -197,6 +199,15 @@ export const GuessGame: React.FC = () => {
   };
   const start = () => begin(mode ?? 'real');
 
+  // Portfolio: tip „výš“ = nakoupí se za všechno a vydělá se na růstu, tip „níž“ = sázka na pokles
+  // (vydělá se na propadu). Hodnota po každém zodpovězeném kole.
+  const values = useMemo(() => {
+    const out = [START_VALUE];
+    if (rounds) answers.forEach((up, i) => out.push(Math.max(0, out[i] * (1 + ((up ? 1 : -1) * rounds[i].change) / 100))));
+    return out;
+  }, [answers, rounds]);
+  const portfolio = values[values.length - 1];
+
   const score = useMemo(
     () => (rounds ? answers.filter((a, i) => a === (rounds[i].change >= 0)).length : 0),
     [answers, rounds],
@@ -205,7 +216,7 @@ export const GuessGame: React.FC = () => {
   if (!mode) {
     return (
       <div className="gg gg--mode">
-        <p className="gg-mode__lead">Deset grafů useknutých v půlce. Vyber si, z čeho se budou brát.</p>
+        <p className="gg-mode__lead">Deset grafů useknutých v půlce. Začínáš s 1 000 000 Kč na zkoušku a každým tipem vsadíš celé portfolio. Vyber si, z čeho se budou grafy brát.</p>
         <div className="gg-mode__grid">
           <button type="button" className="gg-mode__card" onClick={() => begin('real')}>
             <strong>Skutečné trhy</strong>
@@ -241,6 +252,9 @@ export const GuessGame: React.FC = () => {
     const half = count / 2;
     const best = Math.max(guessBest, score);
     const random = mode === 'random';
+    const holdAll = rounds.reduce((v, r) => v * (1 + r.change / 100), START_VALUE);
+    const perfect = rounds.reduce((v, r) => v * (1 + Math.abs(r.change) / 100), START_VALUE);
+    const gain = portfolio - START_VALUE;
     return (
       <div className="gg gg--result" ref={root}>
         <div className="gg-score">
@@ -261,13 +275,24 @@ export const GuessGame: React.FC = () => {
           </div>
         </div>
 
+        <div className="gg-fund">
+          <p className="ui-hero-num">
+            <span className="ui-hero-num__label">Tvoje portfolio na konci (start {fmtCzk(START_VALUE)})</span>
+            {fmtCzk(portfolio)}
+          </p>
+          <p className={`gg-fund__delta num ${gain >= 0 ? 'is-up' : 'is-down'}`}>
+            {gain >= 0 ? '+' : '−'}{fmtCzk(Math.abs(gain))} · {fmtPct((gain / START_VALUE) * 100, 1)}
+          </p>
+        </div>
+
         <div className="gg-dots gg-dots--result" aria-hidden="true">
           {rounds.map((r, i) => <i key={i} className={answers[i] === (r.change >= 0) ? 'is-hit' : 'is-miss'} />)}
         </div>
 
         <dl className="ui-kpis">
           <div><dt>Hod mincí v průměru</dt><dd>{half.toLocaleString('cs-CZ')} z {count}</dd></div>
-          <div><dt>Vždy tipnout „výš“</dt><dd>{ups} z {count}</dd></div>
+          <div><dt>Vždy tipnout „výš“</dt><dd>{ups} z {count} · {fmtCzk(holdAll)}</dd></div>
+          <div><dt>Kdyby ses vždy trefil</dt><dd>{fmtCzk(perfect)}</dd></div>
           {!random && <div><dt>Tvůj rekord</dt><dd>{best} z 10</dd></div>}
         </dl>
 
@@ -338,7 +363,10 @@ export const GuessGame: React.FC = () => {
             <i key={i} className={i < answers.length ? (answers[i] === (r.change >= 0) ? 'is-hit' : 'is-miss') : i === index ? 'is-now' : ''} />
           ))}
         </div>
-        <p className="gg-bar__score num">Správně <strong>{score}</strong></p>
+        <p className="gg-bar__score num">
+          Správně <strong>{score}</strong>
+          <span className="gg-bar__fund"> · <strong className={portfolio >= START_VALUE ? 'is-up' : 'is-down'}>{fmtCzk(portfolio)}</strong></span>
+        </p>
       </div>
 
       <div className="gg-stage" ref={stageRef}>
@@ -353,7 +381,10 @@ export const GuessGame: React.FC = () => {
               <p>
                 Cena {wentUp ? 'vzrostla' : 'klesla'} o{' '}
                 <span className={`num ${wentUp ? 'is-up' : 'is-down'}`}>{fmtPct(Math.abs(round.change), 1).replace('+', '')}</span>.
-                {round.ticker && round.from && round.to
+                Portfolio{' '}
+                <span className={`num ${values[index + 1] - values[index] >= 0 ? 'is-up' : 'is-down'}`}>
+                  {values[index + 1] - values[index] >= 0 ? '+' : '−'}{fmtCzk(Math.abs(values[index + 1] - values[index]))}
+                </span>. {round.ticker && round.from && round.to
                   ? <>Byl to <strong>{instrumentName(round.ticker)}</strong>, {dateFmt.format(round.from)} – {dateFmt.format(round.to)}.</>
                   : <>Byl to <strong>náhodně vygenerovaný graf</strong>, žádný skutečný titul.</>}
               </p>
@@ -380,6 +411,8 @@ export const GuessGame: React.FC = () => {
           )}
         </div>
       </div>
+
+      <p className="ui-small gg-hint">Tip „výš“ = nakoupíš za celé portfolio. Tip „níž“ = vsadíš na pokles a vyděláš, když cena klesne. Hra na zkoušku, ne investiční rada.</p>
     </div>
   );
 };

@@ -205,3 +205,7 @@
 ## 44. Odhadni graf: výběr režimu, skutečné trhy nebo náhodný graf (18. 10. 2026)
 
 - **`components/lab/GuessGame.tsx`:** na začátku se vybírá režim. **Skutečné trhy** je původní hra (výřezy z 2letých snímků, vždy jiný titul i období), rekord se počítá jen tady. **Náhodný graf** generuje počítač (`randomRounds`): denní cena je násobená náhodným číslem (Box–Muller), bez trendu a bez paměti, liší se jen rozkolísaností, takže správný tip je opravdu hod mincí. Rekord se v něm nezapisuje a závěrečné ponaučení je jiné (lidský mozek vidí vzorce v náhodě). Po hře jde „Hrát znovu“ nebo „Změnit režim“. Texty karet v Přehledu a v Nástrojích upraveny.
+
+## 45. Odhadni graf: portfolio 1 000 000 Kč (18. 10. 2026)
+
+- **`GuessGame.tsx`:** v obou režimech hráč začíná s virtuálním portfoliem 1 000 000 Kč (`START_VALUE`). Každý tip vsadí celé portfolio: „výš“ = nákup (výdělek z růstu), „níž“ = sázka na pokles (výdělek z propadu); hodnota se násobí `1 ± změna` za 30 dní, nejméně 0. V liště je průběžná hodnota, po odhalení kola změna v Kč, na konci výsledek v Kč a %, srovnání „vždy tipnout výš“ a „kdyby ses vždy trefil“. Zajímavé ponaučení: úspěšnost 6 z 10 může skončit ve ztrátě, protože záleží i na velikosti pohybů. Nápověda k pravidlům pod hrou, „hra na zkoušku, ne investiční rada“.

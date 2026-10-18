@@ -597,3 +597,10 @@
 .gg-mode__card:hover { border-color: var(--accent); background: var(--surface-2, rgba(255, 255, 255, 0.07)); transform: translateY(-2px); }
 .gg-after { display: flex; flex-wrap: wrap; gap: var(--s-3); }
 @media (max-width: 720px) { .gg-mode__grid { grid-template-columns: 1fr; } }
+
+/* Odhadni graf: portfolio */
+.gg-bar__fund { white-space: nowrap; }
+.gg-fund { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s-2) var(--s-5); }
+.gg-fund .ui-hero-num { margin: 0; }
+.gg-fund__delta { margin: 0 0 6px; font-family: var(--font-display); font-size: var(--fs-l); font-weight: 700; }
+.gg-hint { margin: var(--s-2) 0 0; max-width: var(--measure-text); }
