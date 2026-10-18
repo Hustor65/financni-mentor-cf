@@ -190,3 +190,8 @@
 ## 41. Datum místo „dnes“ u tržních dat (18. 10. 2026)
 
 - Kotace z `/api/market` nesou `asof` (kdy burza naposledy obchodovala). Web píše „k 16. 10. 2026“ místo „dnes“ u denní změny: hlavička titulu v Trzích, nákupní formulář, sektory (přepínač Den/Měsíc/Rok), souhrn portfolia („Za den (k …)“), Přehled. U uložených snímků bez data stojí „za poslední den“. Pro smíšené seznamy (akcie + krypto) se bere nejčastější datum (`typicalAsof` v `utils/market.ts`), jinak by akcie o víkendu dostaly datum nedělní.
+
+## 42. Plynulejší přechod z hera a přesné čáry na glóbu (18. 10. 2026)
+
+- **Přechod hero → obsah (`HeroSection.tsx`, `Home.tsx`, `screens/shell.css`):** dvě vrstvy místo prostého zešednutí. Text (`.hero-copy`) odjíždí nahoru a mizí do poloviny scrollu, glóbus se pomaleji zmenšuje a rozplývá až za ním (hladká křivka smoothstep, jen `opacity`/`transform`, bez blur kvůli výkonu). Karty `.hm-cell` se při vstupu do obrazovky vynoří zdola postupně (IntersectionObserver, třídy `hm-pre`/`is-in`); s omezeným pohybem (`prefers-reduced-motion`) zůstává vše beze změn. Scroll drží 60 fps i při 4× zpomaleném CPU.
+- **Čáry spojů (`Scene.tsx`):** oblouky končí ve stejné výšce jako světla měst (`arcStartAltitude` a `arcEndAltitude` = 0,012, tedy R × 1,012). Dřív končily na povrchu koule a z náklonu kamery dopadaly vedle bodů.

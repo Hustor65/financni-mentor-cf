@@ -834,3 +834,13 @@ dialog.sh-dlg::backdrop {
 .lb__note { margin: 0; }
 .sh-dlg__check { display: flex; align-items: center; gap: var(--s-2); margin: var(--s-3) 0; color: var(--text-2); font-size: var(--fs-s); cursor: pointer; }
 .sh-dlg__check input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+
+/* Přechod z hera do obsahu: karty se vynoří, ne najedou. Třídu hm-pre přidává Home.tsx
+   (bez JS nebo s omezeným pohybem zůstanou karty rovnou vidět). */
+.hm-cell.hm-pre {
+  opacity: 0;
+  transform: translate3d(0, 36px, 0) scale(0.985);
+  transition: opacity 0.8s var(--ease-out), transform 0.9s var(--ease-out);
+}
+.hm-cell.hm-pre.is-in { opacity: 1; transform: none; }

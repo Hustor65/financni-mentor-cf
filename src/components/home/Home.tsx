@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { TOPICS } from '../../data/topics';
 import { TOOLS } from '../tools/registry';
 import { ALL_INSTRUMENTS, fetchQuotes, fetchSeries, fmtDay, fmtPrice, fmtPct, typicalAsof } from '../../utils/market';
@@ -208,6 +208,24 @@ export const Home: React.FC<Props> = ({ level, completed, onNavigate, onOpenTopi
 
   const featured = FEATURED[level];
   const moreTools = TOOLS.filter(t => t.level === level && t.id !== featured).slice(0, level === 'start' ? 4 : 2);
+
+  // karty se při najetí do obrazovky jemně vynoří (zdola, postupně) místo aby ostře najely přes hero
+  useLayoutEffect(() => {
+    if (typeof IntersectionObserver === 'undefined' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const cells = [...document.querySelectorAll<HTMLElement>('.hm-cell')];
+    cells.forEach(c => c.classList.add('hm-pre'));
+    const io = new IntersectionObserver(entries => {
+      const entering = entries.filter(e => e.isIntersecting);
+      entering.forEach((e, i) => {
+        const el = e.target as HTMLElement;
+        el.style.transitionDelay = `${i * 90}ms`;
+        el.classList.add('is-in');
+        io.unobserve(el);
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -6% 0px' });
+    cells.forEach(c => io.observe(c));
+    return () => { io.disconnect(); cells.forEach(c => { c.classList.remove('hm-pre', 'is-in'); c.style.transitionDelay = ''; }); };
+  }, []);
 
   // datum poslední ceny z kotací — píšeme ho místo „dnes“ (data jsou zpožděná)
   const quotesAsof = typicalAsof(quotes?.list ?? []);

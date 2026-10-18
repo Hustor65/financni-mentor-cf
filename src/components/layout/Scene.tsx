@@ -118,6 +118,9 @@ const TRACK_COLOR = 'rgba(58,181,224,0.2)';
 const PULSE_COLOR = ['rgba(52,211,153,0)', GREEN, '#eafff6'];
 const arcColor = (d: object) => ((d as ArcDatum).pulse ? PULSE_COLOR : TRACK_COLOR);
 const arcAlt = (d: object) => (d as ArcDatum).alt;
+/** Světla měst leží o 1,2 % poloměru nad kulí (R * 1.012, viz ExchangeLights); oblouky musí začínat
+ *  a končit ve stejné výšce, jinak z náklonu kamery dopadají vedle bodů. */
+const ARC_END_ALT = 0.012;
 const arcStroke = (d: object) => ((d as ArcDatum).pulse ? 0.5 : 0.2);
 const arcGap = (d: object) => (d as ArcDatum).gap;
 const arcDashLen = (d: object) => ((d as ArcDatum).pulse ? 0.45 : 1);
@@ -867,6 +870,8 @@ function GlobeBody({ still, paused, detail }: { still: boolean; paused: boolean;
                 arcsData={arcsData}
                 arcColor={arcColor}
                 arcAltitude={arcAlt}
+                arcStartAltitude={ARC_END_ALT}
+                arcEndAltitude={ARC_END_ALT}
                 arcStroke={arcStroke}
                 arcCurveResolution={48}
                 arcCircularResolution={4}

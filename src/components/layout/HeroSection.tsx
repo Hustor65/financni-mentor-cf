@@ -47,6 +47,7 @@ interface Props {
 
 export const HeroSection: React.FC<Props> = ({ active, onChoose, onOpenMarket }) => {
   const innerRef = useRef<HTMLDivElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
   // 3D scéna se pauzne, jakmile hero sjede z obrazovky (šetří CPU/GPU)
   const [sceneActive, setSceneActive] = useState(true);
   const reduce =
@@ -78,20 +79,31 @@ export const HeroSection: React.FC<Props> = ({ active, onChoose, onOpenMarket })
 
   useEffect(() => {
     const inner = innerRef.current;
+    const copy = copyRef.current;
     if (!inner || !active) return;
 
     let raf = 0;
     let lastP = -1;
+    const smooth = (t: number) => t * t * (3 - 2 * t);
+    const motion = !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
     const apply = () => {
       raf = 0;
       const vh = window.innerHeight || 800;
-      // hero slábne po celou dobu, co přes něj najíždí obsah (obsah potřebuje ~100 % výšky
-      // obrazovky) — zpočátku pomalu, ke konci rychle, ať nevznikne ani duch nadpisu, ani prázdno
-      const p = Math.min(Math.max(window.scrollY / (vh * 0.8), 0), 1);
+      // Přechod do obsahu má dvě vrstvy: text odjíždí nahoru a mizí brzy (než k němu dojedou
+      // karty, žádný „duch“ nadpisu pod nimi), glóbus se pomaleji zmenšuje a rozplývá až
+      // za ním. Rozdílné rychlosti dávají hloubku místo prostého zešednutí.
+      const p = Math.min(Math.max(window.scrollY / (vh * 0.85), 0), 1);
       if (Math.abs(p - lastP) < 0.001) return;
       lastP = p;
-      inner.style.opacity = String(1 - p * p);
+      const sceneOut = smooth(Math.min(1, Math.max(0, (p - 0.1) / 0.9)));
+      inner.style.opacity = String(1 - sceneOut);
+      inner.style.transform = motion ? `translate3d(0, ${(-sceneOut * 5).toFixed(2)}vh, 0) scale(${(1 - 0.05 * sceneOut).toFixed(4)})` : '';
+      if (copy) {
+        const textOut = smooth(Math.min(1, p / 0.5));
+        copy.style.opacity = String(1 - textOut);
+        copy.style.transform = motion ? `translate3d(0, ${(-textOut * 9).toFixed(2)}vh, 0)` : '';
+      }
       // pointer-events vypni až když je hero prakticky neviditelné (M27)
       inner.style.pointerEvents = p > 0.85 ? 'none' : '';
       setSceneActive(prev => (prev === p < 0.99 ? prev : p < 0.99));
@@ -123,7 +135,7 @@ export const HeroSection: React.FC<Props> = ({ active, onChoose, onOpenMarket })
         </div>
         <div className="hero-fs-shade" aria-hidden="true" />
 
-        <div className="hero-copy">
+        <div className="hero-copy" ref={copyRef}>
           <h1 className="hero-title">Od první výplaty po první opci</h1>
           <p className="hero-lead">
             Akademie, kalkulačky, grafy skutečných trhů a AI mentor, který ti vysvětlí cokoli z toho.
