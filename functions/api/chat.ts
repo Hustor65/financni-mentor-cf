@@ -640,6 +640,11 @@ async function streamConversation(
   return { ok: true, status: 200, streamed };
 }
 
+/** Omezení vstupu (viz onRequestPost): délka zprávy, počet a délka položek historie. */
+const MAX_MESSAGE_CHARS = 2000;
+const MAX_HISTORY_ITEMS = 20;
+const MAX_HISTORY_CHARS = 6000;
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   const json = (body: unknown, status = 200) =>
@@ -659,7 +664,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return json({ error: 'Invalid JSON' }, 400);
   }
 
-  if (!message?.trim()) return json({ error: 'Empty message' }, 400);
+  // Vstupy hlídáme tvrdě: chat je brána k placenému API, takže nepustíme ani dlouhé zprávy,
+  // ani nekonečnou historii, ani cizí role (system/tool) vložené z prohlížeče.
+  if (typeof message !== 'string' || !message.trim()) return json({ error: 'Empty message' }, 400);
+  if (message.length > MAX_MESSAGE_CHARS) return json({ error: 'Message too long' }, 413);
+  history = (Array.isArray(history) ? history : [])
+    .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+    .slice(-MAX_HISTORY_ITEMS)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_HISTORY_CHARS) }));
 
   const geminiKey = env.GEMINI_API_KEY || env.GOOGLE_API_KEY;
   const openaiKey = env.OPENAI_API_KEY;
