@@ -195,3 +195,9 @@
 
 - **Přechod hero → obsah (`HeroSection.tsx`, `Home.tsx`, `screens/shell.css`):** dvě vrstvy místo prostého zešednutí. Text (`.hero-copy`) odjíždí nahoru a mizí do poloviny scrollu, glóbus se pomaleji zmenšuje a rozplývá až za ním (hladká křivka smoothstep, jen `opacity`/`transform`, bez blur kvůli výkonu). Karty `.hm-cell` se při vstupu do obrazovky vynoří zdola postupně (IntersectionObserver, třídy `hm-pre`/`is-in`); s omezeným pohybem (`prefers-reduced-motion`) zůstává vše beze změn. Scroll drží 60 fps i při 4× zpomaleném CPU.
 - **Čáry spojů (`Scene.tsx`):** oblouky končí ve stejné výšce jako světla měst (`arcStartAltitude` a `arcEndAltitude` = 0,012, tedy R × 1,012). Dřív končily na povrchu koule a z náklonu kamery dopadaly vedle bodů.
+
+## 43. Kontrola UX na počítači a telefonu (18. 10. 2026)
+
+- **Automatický audit** (10 stránek × 1440 px a 390 px): žádné přetékání do stran, žádné chyby v konzoli, žádné písmo pod 12,5 px.
+- **Tabulka pozic na telefonu (`PortfolioView.tsx`, `screens/markets.css`):** 8 sloupců se na 390 px nevešlo a Za den, Hodnota, Výsledek i tlačítka byly schované za vodorovným posunem. Na telefonu je teď každá pozice karta (popisky z `data-label`), pozice a obchody jsou nad nákupním formulářem. Text „vlevo klikni“ nahrazen neutrálním.
+- **Dotykové plochy (`features.css`, `@media (pointer: coarse)`):** textové odkazy, „Zpět“, malá tlačítka a odkazy v patičce aspoň 44 px. U `.btn--small` je potřeba `.btn.btn--small` kvůli pořadí načítání stylů.

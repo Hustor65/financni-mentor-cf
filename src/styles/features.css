@@ -508,6 +508,10 @@ dialog[open] .sheet__box { translate: 0 0; }
   .mk-row__main { min-height: 44px; }
   .mk-row__cmp { min-width: 40px; min-height: 40px; }
   .footer-item--link { display: inline-block; padding-block: 8px; }
+  /* odkazy a malá tlačítka aspoň 44 px vysoké, ať se na ně dá trefit prstem */
+  .text-link, .back-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .btn.btn--small { min-height: 44px; }
+  footer a { display: inline-block; padding: 10px 8px; }
 }
 
 /* psaní do chatu: obrys má zaoblený rámeček okolo, ne samotné pole uvnitř */

@@ -230,12 +230,12 @@ export const PortfolioView: React.FC<Props> = ({ onOpenChart }) => {
                               <small>{h.ticker}</small>
                             </button>
                           </th>
-                          <td>{fmtQty(h.qty)}</td>
-                          <td>{fmtCzk(h.cost / h.qty, h.cost / h.qty < 100 ? 2 : 0)}</td>
-                          <td>{h.price === null ? '—' : fmtCzk(h.price, h.price < 100 ? 2 : 0)}</td>
-                          <td className={h.dayPct === null ? '' : h.dayPct >= 0 ? 'is-up' : 'is-down'}>{h.dayPct === null ? '—' : fmtPct(h.dayPct)}</td>
-                          <td>{h.value === null ? '—' : fmtCzk(h.value)}</td>
-                          <td className={cls}>
+                          <td data-label="Kusů">{fmtQty(h.qty)}</td>
+                          <td data-label="Ø nákup">{fmtCzk(h.cost / h.qty, h.cost / h.qty < 100 ? 2 : 0)}</td>
+                          <td data-label="Cena">{h.price === null ? '—' : fmtCzk(h.price, h.price < 100 ? 2 : 0)}</td>
+                          <td data-label="Za den" className={h.dayPct === null ? '' : h.dayPct >= 0 ? 'is-up' : 'is-down'}>{h.dayPct === null ? '—' : fmtPct(h.dayPct)}</td>
+                          <td data-label="Hodnota">{h.value === null ? '—' : fmtCzk(h.value)}</td>
+                          <td data-label="Výsledek" className={cls}>
                             {diff === null ? '—' : <>{sign(diff)}{fmtCzk(Math.abs(diff))}<small>{fmtPct((diff / h.cost) * 100, 1)}</small></>}
                           </td>
                           <td>
@@ -259,7 +259,7 @@ export const PortfolioView: React.FC<Props> = ({ onOpenChart }) => {
               <div className="pp-empty">
                 <p><strong>Zatím nic nedržíš.</strong> Začni prvním nákupem:</p>
                 <ol>
-                  <li>Vlevo klikni na titul (třeba Vanguard All‑World) nebo napiš jeho ticker.</li>
+                  <li>V nákupním formuláři klikni na titul (třeba Vanguard All‑World) nebo napiš jeho ticker.</li>
                   <li>Zadej částku nebo počet kusů a dej Koupit.</li>
                   <li>Za pár dní se vrať a podívej se, co s hodnotou udělal trh.</li>
                 </ol>
