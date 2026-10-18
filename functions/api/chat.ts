@@ -657,13 +657,16 @@ const MAX_HISTORY_CHARS = 6000;
 /**
  * Limity dotazů na mentora — každý dotaz stojí peníze za tokeny. Tři vrstvy:
  *  - na návštěvníka (anonymní ID z prohlížeče, na stánku se mění s každým resetem),
- *  - na IP adresu (velkorysé: celá veletržní hala sdílí jednu),
+ *  - na IP adresu (hodinový limit a denní podíl ze stropu; platí bez ohledu na ID návštěvníka,
+ *    takže střídání vymyšlených ID ho neobejde; celá veletržní hala sdílí jednu IP, proto ne přísněji),
  *  - celkový denní strop, který ochrání rozpočet před jakýmkoli zneužitím.
  * ID jde obejít smazáním úložiště; proto nejsou jediná pojistka a celkový strop je nejdůležitější.
  */
 const VISITOR_PER_HOUR = 25;
 const VISITOR_PER_DAY = 60;
-const IP_PER_HOUR = 1000;
+const IP_PER_HOUR = 300;
+/** Podíl jedné IP na celkovém denním stropu: jeden zdroj nemůže mentora vypnout všem ostatním. */
+const IP_SHARE_OF_CAP = 0.4;
 const CHAT_DAILY_CAP_DEFAULT = 2500;
 
 /** Vrací text pro návštěvníka, když je limit vyčerpán; jinak null. Při chybě databáze nepustí chat zbytečně do kolen. */
@@ -680,7 +683,7 @@ async function chatLimitMessage(db: D1Database, request: Request, env: Env): Pro
     if (await limited(db, `chat:v:${visitor}:d`, VISITOR_PER_DAY, 86_400)) {
       return 'Dnešní limit dotazů na mentora je pro tebe vyčerpaný. Zítra bude zase k dispozici. Akademie, grafy a nástroje fungují dál.';
     }
-    if (await limited(db, `chat:ip:${ip}`, IP_PER_HOUR, 3600)) {
+    if (await limited(db, `chat:ip:${ip}:h`, IP_PER_HOUR, 3600) || await limited(db, `chat:ip:${ip}:d`, Math.floor(cap * IP_SHARE_OF_CAP), 86_400)) {
       return 'Z téhle sítě teď přišlo příliš mnoho dotazů na mentora. Zkus to prosím za chvíli.';
     }
     if (await limited(db, 'chat:global', cap, 86_400)) {

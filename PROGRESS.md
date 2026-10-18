@@ -183,6 +183,6 @@
 
 ## 40. Limity dotazů na mentora (18. 10. 2026)
 
-- **Tři vrstvy (`functions/api/chat.ts`, počítadlo v D1 tabulce `attempts` přes `src/server/limits.ts`):** na návštěvníka 25 dotazů za hodinu a 60 za den, na IP 1000 za hodinu (celá hala sdílí jednu), celkově 2500 za 24 h (přepsat jde proměnnou `CHAT_DAILY_CAP`). Po vyčerpání server vrací 429 se zprávou pro návštěvníka (`ChatLimitError` v `utils/api.ts`, zobrazí ji chat).
+- **Tři vrstvy (`functions/api/chat.ts`, počítadlo v D1 tabulce `attempts` přes `src/server/limits.ts`):** na návštěvníka 25 dotazů za hodinu a 60 za den, na IP 300 za hodinu a nejvýš 40 % denního stropu (platí bez ohledu na ID návštěvníka; celá hala sdílí jednu IP, proto ne přísněji), celkově 2500 za 24 h (přepsat jde proměnnou `CHAT_DAILY_CAP`). Po vyčerpání server vrací 429 se zprávou pro návštěvníka (`ChatLimitError` v `utils/api.ts`, zobrazí ji chat).
 - **ID návštěvníka (`utils/visitor.ts`):** náhodné číslo v prohlížeči, posílá se v hlavičce `X-Visitor`. Režim stánku ho mění po každém resetu, takže každý další návštěvník stánku má vlastní limit. ID jde obejít smazáním úložiště, proto je nejdůležitější celkový denní strop a rozpočtový limit u OpenAI.
 - **Pozor:** zpráva z webu nese i ověřený kontext z databáze (1,4–2,8 tis. znaků), strop délky zprávy je proto 8000 znaků (původních 2000 odmítalo běžné dotazy a bylo to krátce nasazené, opraveno hotfixem).
