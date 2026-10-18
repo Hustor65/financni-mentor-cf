@@ -67,7 +67,7 @@ export const Leaderboard: React.FC<{ initial?: Tab }> = ({ initial = 'points' })
         </ol>
       )}
       <p className="ui-small lb__note">
-        Ukazuje se jen přezdívka. Do žebříčku se dostaneš s účtem; vypnout si to můžeš v nastavení účtu.
+        Ukazuje se jen přezdívka. Do žebříčku se dostaneš s účtem; vypnout si to můžeš v nastavení účtu. Výkon portfolia hlásí tvůj prohlížeč a server ho nepřepočítává, takže je to hra, ne oficiální soutěž.
       </p>
     </section>
   );

@@ -161,7 +161,8 @@ export function mergeData(local: UserData, remote: UserData): UserData {
     // portfolia sčítat nejde; platí to z účtu, pokud se v něm už obchodovalo
     portfolio: remote.portfolio.trades.length ? remote.portfolio : local.portfolio,
     pfPct: remote.portfolio.trades.length ? remote.pfPct : local.pfPct,
-    board: isPristine(local) ? remote.board : local.board,
+    // odmítnutí žebříčku platí napříč zařízeními: kdo ho kdekoli vypnul, má ho vypnutý
+    board: local.board && remote.board,
     guessBest: Math.max(local.guessBest, remote.guessBest),
     scores: mergeScores(local.scores, remote.scores),
   };

@@ -12,6 +12,8 @@
  * v databázi je z tokenu zase jen otisk.
  */
 
+import { TOPICS } from '../../src/data/topics';
+
 interface Env { DB?: D1Database }
 
 interface UserRow {
@@ -98,18 +100,20 @@ const parseData = (text: string): unknown => { try { return JSON.parse(text); } 
 
 /** Strop bodů za jednu hru v tématu (stejné hodnoty jako PLAY_MAX na webu). */
 const PLAY_MAX: Record<string, number> = { tip: 20, sort: 30, quiz: 50 };
+/** Body se počítají jen za skutečná témata — vymyšlené názvy témat žebříček nenafouknou. */
+const TOPIC_IDS = new Set(TOPICS.map(t => t.id));
 
 /**
  * Údaje pro žebříček z uloženého postupu. Body se počítají tady na serveru ze skóre
- * (se stropy za hru), výkon portfolia hlásí web — je to hra, ne soutěž o peníze,
- * proto jen ořezaný do rozumného rozsahu.
+ * (jen za skutečná témata a se stropy za hru). Výkon portfolia hlásí web, server ho
+ * nepřepočítává — je to hra, ne soutěž o peníze, proto jen ořezaný do rozumného rozsahu.
  */
 function boardStats(raw: string): { points: number; pfPct: number | null; board: number } {
   const d = parseData(raw) as Record<string, unknown>;
   let points = 0;
-  const scores = d.scores && typeof d.scores === 'object' ? Object.values(d.scores as Record<string, Record<string, unknown>>).slice(0, 200) : [];
-  for (const topic of scores) {
-    if (!topic || typeof topic !== 'object') continue;
+  const scores = d.scores && typeof d.scores === 'object' ? Object.entries(d.scores as Record<string, Record<string, unknown>>) : [];
+  for (const [id, topic] of scores) {
+    if (!TOPIC_IDS.has(id) || !topic || typeof topic !== 'object') continue;
     for (const [kind, max] of Object.entries(PLAY_MAX)) {
       const v = Number(topic[kind]);
       if (Number.isFinite(v) && v > 0) points += Math.min(max, Math.round(v));
