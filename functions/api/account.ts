@@ -13,6 +13,7 @@
  */
 
 import { TOPICS } from '../../src/data/topics';
+import { limited } from '../../src/server/limits';
 
 interface Env { DB?: D1Database }
 
@@ -75,19 +76,6 @@ function sameOrigin(request: Request): boolean {
   const origin = request.headers.get('Origin');
   if (!origin) return true; // stejný původ Origin u některých prohlížečů neposílá
   try { return new URL(origin).host === new URL(request.url).host; } catch { return false; }
-}
-
-/** true = limit vyčerpán. Jinak pokus započítá (jedním atomickým příkazem, bez závodu). */
-async function limited(db: D1Database, key: string, max: number, windowSec: number): Promise<boolean> {
-  const now = Math.floor(Date.now() / 1000);
-  const row = await db.prepare(
-    `INSERT INTO attempts (key, count, reset_at) VALUES (?1, 1, ?2)
-     ON CONFLICT(key) DO UPDATE SET
-       count = CASE WHEN reset_at <= ?3 THEN 1 ELSE count + 1 END,
-       reset_at = CASE WHEN reset_at <= ?3 THEN ?2 ELSE reset_at END
-     RETURNING count`,
-  ).bind(key, now + windowSec, now).first<{ count: number }>();
-  return (row?.count ?? 1) > max;
 }
 
 function cleanData(value: unknown): string | null {

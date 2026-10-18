@@ -10,7 +10,12 @@
  *    Když OpenAI selže nebo klíč chybí, odpoví Gemini; chybí-li klíč Gemini, jede jen OpenAI.
  */
 
+import { limited } from '../../src/server/limits';
+
 interface Env {
+  DB?: D1Database;
+  /** celkový počet dotazů na mentora za 24 hodin (výchozí CHAT_DAILY_CAP_DEFAULT) */
+  CHAT_DAILY_CAP?: string;
   GEMINI_API_KEY?: string;
   GOOGLE_API_KEY?: string;
   OPENAI_API_KEY?: string;
@@ -649,6 +654,44 @@ const MAX_MESSAGE_CHARS = 8000;
 const MAX_HISTORY_ITEMS = 20;
 const MAX_HISTORY_CHARS = 6000;
 
+/**
+ * Limity dotazů na mentora — každý dotaz stojí peníze za tokeny. Tři vrstvy:
+ *  - na návštěvníka (anonymní ID z prohlížeče, na stánku se mění s každým resetem),
+ *  - na IP adresu (velkorysé: celá veletržní hala sdílí jednu),
+ *  - celkový denní strop, který ochrání rozpočet před jakýmkoli zneužitím.
+ * ID jde obejít smazáním úložiště; proto nejsou jediná pojistka a celkový strop je nejdůležitější.
+ */
+const VISITOR_PER_HOUR = 25;
+const VISITOR_PER_DAY = 60;
+const IP_PER_HOUR = 1000;
+const CHAT_DAILY_CAP_DEFAULT = 2500;
+
+/** Vrací text pro návštěvníka, když je limit vyčerpán; jinak null. Při chybě databáze nepustí chat zbytečně do kolen. */
+async function chatLimitMessage(db: D1Database, request: Request, env: Env): Promise<string | null> {
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'local';
+  const rawId = request.headers.get('X-Visitor') ?? '';
+  // bez platného ID počítáme návštěvníka podle IP (přísněji, než by jinak platilo)
+  const visitor = /^[a-f0-9]{32}$/.test(rawId) ? rawId : `ip-${ip}`;
+  const cap = Number(env.CHAT_DAILY_CAP) > 0 ? Number(env.CHAT_DAILY_CAP) : CHAT_DAILY_CAP_DEFAULT;
+  try {
+    if (await limited(db, `chat:v:${visitor}:h`, VISITOR_PER_HOUR, 3600)) {
+      return 'Mentor má pro jednoho návštěvníka limit dotazů za hodinu a ty jsi ho využil. Zkus to prosím za chvíli. Akademie, grafy a nástroje fungují dál.';
+    }
+    if (await limited(db, `chat:v:${visitor}:d`, VISITOR_PER_DAY, 86_400)) {
+      return 'Dnešní limit dotazů na mentora je pro tebe vyčerpaný. Zítra bude zase k dispozici. Akademie, grafy a nástroje fungují dál.';
+    }
+    if (await limited(db, `chat:ip:${ip}`, IP_PER_HOUR, 3600)) {
+      return 'Z téhle sítě teď přišlo příliš mnoho dotazů na mentora. Zkus to prosím za chvíli.';
+    }
+    if (await limited(db, 'chat:global', cap, 86_400)) {
+      return 'Mentor má dnes hodně dotazů a denní limit je vyčerpaný. Zkus to prosím zítra. Akademie, grafy a nástroje fungují dál.';
+    }
+  } catch (error) {
+    console.error('Chat: počítadlo limitů selhalo, dotaz propouštím', error);
+  }
+  return null;
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   const json = (body: unknown, status = 200) =>
@@ -680,6 +723,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const geminiKey = env.GEMINI_API_KEY || env.GOOGLE_API_KEY;
   const openaiKey = env.OPENAI_API_KEY;
   if (!geminiKey && !openaiKey) return json({ error: 'API key not configured' }, 500);
+
+  if (env.DB) {
+    const blocked = await chatLimitMessage(env.DB, request, env);
+    if (blocked) return new Response(JSON.stringify({ error: 'rate_limited', message: blocked }), {
+      status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': '600' },
+    });
+  }
 
   const systemInstruction = buildSystemInstruction();
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChatPanel, type ChatTopic, type Message } from './ChatPanel';
 import type { ChatSuggestion } from './ChatEmptyState';
-import { streamChatMessage } from '../../utils/api';
+import { ChatLimitError, streamChatMessage } from '../../utils/api';
 
 interface ChatInterfaceProps {
   onMessageSent?: () => void;
@@ -174,7 +174,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
           const next = [...prev];
           next[next.length - 1] = {
             role: 'assistant',
-            content: navigator.onLine === false
+            content: err instanceof ChatLimitError ? err.message : navigator.onLine === false
               ? 'Mentor potřebuje připojení k internetu a to teď chybí. Akademie, grafy i nástroje fungují dál; zeptej se znovu, až bude síť zpátky.'
               : 'Spojení s mentorem se nepovedlo. Zkus dotaz za chvíli poslat znovu.',
             error: true,
@@ -222,7 +222,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onMessageSent, ini
       }
     } else {
       // legitimní sync: předvyplnění inputu při změně external prop
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInput(initialPrompt);
     }
     focusActiveInput();

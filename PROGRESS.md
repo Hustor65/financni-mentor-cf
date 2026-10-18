@@ -180,3 +180,9 @@
 - **`functions/api/chat.ts`:** když je nastavený `OPENAI_API_KEY`, odpovídá nejdřív OpenAI Chat Completions (výchozí `gpt-5.4-mini`, pak `gpt-5.4-nano`; přepsat jde proměnnou `OPENAI_MODEL`, čárkami oddělený seznam). Když OpenAI selže nebo nic neodešle, pokračuje řetěz Gemini jako dřív. Chybí-li jeden z klíčů, jede ten druhý. Nástroje (ceny, výkonnost) jsou stejné pro oba poskytovatele; u řady gpt-5 se s nástroji musí posílat `reasoning_effort: "none"`. V logu je řádek `Chat: odpověděl <poskytovatel>:<model>`.
 - **Klíč:** lokálně v `.dev.vars` (mimo git), na produkci jako secret: `pbpaste | npx wrangler pages secret put OPENAI_API_KEY --project-name financni-mentor-cf`.
 - **Neřešeno:** limity na návštěvníka a denní strop spotřeby tokenů (mentor je pořád bez omezení na uživatele).
+
+## 40. Limity dotazů na mentora (18. 10. 2026)
+
+- **Tři vrstvy (`functions/api/chat.ts`, počítadlo v D1 tabulce `attempts` přes `src/server/limits.ts`):** na návštěvníka 25 dotazů za hodinu a 60 za den, na IP 1000 za hodinu (celá hala sdílí jednu), celkově 2500 za 24 h (přepsat jde proměnnou `CHAT_DAILY_CAP`). Po vyčerpání server vrací 429 se zprávou pro návštěvníka (`ChatLimitError` v `utils/api.ts`, zobrazí ji chat).
+- **ID návštěvníka (`utils/visitor.ts`):** náhodné číslo v prohlížeči, posílá se v hlavičce `X-Visitor`. Režim stánku ho mění po každém resetu, takže každý další návštěvník stánku má vlastní limit. ID jde obejít smazáním úložiště, proto je nejdůležitější celkový denní strop a rozpočtový limit u OpenAI.
+- **Pozor:** zpráva z webu nese i ověřený kontext z databáze (1,4–2,8 tis. znaků), strop délky zprávy je proto 8000 znaků (původních 2000 odmítalo běžné dotazy a bylo to krátce nasazené, opraveno hotfixem).

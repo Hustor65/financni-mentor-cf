@@ -13,6 +13,7 @@ import { AccountDialog } from './components/account/AccountDialog';
 import { KioskGuard } from './components/kiosk/KioskGuard';
 import { updateData, useUserData } from './utils/store';
 import { initAccount, signOut } from './utils/account';
+import { rotateVisitorId } from './utils/visitor';
 import { KIOSK } from './utils/kiosk';
 import { ErrorBoundary } from './components/ErrorBoundary';
 const ChatInterface = lazy(() => import('./components/chat/ChatInterface').then(m => ({ default: m.ChatInterface })));
@@ -137,6 +138,7 @@ const App: React.FC = () => {
   // režim stánku: po nečinnosti odhlásit, smazat postup i konverzaci a vrátit se na úvod
   const resetForNextVisitor = useCallback(() => {
     void signOut(true);
+    rotateVisitorId(); // další návštěvník stánku má vlastní limit dotazů na mentora
     setCmdkOpen(false);
     setAccountOpen(false);
     setChatPrompt(null);

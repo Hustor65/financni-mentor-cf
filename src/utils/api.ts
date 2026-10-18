@@ -1,4 +1,8 @@
 import { retrieve, formatContext } from '../data/knowledge';
+import { visitorId } from './visitor';
+
+/** Mentor odmítl dotaz kvůli limitu; zpráva je určená přímo návštěvníkovi. */
+export class ChatLimitError extends Error {}
 
 const API_BASE = '/api';
 
@@ -24,11 +28,15 @@ export async function streamChatMessage(
 
   const response = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-Visitor': visitorId() },
     // history obsahuje PŮVODNÍ (neaugmentované) zprávy; augmentujeme jen aktuální message
     body: JSON.stringify({ message: augmentedMessage, history }),
     signal,
   });
+  if (response.status === 429) {
+    const reply = await response.json().catch(() => null) as { message?: string } | null;
+    throw new ChatLimitError(reply?.message ?? 'Mentor má teď hodně dotazů. Zkus to prosím za chvíli.');
+  }
   if (!response.ok || !response.body) throw new Error(`Chat error: ${response.status}`);
 
   // čti text/plain stream a předávej průběžně narůstající text
