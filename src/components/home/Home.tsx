@@ -87,7 +87,7 @@ function GuessFeature({ closes, onOpen }: { closes: number[]; onOpen: () => void
       <div className="hm-feature__text">
         <h3 className="hm-feature__title">Odhadni graf</h3>
         <p className="hm-feature__lead">
-          Deset skutečných grafů useknutých v půlce. Tipni si, jestli cena půjde nahoru, nebo dolů,
+          Deset grafů useknutých v půlce, skutečných i náhodných. Tipni si, jestli cena půjde nahoru, nebo dolů,
           a zjisti, jak těžké je trh předvídat.
         </p>
         <div className="hm-feature__actions">

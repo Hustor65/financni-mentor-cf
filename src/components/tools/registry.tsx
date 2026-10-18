@@ -26,7 +26,7 @@ export interface Tool {
 }
 
 export const TOOLS: Tool[] = [
-  { id: 'odhadni-graf', level: 'start', icon: 'zap', name: 'Odhadni graf', lead: 'Deset skutečných grafů useknutých v půlce. Půjde cena dál nahoru, nebo dolů?', topic: 'riziko', render: () => <GuessGame /> },
+  { id: 'odhadni-graf', level: 'start', icon: 'zap', name: 'Odhadni graf', lead: 'Deset grafů useknutých v půlce, skutečných z trhu, nebo náhodných. Půjde cena dál nahoru, nebo dolů?', topic: 'riziko', render: () => <GuessGame /> },
   { id: 'slozene-uroceni', level: 'start', icon: 'trending-up', name: 'Složené úročení', lead: 'Kolik vyroste z pravidelného vkladu za 10, 20 nebo 30 let.', topic: 'slozene-uroceni', render: () => <CompoundInterestCalc /> },
   { id: 'cil', level: 'start', icon: 'target', name: 'Kolik odkládat na cíl', lead: 'Zadej částku a termín, dostaneš měsíční vklad.', topic: 'slozene-uroceni', render: () => <GoalCalc /> },
   { id: 'rozpocet', level: 'start', icon: 'coins', name: 'Zvládneš měsíc?', lead: 'Šest rozhodnutí s výplatou z brigády a jejich následky.', topic: 'rozpocet', render: () => <BudgetSim /> },

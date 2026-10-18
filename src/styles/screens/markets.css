@@ -579,3 +579,21 @@
   .pp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
   .pp-actions .btn { width: 100%; justify-content: center; }
 }
+
+
+/* Odhadni graf: výběr režimu */
+.gg--mode { display: flex; flex-direction: column; gap: var(--s-4); }
+.gg-mode__lead { margin: 0; color: var(--text-2); }
+.gg-mode__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.gg-mode__card {
+  display: flex; flex-direction: column; gap: var(--s-2); align-items: flex-start;
+  padding: var(--s-5); border: 1px solid var(--line-strong, var(--line)); border-radius: var(--r-m, 14px);
+  background: var(--surface-1, rgba(255, 255, 255, 0.04)); color: var(--text-2); font: inherit; text-align: left; cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease-out), background var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+.gg-mode__card strong { color: var(--text-1); font-family: var(--font-display); font-size: var(--fs-l); }
+.gg-mode__card span { line-height: 1.55; }
+.gg-mode__card em { color: var(--accent); font-style: normal; font-weight: 600; font-size: var(--fs-s); }
+.gg-mode__card:hover { border-color: var(--accent); background: var(--surface-2, rgba(255, 255, 255, 0.07)); transform: translateY(-2px); }
+.gg-after { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+@media (max-width: 720px) { .gg-mode__grid { grid-template-columns: 1fr; } }

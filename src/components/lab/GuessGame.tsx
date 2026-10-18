@@ -4,22 +4,26 @@ import { TRADABLE, instrumentName } from '../../utils/portfolio';
 import { updateData, useUserData } from '../../utils/store';
 
 /* ════════════════════════════════════════════════════════════
-   Odhadni graf — deset skutečných grafů useknutých v půlce.
-   Návštěvník tipuje, kam šla cena dalších 30 obchodních dnů.
-   Pointa: z minulého průběhu se budoucí směr poznat nedá.
+   Odhadni graf — deset grafů useknutých v půlce. Dva režimy: skutečné
+   výřezy z trhu (vždy jiný titul a období), nebo náhodný graf, který
+   vygeneroval počítač. Návštěvník tipuje, kam šla cena dalších 30
+   obchodních dnů. Pointa: z minulého průběhu se budoucí směr poznat nedá.
    ════════════════════════════════════════════════════════════ */
 
 const ROUNDS = 10;
 const SHOWN = 90;
 const HIDDEN = 30;
 
+type Mode = 'real' | 'random';
+
 interface Round {
-  ticker: string;
+  /** null = náhodně vygenerovaný graf (žádný skutečný titul) */
+  ticker: string | null;
   /** ceny přepočtené tak, že první zobrazený den = 100 (ať se titul nedá poznat podle ceny) */
   shown: number[];
   hidden: number[];
-  from: number;
-  to: number;
+  from: number | null;
+  to: number | null;
   /** změna za skryté období v % */
   change: number;
 }
@@ -50,6 +54,30 @@ async function buildRounds(): Promise<Round[]> {
     });
   }
   return rounds;
+}
+
+/** Normální rozdělení (Box–Muller). */
+function gauss(): number {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+/**
+ * Náhodné grafy: každý den je cena násobená náhodným číslem, bez trendu a bez paměti. Z tvaru
+ * viditelné části se tedy budoucnost poznat nedá (správný tip je opravdu hod mincí). Liší se jen
+ * rozkolísaností, aby některé grafy vypadaly klidně a jiné divoce.
+ */
+function randomRounds(): Round[] {
+  return Array.from({ length: ROUNDS }, () => {
+    const sigma = 0.007 + Math.random() * 0.02;
+    const all: number[] = [100];
+    for (let i = 1; i < SHOWN + HIDDEN; i++) all.push(all[i - 1] * Math.exp(sigma * gauss() - (sigma * sigma) / 2));
+    const shown = all.slice(0, SHOWN);
+    const hidden = all.slice(SHOWN);
+    return { ticker: null, shown, hidden, from: null, to: null, change: (hidden[hidden.length - 1] / shown[shown.length - 1] - 1) * 100 };
+  });
 }
 
 const PAD = 14;
@@ -114,6 +142,7 @@ function Chart({ round, revealed, w: W, h: H }: { round: Round; revealed: boolea
 
 export const GuessGame: React.FC = () => {
   const { guessBest } = useUserData();
+  const [mode, setMode] = useState<Mode | null>(null);
   const [rounds, setRounds] = useState<Round[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [index, setIndex] = useState(0);
@@ -127,8 +156,6 @@ export const GuessGame: React.FC = () => {
       .then(r => { if (id === request.current) { if (r.length === ROUNDS) setRounds(r); else setFailed(true); } })
       .catch(() => { if (id === request.current) setFailed(true); });
   }, []);
-
-  useEffect(() => { load(); }, [load]);
 
   // Hra se má vejít na obrazovku i s tlačítky: když po načtení přečnívá, posuň ji pod horní lištu.
   // velikost plochy grafu v bodech obrazovky; graf se vykreslí až po prvním změření
@@ -155,18 +182,44 @@ export const GuessGame: React.FC = () => {
     el.scrollIntoView({ block: 'start', behavior: 'instant' });
   }, [ready]);
 
-  const start = () => {
-    setRounds(null);
+  const begin = (next: Mode) => {
+    setMode(next);
     setFailed(false);
     setIndex(0);
     setAnswers([]);
-    load();
+    if (next === 'random') {
+      request.current++; // případné rozběhnuté načítání skutečných grafů už nikoho nezajímá
+      setRounds(randomRounds());
+    } else {
+      setRounds(null);
+      load();
+    }
   };
+  const start = () => begin(mode ?? 'real');
 
   const score = useMemo(
     () => (rounds ? answers.filter((a, i) => a === (rounds[i].change >= 0)).length : 0),
     [answers, rounds],
   );
+
+  if (!mode) {
+    return (
+      <div className="gg gg--mode">
+        <p className="gg-mode__lead">Deset grafů useknutých v půlce. Vyber si, z čeho se budou brát.</p>
+        <div className="gg-mode__grid">
+          <button type="button" className="gg-mode__card" onClick={() => begin('real')}>
+            <strong>Skutečné trhy</strong>
+            <span>Výřezy ze skutečných cen akcií, ETF a kryptoměn za poslední dva roky. Vždy jiný titul a jiné období.</span>
+            {guessBest > 0 && <em className="num">Tvůj rekord: {guessBest} z 10</em>}
+          </button>
+          <button type="button" className="gg-mode__card" onClick={() => begin('random')}>
+            <strong>Náhodný graf</strong>
+            <span>Graf, který vygeneroval počítač, bez trendu a bez vzorce. Pokaždé jiný. Zjistíš, jak vypadá čistá náhoda.</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (failed) {
     return (
@@ -187,6 +240,7 @@ export const GuessGame: React.FC = () => {
     const ups = rounds.filter(r => r.change >= 0).length;
     const half = count / 2;
     const best = Math.max(guessBest, score);
+    const random = mode === 'random';
     return (
       <div className="gg gg--result" ref={root}>
         <div className="gg-score">
@@ -214,22 +268,41 @@ export const GuessGame: React.FC = () => {
         <dl className="ui-kpis">
           <div><dt>Hod mincí v průměru</dt><dd>{half.toLocaleString('cs-CZ')} z {count}</dd></div>
           <div><dt>Vždy tipnout „výš“</dt><dd>{ups} z {count}</dd></div>
-          <div><dt>Tvůj rekord</dt><dd>{best} z 10</dd></div>
+          {!random && <div><dt>Tvůj rekord</dt><dd>{best} z 10</dd></div>}
         </dl>
 
         <div className="ui-prose gg-lesson">
           <h3 className="ui-h3">Co si z toho odnést</h3>
-          <p>
-            Z toho, jak graf vypadal doteď, se nedá spolehlivě poznat, kam půjde příště. Krátkodobý pohyb cen
-            je z velké části náhoda a kdo tvrdí opak, většinou něco prodává.
-          </p>
-          <p>
-            Všimni si čísla u „vždy tipnout výš“. Trhy dlouhodobě častěji rostou, než klesají, proto dlouhodobé
-            držení široké skupiny akcií funguje líp než hádání, kdy nakoupit a kdy prodat.
-          </p>
+          {random ? (
+            <>
+              <p>
+                Tyhle grafy vygeneroval počítač a žádný vzorec v nich nebyl: každý den je cena prostě náhodně
+                vychýlená. Přesto na nich vidíš „trendy“, „odrazy“ a „podpory“. To dělá lidský mozek. Skutečné trhy
+                se tak někdy chovají taky, proto je tak snadné vidět vzorec, který tam není.
+              </p>
+              <p>
+                Rekord se tu nezapisuje, protože správný tip je u náhody pokaždé hod mincí. Zkus si pro srovnání
+                režim se skutečnými trhy.
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                Z toho, jak graf vypadal doteď, se nedá spolehlivě poznat, kam půjde příště. Krátkodobý pohyb cen
+                je z velké části náhoda a kdo tvrdí opak, většinou něco prodává.
+              </p>
+              <p>
+                Všimni si čísla u „vždy tipnout výš“. Trhy dlouhodobě častěji rostou, než klesají, proto dlouhodobé
+                držení široké skupiny akcií funguje líp než hádání, kdy nakoupit a kdy prodat.
+              </p>
+            </>
+          )}
         </div>
 
-        <div><button type="button" className="btn btn--primary gg-again" onClick={start}>Hrát znovu</button></div>
+        <div className="gg-after">
+          <button type="button" className="btn btn--primary gg-again" onClick={start}>Hrát znovu</button>
+          <button type="button" className="btn btn--ghost" onClick={() => setMode(null)}>Změnit režim</button>
+        </div>
       </div>
     );
   }
@@ -247,7 +320,7 @@ export const GuessGame: React.FC = () => {
     if (next.length === count) {
       const final = next.filter((a, i) => a === (rounds[i].change >= 0)).length;
       // rekord počítáme jen z plné desítky
-      if (count === ROUNDS && final > guessBest) updateData({ guessBest: final });
+      if (mode === 'real' && count === ROUNDS && final > guessBest) updateData({ guessBest: final });
     }
   };
 
@@ -280,7 +353,9 @@ export const GuessGame: React.FC = () => {
               <p>
                 Cena {wentUp ? 'vzrostla' : 'klesla'} o{' '}
                 <span className={`num ${wentUp ? 'is-up' : 'is-down'}`}>{fmtPct(Math.abs(round.change), 1).replace('+', '')}</span>.
-                Byl to <strong>{instrumentName(round.ticker)}</strong>, {dateFmt.format(round.from)} – {dateFmt.format(round.to)}.
+                {round.ticker && round.from && round.to
+                  ? <>Byl to <strong>{instrumentName(round.ticker)}</strong>, {dateFmt.format(round.from)} – {dateFmt.format(round.to)}.</>
+                  : <>Byl to <strong>náhodně vygenerovaný graf</strong>, žádný skutečný titul.</>}
               </p>
             </div>
           ) : (

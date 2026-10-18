@@ -201,3 +201,7 @@
 - **Automatický audit** (10 stránek × 1440 px a 390 px): žádné přetékání do stran, žádné chyby v konzoli, žádné písmo pod 12,5 px.
 - **Tabulka pozic na telefonu (`PortfolioView.tsx`, `screens/markets.css`):** 8 sloupců se na 390 px nevešlo a Za den, Hodnota, Výsledek i tlačítka byly schované za vodorovným posunem. Na telefonu je teď každá pozice karta (popisky z `data-label`), pozice a obchody jsou nad nákupním formulářem. Text „vlevo klikni“ nahrazen neutrálním.
 - **Dotykové plochy (`features.css`, `@media (pointer: coarse)`):** textové odkazy, „Zpět“, malá tlačítka a odkazy v patičce aspoň 44 px. U `.btn--small` je potřeba `.btn.btn--small` kvůli pořadí načítání stylů.
+
+## 44. Odhadni graf: výběr režimu, skutečné trhy nebo náhodný graf (18. 10. 2026)
+
+- **`components/lab/GuessGame.tsx`:** na začátku se vybírá režim. **Skutečné trhy** je původní hra (výřezy z 2letých snímků, vždy jiný titul i období), rekord se počítá jen tady. **Náhodný graf** generuje počítač (`randomRounds`): denní cena je násobená náhodným číslem (Box–Muller), bez trendu a bez paměti, liší se jen rozkolísaností, takže správný tip je opravdu hod mincí. Rekord se v něm nezapisuje a závěrečné ponaučení je jiné (lidský mozek vidí vzorce v náhodě). Po hře jde „Hrát znovu“ nebo „Změnit režim“. Texty karet v Přehledu a v Nástrojích upraveny.
