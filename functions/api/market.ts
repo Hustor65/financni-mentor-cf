@@ -20,6 +20,7 @@ interface YahooChart {
       meta?: {
         regularMarketPrice?: number; chartPreviousClose?: number; currency?: string;
         longName?: string; shortName?: string; exchangeName?: string; fullExchangeName?: string;
+        regularMarketTime?: number;
       };
       indicators?: { quote?: Array<{
         open?: (number | null)[]; high?: (number | null)[]; low?: (number | null)[];
@@ -148,6 +149,8 @@ export const onRequestGet: PagesFunction = async (context) => {
                 body: {
                   ticker: sym, price, change_percent: ((price - prev) / prev) * 100, currency: r?.meta?.currency ?? '',
                   name: r?.meta?.longName || r?.meta?.shortName || sym,
+                  // kdy burza naposledy obchodovala (ms) — web podle toho píše datum místo „dnes“
+                  asof: (r?.meta?.regularMarketTime ?? r?.timestamp?.[r.timestamp.length - 1] ?? 0) * 1000 || undefined,
                 },
                 complete: true,
               };

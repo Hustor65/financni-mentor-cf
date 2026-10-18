@@ -107,6 +107,8 @@ export interface Quote {
   currency: string;
   /** název firmy z burzy; chybí u uložených snímků */
   name?: string;
+  /** kdy burza naposledy obchodovala (ms); chybí u uložených snímků */
+  asof?: number;
 }
 
 const snapshotName = (ticker: string, range: string) =>
@@ -200,3 +202,24 @@ export function fmtPct(v: number, digits = 2): string {
   const sign = v > 0 ? '+' : v < 0 ? '−' : '';
   return `${sign}${Math.abs(v).toLocaleString('cs-CZ', { minimumFractionDigits: digits, maximumFractionDigits: digits })} %`;
 }
+
+/** Datum jako „17. 10. 2026“ — u zpožděných dat píšeme datum, ne „dnes“ (o víkendu jde o pátek). */
+export const fmtDay = (ms: number): string =>
+  new Date(ms).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' });
+
+/**
+ * Nejčastější datum poslední ceny v seznamu kotací (při shodě to novější), nebo undefined.
+ * Kryptoměny obchodují i o víkendu a akcie ne, takže „nejnovější“ by u smíšeného seznamu
+ * přisoudilo akciím datum, kdy se s nimi neobchodovalo.
+ */
+export const typicalAsof = (quotes: Array<{ asof?: number } | undefined>): number | undefined => {
+  const count = new Map<string, { n: number; ms: number }>();
+  for (const q of quotes) {
+    if (!q?.asof) continue;
+    const key = new Date(q.asof).toDateString();
+    const cur = count.get(key);
+    count.set(key, { n: (cur?.n ?? 0) + 1, ms: Math.max(cur?.ms ?? 0, q.asof) });
+  }
+  const best = [...count.values()].sort((a, b) => b.n - a.n || b.ms - a.ms)[0];
+  return best?.ms;
+};

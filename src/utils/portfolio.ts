@@ -28,6 +28,8 @@ export interface Price {
   change: number;
   /** název z burzy (jen u titulů mimo náš seznam) */
   name?: string;
+  /** kdy burza naposledy obchodovala (ms) */
+  asof?: number;
 }
 
 export interface Prices {
@@ -55,7 +57,7 @@ function toPrices(quotes: Quote[]): Record<string, Price> {
     const { currency, price } = normalizeCurrency(q.currency, q.price);
     const rate = currency === 'CZK' ? 1 : raw[fxSymbol(currency)]?.price;
     if (!rate) continue; // měnu neumíme převést → titul nenabídneme
-    out[q.ticker] = { czk: price * rate, native: price, currency, change: q.change_percent, name: q.name };
+    out[q.ticker] = { czk: price * rate, native: price, currency, change: q.change_percent, name: q.name, asof: q.asof };
   }
   return out;
 }

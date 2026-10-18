@@ -7,7 +7,7 @@ import { Icon } from '../Icon';
 import { CHART, tooltipBase, axisLabel } from '../../utils/chartTheme';
 import { sma, rsi, seriesStats } from '../../utils/finance';
 import {
-  WATCHLIST, ALL_INSTRUMENTS, RANGES, fetchSeries, fetchQuotes, fmtPrice, fmtPct,
+  WATCHLIST, ALL_INSTRUMENTS, RANGES, fetchSeries, fetchQuotes, fmtDay, fmtPrice, fmtPct,
 } from '../../utils/market';
 import type { RangeId, Series, Quote } from '../../utils/market';
 import type { Level } from '../../data/levels';
@@ -538,7 +538,7 @@ export const MarketScreen: React.FC<Props> = ({ level, initialTicker: routeSub, 
                         <>
                           <span className="mx-change__sep" aria-hidden="true">·</span>
                           <span className={`num ${quote.change_percent >= 0 ? 'is-up' : 'is-down'}`}>{fmtPct(quote.change_percent)}</span>
-                          {' '}dnes
+                          {' '}{quote.asof ? `k ${fmtDay(quote.asof)}` : 'za poslední den'}
                         </>
                       )}
                     </p>

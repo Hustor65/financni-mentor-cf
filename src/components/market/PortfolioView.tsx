@@ -4,7 +4,7 @@ import { TradeBox } from '../lab/TradeBox';
 import { START_CASH, getData, resetPortfolio, trade, updateData, useUserData } from '../../utils/store';
 import { Leaderboard } from '../Leaderboard';
 import { TRADABLE, fmtCzk, fmtQty, instrumentName, usePrices, valuePortfolio } from '../../utils/portfolio';
-import { fmtPct } from '../../utils/market';
+import { fmtDay, fmtPct, typicalAsof } from '../../utils/market';
 import { useAccount } from '../../utils/account';
 import { CHART, axisLabel, tooltipBase } from '../../utils/chartTheme';
 import { ChartSkeleton } from '../ChartSkeleton';
@@ -68,7 +68,7 @@ function HistoryChart({ points }: { points: { t: number; value: number }[] | nul
   if (!option) {
     return (
       <p className="pp-hist__empty">
-        Graf vývoje hodnoty se objeví, jakmile budeš mít portfolio aspoň dva dny. Do té doby sleduj změnu „Dnes“ nahoře.
+        Graf vývoje hodnoty se objeví, jakmile budeš mít portfolio aspoň dva dny. Do té doby sleduj změnu za den nahoře.
       </p>
     );
   }
@@ -98,6 +98,8 @@ export const PortfolioView: React.FC<Props> = ({ onOpenChart }) => {
   const profit = total - START_CASH;
   const dayPct = total - day > 0 ? (day / (total - day)) * 100 : 0;
   const history = usePortfolioHistory(portfolio.trades, prices.byTicker, total);
+  // datum poslední ceny držených titulů — u denní změny píšeme datum, ne „dnes“
+  const dayAsof = typicalAsof(holdings.map(h => prices.byTicker[h.ticker]));
   const allPriced = holdings.every(h => h.value !== null);
   // výkon se hlásí do žebříčku (při přihlášení se uloží k účtu spolu s ostatním postupem)
   useEffect(() => {
@@ -131,7 +133,7 @@ export const PortfolioView: React.FC<Props> = ({ onOpenChart }) => {
         </p>
         <dl className="pp-stats">
           <div className={day >= 0 ? 'is-up' : 'is-down'}>
-            <dt>Dnes</dt>
+            <dt>Za den{dayAsof ? ` (k ${fmtDay(dayAsof)})` : ''}</dt>
             <dd className="num">{sign(day)}{fmtCzk(Math.abs(day))} <span>{fmtPct(dayPct)}</span></dd>
           </div>
           <div className={profit >= 0 ? 'is-up' : 'is-down'}>
@@ -210,7 +212,7 @@ export const PortfolioView: React.FC<Props> = ({ onOpenChart }) => {
                       <th scope="col">Kusů</th>
                       <th scope="col">Ø nákup</th>
                       <th scope="col">Cena</th>
-                      <th scope="col">Dnes</th>
+                      <th scope="col">Za den</th>
                       <th scope="col">Hodnota</th>
                       <th scope="col">Výsledek</th>
                       <th scope="col"><span className="sr-only">Akce</span></th>

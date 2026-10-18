@@ -2,7 +2,7 @@ import { useEffect, useId, useState } from 'react';
 import { trade, useUserData } from '../../utils/store';
 import { ALL_INSTRUMENTS } from '../../utils/market';
 import { fmtCzk, fmtQty, instrumentName, isTradable, usePrices } from '../../utils/portfolio';
-import { fmtPct } from '../../utils/market';
+import { fmtDay, fmtPct } from '../../utils/market';
 
 /**
  * Nákup a prodej „na zkoušku“ — virtuální koruny, skutečné ceny.
@@ -102,7 +102,7 @@ export const TradeBox: React.FC<Props> = ({ ticker, showPortfolioLink }) => {
           <h3 className="ui-h3">{name} <span className="ui-tag">{ticker}</span></h3>
           <p className="tb__price num">
             {fmtCzk(price.czk, price.czk < 100 ? 2 : 0)}
-            <span className={price.change >= 0 ? 'is-up' : 'is-down'}> {fmtPct(price.change)} dnes</span>
+            <span className={price.change >= 0 ? 'is-up' : 'is-down'}> {fmtPct(price.change)} {price.asof ? `k ${fmtDay(price.asof)}` : 'za poslední den'}</span>
           </p>
         </div>
         <p className="tb__cash">Volná hotovost <strong className="num">{fmtCzk(portfolio.cash)}</strong></p>

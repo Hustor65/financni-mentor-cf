@@ -186,3 +186,7 @@
 - **Tři vrstvy (`functions/api/chat.ts`, počítadlo v D1 tabulce `attempts` přes `src/server/limits.ts`):** na návštěvníka 25 dotazů za hodinu a 60 za den, na IP 300 za hodinu a nejvýš 40 % denního stropu (platí bez ohledu na ID návštěvníka; celá hala sdílí jednu IP, proto ne přísněji), celkově 2500 za 24 h (přepsat jde proměnnou `CHAT_DAILY_CAP`). Po vyčerpání server vrací 429 se zprávou pro návštěvníka (`ChatLimitError` v `utils/api.ts`, zobrazí ji chat).
 - **ID návštěvníka (`utils/visitor.ts`):** náhodné číslo v prohlížeči, posílá se v hlavičce `X-Visitor`. Režim stánku ho mění po každém resetu, takže každý další návštěvník stánku má vlastní limit. ID jde obejít smazáním úložiště, proto je nejdůležitější celkový denní strop a rozpočtový limit u OpenAI.
 - **Pozor:** zpráva z webu nese i ověřený kontext z databáze (1,4–2,8 tis. znaků), strop délky zprávy je proto 8000 znaků (původních 2000 odmítalo běžné dotazy a bylo to krátce nasazené, opraveno hotfixem).
+
+## 41. Datum místo „dnes“ u tržních dat (18. 10. 2026)
+
+- Kotace z `/api/market` nesou `asof` (kdy burza naposledy obchodovala). Web píše „k 16. 10. 2026“ místo „dnes“ u denní změny: hlavička titulu v Trzích, nákupní formulář, sektory (přepínač Den/Měsíc/Rok), souhrn portfolia („Za den (k …)“), Přehled. U uložených snímků bez data stojí „za poslední den“. Pro smíšené seznamy (akcie + krypto) se bere nejčastější datum (`typicalAsof` v `utils/market.ts`), jinak by akcie o víkendu dostaly datum nedělní.

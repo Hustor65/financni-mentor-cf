@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { TOPICS } from '../../data/topics';
 import { TOOLS } from '../tools/registry';
-import { ALL_INSTRUMENTS, fetchQuotes, fetchSeries, fmtPrice, fmtPct } from '../../utils/market';
+import { ALL_INSTRUMENTS, fetchQuotes, fetchSeries, fmtDay, fmtPrice, fmtPct, typicalAsof } from '../../utils/market';
 import type { Quote, Series } from '../../utils/market';
 import type { Level } from '../../data/levels';
 import type { TabId } from '../../data/nav';
@@ -209,6 +209,9 @@ export const Home: React.FC<Props> = ({ level, completed, onNavigate, onOpenTopi
   const featured = FEATURED[level];
   const moreTools = TOOLS.filter(t => t.level === level && t.id !== featured).slice(0, level === 'start' ? 4 : 2);
 
+  // datum poslední ceny z kotací — píšeme ho místo „dnes“ (data jsou zpožděná)
+  const quotesAsof = typicalAsof(quotes?.list ?? []);
+
   const closes = useMemo(() => index?.points.map(p => p[4]) ?? [], [index]);
   const hasChart = closes.length > 1;
   const last = closes[closes.length - 1];
@@ -314,13 +317,13 @@ export const Home: React.FC<Props> = ({ level, completed, onNavigate, onOpenTopi
             <span className="hm-chart__plot">{hasChart && <AreaChart values={closes} />}</span>
             <span className="hm-chart__axis">
               <span>{hasChart && index ? monthYear(index.points[0][0]) : ''}</span>
-              <span>{hasChart ? 'dnes' : ''}</span>
+              <span>{hasChart && index ? fmtDay(index.points[index.points.length - 1][0]) : ''}</span>
             </span>
           </button>
 
           <div className="hm-movers hm-cell__end">
             <h3 className="hm-sub">
-              Dnes se nejvíc hýbe
+              Nejvíc se hýbe{quotesAsof ? ` k ${fmtDay(quotesAsof)}` : ' za poslední den'}
               {quotes?.offline && <span className="hm-sub__note">uložená data</span>}
             </h3>
             <ul className="hm-quotes">

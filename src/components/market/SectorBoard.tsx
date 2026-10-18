@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Segmented } from '../Segmented';
-import { SECTORS, fetchSeries, fmtPct } from '../../utils/market';
+import { SECTORS, fetchSeries, fmtDay, fmtPct, typicalAsof } from '../../utils/market';
 import type { Quote, Series } from '../../utils/market';
 
 /* ════════════════════════════════════════════════════════════
@@ -12,7 +12,7 @@ import type { Quote, Series } from '../../utils/market';
 type Period = 'day' | 'month' | 'year';
 
 const PERIODS: { value: Period; label: string; text: string }[] = [
-  { value: 'day', label: 'Dnes', text: 'dnes' },
+  { value: 'day', label: 'Den', text: 'za poslední den' },
   { value: 'month', label: 'Měsíc', text: 'za poslední měsíc' },
   { value: 'year', label: 'Rok', text: 'za poslední rok' },
 ];
@@ -38,6 +38,8 @@ export const SectorBoard: React.FC<Props> = ({ quotes, active, onPick }) => {
   const [period, setPeriod] = useState<Period>('day');
   const [series, setSeries] = useState<Record<string, Series | 'error'>>({});
   const needSeries = period !== 'day';
+  // u denní změny píšeme datum poslední ceny, ne „dnes“ (data jsou zpožděná, o víkendu jde o pátek)
+  const dayAsof = typicalAsof(SECTORS.map(s => quotes[s.ticker]));
 
   useEffect(() => {
     if (!needSeries) return;
@@ -67,6 +69,9 @@ export const SectorBoard: React.FC<Props> = ({ quotes, active, onPick }) => {
   const best = known[0];
   const worst = known[known.length - 1];
   const label = PERIODS.find(p => p.value === period)!;
+  const lead = period === 'day' && dayAsof
+    ? `K ${fmtDay(dayAsof)}`
+    : label.text.charAt(0).toUpperCase() + label.text.slice(1);
   const offline = needSeries && SECTORS.some(s => { const r = series[s.ticker]; return r && r !== 'error' && r.offline; });
 
   return (
@@ -116,7 +121,7 @@ export const SectorBoard: React.FC<Props> = ({ quotes, active, onPick }) => {
 
       {best && worst && best !== worst && (
         <p className="ui-note mx-sectors__note">
-          {label.text.charAt(0).toUpperCase() + label.text.slice(1)} vede <strong>{best.name}</strong> ({fmtPct(best.value, 1)})
+          {lead} vede <strong>{best.name}</strong> ({fmtPct(best.value, 1)})
           {' '}a nejhůř je na tom <strong>{worst.name}</strong> ({fmtPct(worst.value, 1)}). Sektory se často
           hýbou každý jinam a pořadí se rok od roku mění. Proto se vyplatí nemít všechno v jednom odvětví:
           ETF na celý trh drží všech 11 najednou.
